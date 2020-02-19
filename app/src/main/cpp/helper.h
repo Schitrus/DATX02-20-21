@@ -7,10 +7,14 @@
 
 #include <GLES3/gl31.h>
 
-bool checkGlError(const char* funcName);
+bool checkGlError(const char *funcName);
 
-GLuint createShader(GLenum shaderType, const char* src);
+GLuint createShader(GLenum shaderType, const char *src);
 
-GLuint createProgram(const char* vtxSrc, const char* fragSrc);
+GLuint createProgram(const char *vtxSrc, const char *fragSrc);
+
+void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo);
+
+void resizeFBO(int w, int h, GLuint *colorTextureTarget, GLuint *rbo);
 
 #endif //DATX02_20_21_HELPER_H

@@ -10,6 +10,10 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+
+# Import the CMakeLists.txt for the glm library
+add_subdirectory(glm)
+
 add_library( # Sets the name of the library.
         ray-lib
 
@@ -45,6 +49,7 @@ target_link_libraries( # Specifies the target library.
         log
         EGL
         GLESv3
+        glm
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
