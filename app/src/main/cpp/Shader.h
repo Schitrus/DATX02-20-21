@@ -69,7 +69,7 @@ static const char FRONT_FACE_FRAGMENT_SHADER[] =
         "           sampColor = baseColor * alpha;\n"
 
         "           color.rgb += sampColor * color.a;\n"
-        "           color.a *= 1.0f - samp * 0.6;\n"   //todo
+        "           color.a *= 1.0f - samp ;\n"
 
                     // checking early ray termination
  //       "               if(1.0f - color.w > opacityThreshold) break;\n"
