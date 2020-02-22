@@ -89,29 +89,9 @@ const char* fragment = "#version 310 es\n"
                        "out vec4 outColor;\n"
                        "in vec2 tex;"
                        "uniform sampler2D image;"
-                       "int numNeighbours(){"
-                       "    ivec2 dim = textureSize(image, 0);"
-                       "    float dx = 1.0/float(dim.x);"
-                       "    float dy = 1.0/float(dim.y);"
-                       "    int n = int((texture(image, tex+vec2(-dx,dy)).x)"
-                       "            + (texture(image, tex+vec2(0,dy)).x)"
-                       "            + (texture(image, tex+vec2(dx,dy)).x)"
-                       "            + (texture(image, tex+vec2(-dx,0)).x)"
-                       "            + (texture(image, tex+vec2(dx,0)).x)"
-                       "            + (texture(image, tex+vec2(-dx,-dy)).x)"
-                       "            + (texture(image, tex+vec2(0,-dy)).x)"
-                       "            + (texture(image, tex+vec2(dx,-dy)).x));"
-                       "    return n;"
-                       "}"
                        "void main() {\n"
-                       "    int n = numNeighbours();"
-                       "    int c = int(texture(image, vec2(tex.x, tex.y)).x);"
-                       "    float val = float(c);"
-                       "    if (n < 2 && c == 1) val = 0.0f;"
-                       "    else if (n < 4 && c == 1) val = 1.0f;"
-                       "    else if (n > 3 && c == 1) val = 0.0f;"
-                       "    else if (n == 3 && c != 1) val = 1.0f;"
-                       "    outColor = vec4(val, val, val, 1.0);\n"
+                       "    vec3 val = (texture(image, vec2(tex.x, tex.y))).xyz;"
+                       "    outColor = vec4(val, 1.0);\n"
                        "}\n";
 
 
@@ -219,10 +199,9 @@ void initGraphics(int width, int height){
     data = new unsigned char[texWidth*texHeight*colorWidth];
     for(int y = 0; y < texHeight; y++){
         for(int x = 0; x < texWidth; x++){
-            bool cell = !(rand() % 6);
-            data[(y * texWidth + x) * colorWidth + 0] = 255*cell;
-            data[(y * texWidth + x) * colorWidth + 1] = 255*cell;
-            data[(y * texWidth + x) * colorWidth + 2] = 255*cell;
+            data[(y * texWidth + x) * colorWidth + 0] = 255*(y/float(texHeight));
+            data[(y * texWidth + x) * colorWidth + 1] = 0;
+            data[(y * texWidth + x) * colorWidth + 2] = 255*(x/float(texWidth));
         }
     }
 
