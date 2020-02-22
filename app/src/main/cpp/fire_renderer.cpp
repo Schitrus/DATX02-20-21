@@ -138,16 +138,17 @@ const char* fragment = "#version 310 es\n"
                        "}"
                        "void main() {"
                        "    ivec2 dim = textureSize(image, 0);"
+                       "    float ratio = float(dim.x)/float(dim.y);"
                        "    float dx = 1.0/float(dim.x);"
                        "    float dy = 1.0/float(dim.y);"
-                       //"    vec2 c = vec2((1.0 - tex.y + pos.x)*3.0 - 2.0, (tex.x + pos.y) * 2.0 - 1.0)/scale;"
-                       "    vec2 c0 = vec2((1.0 - (tex.y + 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.375*dx + pos.y) * 2.0 - 1.0)/scale;"
-                       "    vec2 c1 = vec2((1.0 - (tex.y - 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.125*dx + pos.y) * 2.0 - 1.0)/scale;"
-                       "    vec2 c2 = vec2((1.0 - (tex.y + 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.125*dy + pos.y) * 2.0 - 1.0)/scale;"
-                       "    vec2 c3 = vec2((1.0 - (tex.y - 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.375*dy + pos.y) * 2.0 - 1.0)/scale;"
+                       "    vec2 c = vec2((1.0 - tex.y + pos.x)*3.0 - 2.0, (tex.x + pos.y) * 2.0 - 1.0)/scale;"
+                       //"    vec2 c0 = vec2((1.0 - (tex.y + 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.375*dx + pos.y) * 2.0 - 1.0)/scale;"
+                       //"    vec2 c1 = vec2((1.0 - (tex.y - 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.125*dx + pos.y) * 2.0 - 1.0)/scale;"
+                       //"    vec2 c2 = vec2((1.0 - (tex.y + 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.125*dy + pos.y) * 2.0 - 1.0)/scale;"
+                       //"    vec2 c3 = vec2((1.0 - (tex.y - 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.375*dy + pos.y) * 2.0 - 1.0)/scale;"
                        "    int level = int(16.0 + 16.0*log2(scale));"
-                       "    vec3 val = mandelbrot(c0, level); + mandelbrot(c1, level) + mandelbrot(c2, level) + mandelbrot(c3, level);"
-                       //"    vec3 val = mandelbrot(c, level);"
+                       //"    vec3 val = mandelbrot(c0, level) + mandelbrot(c1, level) + mandelbrot(c2, level) + mandelbrot(c3, level);"
+                       "    vec3 val = mandelbrot(c, level);"
                        "    outColor = vec4(val, 1.0);"
                        "}";
 
@@ -264,7 +265,7 @@ void initGraphics(int width, int height){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     double ratio = (double)width/height;
-    texWidth = width/8; texHeight = height/8;
+    texWidth = width/4; texHeight = height/4;
     unsigned int colorWidth = 3;
     data = new unsigned char[texWidth*texHeight*colorWidth];
     for(int y = 0; y < texHeight; y++){

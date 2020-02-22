@@ -40,7 +40,7 @@ class FireListener implements GLSurfaceView.OnTouchListener{
             scaleFactor *= detector.getScaleFactor();
 
             // Don't let the object get too small or too large.
-            //scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
+            scaleFactor = Math.max(0.1f, scaleFactor);
 
             scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
             return true;
