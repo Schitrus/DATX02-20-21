@@ -110,7 +110,9 @@ void
 createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo) {
     // framebuffer configuration
     // -------------------------
-    glGenFramebuffers(1, framebufferId);
+    if(*framebufferId == UINT32_MAX) {
+        glGenFramebuffers(1, framebufferId);
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, *framebufferId);
     // create a color attachment texture
 

@@ -47,7 +47,8 @@ Java_com_example_datx02_120_121_RayRenderer_step(JNIEnv *env, jobject /* this */
 
 }
 // fbo
-GLuint framebufferId, colorTextureTarget, renderBuffer;
+GLuint framebufferId = UINT32_MAX;
+GLuint colorTextureTarget, renderBuffer ;
 
 // shaders
 GLuint frontFaceShaderProgram, backFaceShaderProgram;
@@ -70,6 +71,7 @@ void init(JNIEnv *env, jobject assetManager) {
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    framebufferId = UINT32_MAX;
 
     loadAssetManager(env, assetManager);
     load3DTexture("BostonTeapot.raw");
@@ -84,7 +86,7 @@ void resize(int width, int height) {
     w = width;
     h = height;
 
-    if (framebufferId != 0) {
+    if (framebufferId != UINT32_MAX) {
         resizeFBO(width, height, &colorTextureTarget, &renderBuffer);
     } else {
         createFbo(width, height, &framebufferId, &colorTextureTarget, &renderBuffer);
