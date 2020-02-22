@@ -1,11 +1,13 @@
 //
 // Created by Anton Forsberg on 18/02/2020.
 //
-#include <jni.h>
+#include "RayRenderer.h"
 
+#include <jni.h>
 #include <time.h>
 #include <math.h>
 #include <chrono>
+#include <string>
 
 #include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
@@ -13,30 +15,24 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
 
 #include "helper.h"
 #include "Shader.h"
 
+#define LOG_TAG "Renderer"
+#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
 using namespace glm;
 
-void init();
-
-void initCube();
-
-void initProgram();
-
-void resize(int width, int height);
-
-void step();
-
-void loadMVP(GLuint shaderProgram);
-
-void display();
+#define PI 3.14159265359f
 
 extern "C" {
 
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_RayRenderer_init(JNIEnv *env, jobject) {
-    init();
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_RayRenderer_init(JNIEnv *env, jobject, jobject mgr) {
+    init(env, mgr);
 }
 
 JNIEXPORT void JNICALL
@@ -56,18 +52,27 @@ GLuint framebufferId, colorTextureTarget, renderBuffer;
 // shaders
 GLuint frontFaceShaderProgram, backFaceShaderProgram;
 
+// 3D texture
+GLuint volumeTexID = UINT32_MAX;
+AAssetManager *mgr;
+
 // cube
 GLuint vertexArrayObject;
 GLuint positionBuffer, indexBuffer;
+float scaleX, scaleY, scaleZ;
 
 int w, h = 0;
 vec3 worldUp = vec3(0.0f, 1.0f, 0.0f);
 
-void init() {
+void init(JNIEnv *env, jobject assetManager) {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    loadAssetManager(env, assetManager);
+    load3DTexture("BostonTeapot.raw");
     initCube();
     initProgram();
 }
@@ -85,6 +90,26 @@ void resize(int width, int height) {
         createFbo(width, height, &framebufferId, &colorTextureTarget, &renderBuffer);
     }
 
+}
+
+void loadAssetManager(JNIEnv *env, jobject assetManager) {
+    mgr = AAssetManager_fromJava(env, assetManager);
+    if (mgr == NULL) {
+        __android_log_print(ANDROID_LOG_ERROR, "RayRenderer", "error loading asset maanger");
+    } else {
+        __android_log_print(ANDROID_LOG_VERBOSE, "RayRenderer", "loaded asset manager");
+    }
+}
+
+void scaleBoundingBox(float x, float y, float z) {
+    scaleX = x;
+    scaleY = y;
+    scaleZ = z;
+}
+
+void load3DTexture(const char *fileName) {
+    load3DTexture(mgr, fileName, 256, 256, 178, &volumeTexID);
+    scaleBoundingBox(1, 1, 1);
 }
 
 void initCube() {
@@ -140,11 +165,8 @@ void initProgram() {
 }
 
 void step() {
-
     display();
-
 }
-
 
 void display() {
 
@@ -163,7 +185,7 @@ void display() {
 
     // front
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -171,11 +193,11 @@ void display() {
     loadMVP(frontFaceShaderProgram);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_3D, volumeTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 }
-
-#define PI 3.14159265359f
 
 void loadMVP(GLuint shaderProgram) {
 
@@ -194,9 +216,11 @@ void loadMVP(GLuint shaderProgram) {
 
     viewMatrix = lookAt(vec3(0), vec3(0, 0, -1), worldUp);
 
-    modelMatrix = translate(modelMatrix, vec3(0, 0, -4));
-    modelMatrix = rotate(modelMatrix, 0.8f * PI, vec3(0, 1, 0));
-    modelMatrix = rotate(modelMatrix, 0.1f * PI, vec3(1, 0, 0));
+
+    modelMatrix = translate(modelMatrix, vec3(0, 0, -2.5));
+    modelMatrix = rotate(modelMatrix, -0.8f * PI, vec3(0, 1, 0));
+    modelMatrix = rotate(modelMatrix, PI, vec3(1, 0, 0));
+    modelMatrix = scale(modelMatrix, vec3(scaleX, scaleY, scaleZ));
     modelMatrix = translate(modelMatrix, vec3(-0.5, -0.5, -0.5));
 
 #pragma clang diagnostic push
@@ -207,3 +231,4 @@ void loadMVP(GLuint shaderProgram) {
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvp"), 1, GL_FALSE, &mvp[0].x);
 
 }
+

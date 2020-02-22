@@ -14,7 +14,7 @@ public class RayView extends GLSurfaceView {
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
 
-        renderer = new RayRenderer();
+        renderer = new RayRenderer(context);
         setRenderer(renderer);
     }
 

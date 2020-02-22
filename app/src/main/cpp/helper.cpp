@@ -8,10 +8,13 @@
 #include <GLES3/gl3ext.h>
 #include <stdlib.h>
 
+#include <jni.h>
 #include <android/log.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include <iostream>
 
-#define LOG_TAG "Renderer"
+#define LOG_TAG "helper"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 
@@ -103,7 +106,8 @@ GLuint createProgram(const char *vtxSrc, const char *fragSrc) {
     return program;
 }
 
-void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo){
+void
+createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo) {
     // framebuffer configuration
     // -------------------------
     glGenFramebuffers(1, framebufferId);
@@ -117,14 +121,17 @@ void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextur
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *colorTextureTarget, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *colorTextureTarget,
+                           0);
     // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
     glGenRenderbuffers(1, rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, *rbo);
 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width,
+                          height); // use a single renderbuffer object for both a depth AND stencil buffer.
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, *rbo); // now actually attach it
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                              *rbo); // now actually attach it
 
 
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
@@ -142,4 +149,57 @@ void resizeFBO(int width, int height, GLuint *colorTextureTarget, GLuint *rbo) {
     // Allocate for renderBuffer
     glBindRenderbuffer(GL_RENDERBUFFER, *rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+}
+
+char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
+
+    // Open your file
+    AAsset *file = AAssetManager_open(mgr, filename, AASSET_MODE_BUFFER);
+    // Get the file length
+    off_t fileLength = AAsset_getLength(file);
+
+    // Allocate memory to read your file
+    char *fileContent = new char[fileLength];
+
+    // Read your file
+    float error = AAsset_read(file, fileContent, fileLength);
+
+    if (error < fileLength || error == 0) {
+        std::cout << "Failed to load image: " << filename << ".\n";
+        ALOGE("Failed to load image: ");
+    }
+
+    return fileContent;
+}
+
+
+void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
+                   GLsizei depth,GLuint *volumeTexID) {
+   const char *fileContent = loadFileToMemory(mgr, filename);
+
+    if (*volumeTexID == UINT32_MAX) {
+        glGenTextures(1, volumeTexID);
+    }
+
+    glBindTexture(GL_TEXTURE_3D, *volumeTexID);
+
+    glTexImage3D(GL_TEXTURE_3D,
+                 0,
+                 GL_R8,
+                 width,
+                 height,
+                 depth,
+                 0,
+                 GL_RED,
+                 GL_UNSIGNED_BYTE,
+                 fileContent);
+
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Free the memoery you allocated earlier
+    delete[] fileContent;
 }
