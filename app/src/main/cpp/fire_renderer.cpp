@@ -13,6 +13,8 @@
 
 void initGraphics(int width, int height);
 void updateGraphics();
+void touch(double dx, double dy);
+void scale(float scaleFactor, double scaleX, double scaleY);
 
 extern "C" {
 JNIEXPORT jstring JNICALL Java_com_example_datx02_120_121_MainActivity_stringFromJNI(
@@ -26,7 +28,36 @@ JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_init(
 JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_update(
         JNIEnv *env,
         jobject);
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_touch(
+        JNIEnv *env,
+        jobject,
+        jdouble dx,
+        jdouble dy);
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_scale(
+        JNIEnv *env,
+        jobject,
+        jfloat scaleFactor,
+        jdouble scaleX,
+        jdouble scaleY);
 };
+
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_scale(
+        JNIEnv *env,
+        jobject,
+        jfloat scaleFactor,
+        jdouble scaleX,
+        jdouble scaleY){
+    scale(scaleFactor, scaleX, scaleY);
+}
+
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_touch(
+        JNIEnv *env,
+        jobject,
+        jdouble dx,
+        jdouble dy){
+    touch(dx, dy);
+
+}
 
 JNIEXPORT jstring JNICALL Java_com_example_datx02_120_121_MainActivity_stringFromJNI(
         JNIEnv *env,
@@ -75,24 +106,50 @@ unsigned int VAO, EBO;
 
 unsigned int vertexShader;
 const char* vertex = "#version 310 es\n"
-                     "layout(location = 0) in vec3 pos;\n"
+                     "layout(location = 0) in vec3 pos;"
                      "layout(location = 1) in vec2 uv;"
                      "out vec2 tex;"
-                     "void main() {\n"
+                     "void main() {"
                      "  tex = uv;"
-                     "  gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);\n"
-                     "}\n";
+                     "  gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);"
+                     "}";
 
 unsigned int fragmentShader;
 const char* fragment = "#version 310 es\n"
-                       "precision mediump float;\n"
-                       "out vec4 outColor;\n"
+                       "precision highp float;"
+                       "out vec4 outColor;"
                        "in vec2 tex;"
                        "uniform sampler2D image;"
-                       "void main() {\n"
-                       "    vec3 val = (texture(image, vec2(tex.x, tex.y))).xyz;"
-                       "    outColor = vec4(val, 1.0);\n"
-                       "}\n";
+                       "uniform vec2 pos;"
+                       "uniform float scale;"
+                       "vec2 mandel(vec2 z, vec2 c){"
+                       "    float Re = z.x*z.x - z.y*z.y + c.x;"
+                       "    float Im = 2.0*z.x*z.y + c.y;"
+                       "    return vec2(Re, Im);"
+                       "}"
+                       "vec3 mandelbrot(vec2 c, int level){"
+                       "    vec2 z = vec2(0.0, 0.0);"
+                       "    for(int i = 0; i < level; i++){"
+                       "        z = mandel(z, c);"
+                       "        if(length(z) > 2.0)"
+                       "            return vec3(0.5*sin(float(i)*0.1)+0.5,0.5*sin(float(i)*0.07)+0.5,0.5*sin(float(i)*0.08)+0.5);"
+                       "    }"
+                       "    return vec3(0.0);"
+                       "}"
+                       "void main() {"
+                       "    ivec2 dim = textureSize(image, 0);"
+                       "    float dx = 1.0/float(dim.x);"
+                       "    float dy = 1.0/float(dim.y);"
+                       //"    vec2 c = vec2((1.0 - tex.y + pos.x)*3.0 - 2.0, (tex.x + pos.y) * 2.0 - 1.0)/scale;"
+                       "    vec2 c0 = vec2((1.0 - (tex.y + 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.375*dx + pos.y) * 2.0 - 1.0)/scale;"
+                       "    vec2 c1 = vec2((1.0 - (tex.y - 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x + 0.125*dx + pos.y) * 2.0 - 1.0)/scale;"
+                       "    vec2 c2 = vec2((1.0 - (tex.y + 0.375*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.125*dy + pos.y) * 2.0 - 1.0)/scale;"
+                       "    vec2 c3 = vec2((1.0 - (tex.y - 0.125*dy) + pos.x)*3.0 - 2.0, (tex.x - 0.375*dy + pos.y) * 2.0 - 1.0)/scale;"
+                       "    int level = int(16.0 + 16.0*log2(scale));"
+                       "    vec3 val = mandelbrot(c0, level); + mandelbrot(c1, level) + mandelbrot(c2, level) + mandelbrot(c3, level);"
+                       //"    vec3 val = mandelbrot(c, level);"
+                       "    outColor = vec4(val, 1.0);"
+                       "}";
 
 
 unsigned int shaderProgram;
@@ -108,6 +165,14 @@ unsigned int FBO;
 unsigned int window_width, window_height;
 
 bool fail = false;
+
+double posX = 0.0f;
+double posY = 0.0f;
+
+float zoom = 1.0f;
+
+unsigned int pos_index;
+unsigned int scale_index;
 
 void initGraphics(int width, int height){
 
@@ -142,6 +207,11 @@ void initGraphics(int width, int height){
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    /// Uniforms
+
+    pos_index = glGetUniformLocation(shaderProgram, "pos");
+    scale_index = glGetUniformLocation(shaderProgram, "scale");
 
     ///////////////
     /// Buffers //////
@@ -243,6 +313,8 @@ void updateGraphics(){
 
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
+    glUniform2f(pos_index, -posY, -posX);
+    glUniform1f(scale_index, zoom);
 
     bool step = false;
 
@@ -275,6 +347,14 @@ void updateGraphics(){
         currentTexture = nextTexture;
         nextTexture = tmp;
     }
+}
 
+void scale(float scaleFactor, double scaleX, double scaleY){
+    posX = (posX)*(scaleFactor / zoom);//(2*scaleX/window_width-1) * (zoom - scaleFactor);
+    posY = (posY)*(scaleFactor / zoom);//(2*scaleY/window_height-1) * (zoom - scaleFactor);
+    zoom = scaleFactor;
+}
 
+void touch(double dx, double dy){
+    posX += dx/window_width; posY += dy/window_height;
 }
