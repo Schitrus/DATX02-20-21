@@ -250,6 +250,7 @@ void slabOperation() {
 
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, screen_width, screen_height);
     glUseProgram(resultShaderProgram);
 
