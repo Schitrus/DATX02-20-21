@@ -8,11 +8,11 @@ import android.util.Log;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class RayRenderer implements GLSurfaceView.Renderer {
+public class SlabRenderer implements GLSurfaceView.Renderer {
 
     private Context context;
 
-    public RayRenderer(Context contex){
+    public SlabRenderer(Context contex){
         this.context = contex;
     }
 

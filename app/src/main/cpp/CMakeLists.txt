@@ -21,7 +21,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        RayRenderer.cpp
+        slab_operation.cpp
         helper.cpp
         Shader.h
         )

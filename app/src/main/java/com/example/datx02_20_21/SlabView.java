@@ -4,17 +4,17 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 
-public class RayView extends GLSurfaceView {
+public class SlabView extends GLSurfaceView {
 
-    private RayRenderer renderer;
+    private SlabRenderer renderer;
 
-    public RayView(Context context) {
+    public SlabView(Context context) {
         super(context);
 
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
 
-        renderer = new RayRenderer(context);
+        renderer = new SlabRenderer(context);
         setRenderer(renderer);
     }
 
