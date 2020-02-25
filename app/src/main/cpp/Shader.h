@@ -80,6 +80,7 @@ static const char FRONT_FACE_FRAGMENT_SHADER[] =
         "\n"
         "color.w = 1.0f - color.w;\n"
         "outColor = color;\n"
+      //  "outColor = vec4(hit,1.0f);" // todo
         "}\n";
 
 #endif //DATX02_20_21_SHADER_H

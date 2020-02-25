@@ -111,7 +111,7 @@ void scaleBoundingBox(float x, float y, float z) {
 
 void load3DTexture(const char *fileName) {
     load3DTexture(mgr, fileName, 256, 256, 178, &volumeTexID);
-    scaleBoundingBox(1, 1, 1);
+    scaleBoundingBox(1, 1, 0.7);
 }
 
 void initCube() {
@@ -191,6 +191,14 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
+    // temp solution to fix flickering
+    float tmpScaleX = scaleX;
+    float tmpScaleY = scaleY;
+    float tmpScaleZ = scaleZ;
+    scaleX = scaleX * 0.99f;
+    scaleY = scaleY * 0.99f;
+    scaleZ = scaleZ * 0.99f;
+
     glUseProgram(frontFaceShaderProgram);
     loadMVP(frontFaceShaderProgram);
     glActiveTexture(GL_TEXTURE0);
@@ -199,9 +207,26 @@ void display() {
     glBindTexture(GL_TEXTURE_3D, volumeTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
+    scaleX = tmpScaleX;
+    scaleY = tmpScaleY;
+    scaleZ = tmpScaleZ;
+
 }
 
+float start_sec = duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count()/1000.0;
+float dt;
+float rotTime = 10;
+float rot = 0;
+
+
 void loadMVP(GLuint shaderProgram) {
+
+    std::chrono::milliseconds ms = duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+    float currentTime = ms.count()/1000.0 - start_sec;
+    float p = currentTime / 10.0f;
+    p = p - ((int)p);
+    float rot = 2 * PI * p;
+
 
     mat4 modelMatrix = mat4(1.0);
     mat4 viewMatrix = mat4(1.0);
@@ -218,9 +243,9 @@ void loadMVP(GLuint shaderProgram) {
 
     viewMatrix = lookAt(vec3(0), vec3(0, 0, -1), worldUp);
 
-
     modelMatrix = translate(modelMatrix, vec3(0, 0, -2.5));
-    modelMatrix = rotate(modelMatrix, -0.8f * PI, vec3(0, 1, 0));
+   // modelMatrix = rotate(modelMatrix, -0.8f * PI, vec3(0, 1, 0));
+    modelMatrix = rotate(modelMatrix, rot, vec3(0, 1, 0));
     modelMatrix = rotate(modelMatrix, PI, vec3(1, 0, 0));
     modelMatrix = scale(modelMatrix, vec3(scaleX, scaleY, scaleZ));
     modelMatrix = translate(modelMatrix, vec3(-0.5, -0.5, -0.5));
