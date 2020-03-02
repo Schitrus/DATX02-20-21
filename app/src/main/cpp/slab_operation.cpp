@@ -55,7 +55,7 @@ Java_com_example_datx02_120_121_SlabRenderer_step(JNIEnv *env, jobject /* this *
 GLuint slabFBO = UINT32_MAX;
 GLuint resultTarget;
 
-// result
+// result // todo remove
 GLuint resultShaderProgram;
 GLuint texcoordsBuffer;
 
@@ -74,11 +74,15 @@ GLuint boundaryShaderProgram;
 GLuint boundaryVAO;
 GLuint boundaryPositionBuffer;
 
+// front and back face
+GLuint frontAndBackInteriorShaderProgram;
+GLuint frontAndBackBoundaryShaderProgram;
+
 int grid_width, grid_height, grid_depth;
 
 void init(JNIEnv *env, jobject assetManager) {
 
-    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -98,36 +102,14 @@ void initData() {
 
     int size = grid_width * grid_height * grid_depth;
     float data[size];
-
-    for (int i = 0; i < size; ++i) {
-        //data[i] = (i)* 1.0f / (grid_width * grid_height *grid_depth);
-        data[i] = 1.0f;
+    int b = sizeof(data) / sizeof(data[0]);
+    for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
+        data[i] = 0.16666f;
     }
 
-    glGenTextures(1, &dataMatrix);
-    glBindTexture(GL_TEXTURE_3D, dataMatrix);
+    create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, grid_width, grid_height, grid_depth, 0, GL_RED,
-                 GL_FLOAT, data); // todo: use GL_HALF_FLOAT
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-    glGenTextures(1, &ResultMatrix);
-    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
-
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, grid_width, grid_height, grid_depth, 0, GL_RED,
-                 GL_FLOAT, NULL); //GL_FLOAT
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    create3DTexture(&ResultMatrix, grid_width, grid_height, grid_depth, NULL);
 }
 
 void initLine() {
@@ -230,86 +212,50 @@ void initProgram() {
 
     interiorShaderProgram = createProgram(VERTEX_SHADER, INTERIOR_FRAGMENT_SHADER);
     boundaryShaderProgram = createProgram(VERTEX_SHADER, BOUNDARY_FRAGMENT_SHADER);
-    resultShaderProgram = createProgram(RESULTS_VERTEX_SHADER, RESULTS_FRAGMENT_SHADER);
+
+    frontAndBackInteriorShaderProgram = createProgram(VERTEX_SHADER,
+                                                      FRONT_AND_BACK_INTERIOR_FRAGMENT_SHADER);
+    frontAndBackBoundaryShaderProgram = createProgram(VERTEX_SHADER,
+                                                      FRONT_AND_BACK_BOUNDARY_FRAGMENT_SHADER);
+
+    resultShaderProgram = createProgram(RESULTS_VERTEX_SHADER,
+                                        RESULTS_FRAGMENT_SHADER); // todo remove
+
 }
 
 void display_results();
 
 void step() {
     slabOperation();
-    display_results();
+    display_results(); // todo remove
 }
 
-int current_depth = 0; //layer
 
 void slabOperation() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
 
-    for (int current_depth = 0; current_depth < grid_depth - 1; ++current_depth) {
-/*
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
-                                  current_depth);
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
 
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        //boundaries // todo improve and specific shaders for front and back face
-        glViewport(0, 0, grid_width, grid_height);
-        glUseProgram(boundaryShaderProgram);
-        glBindVertexArray(boundaryVAO);
-        glLineWidth(10000.0f);
-        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "depth"), current_depth);
-        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "width"), grid_width);
-        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "height"), grid_height);
-        glUniform1f(glGetUniformLocation(boundaryShaderProgram, "scale"), 1.0f);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, dataMatrix);
-        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
-
-
-        //interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-        glUseProgram(interiorShaderProgram);
-        glUniform1i(glGetUniformLocation(interiorShaderProgram, "depth"), current_depth);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, dataMatrix);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-*/
-
-        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth,
+                      1.0f); // todo fix so they are done at the same time
 
     }
-/*
-    // todo
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, 0);
-    //boundaries
-    glViewport(0, 0, grid_width, grid_height);
 
-    //interior
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
+    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
 
-    // todo
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
-                              grid_depth - 1);
-    //boundaries
-    glViewport(0, 0, grid_width, grid_height);
+    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram,
+                  grid_depth - 1, 1.0f);
 
-    //interior
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
-
-*/
 }
 
-void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale){
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
-                              current_depth);
+void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, layer);
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //boundaries // todo improve and specific shaders for front and back face
+    //boundaries
     glViewport(0, 0, grid_width, grid_height);
     glUseProgram(boundariesProgram);
     glBindVertexArray(boundaryVAO);
@@ -342,7 +288,6 @@ void display_results() {
     glViewport(0, 0, screen_width, screen_height);
     glUseProgram(resultShaderProgram);
     glBindVertexArray(interiorVAO);
-    //glUniform1i(glGetUniformLocation(interiorShaderProgram, "depth"), current_depth);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, ResultMatrix);

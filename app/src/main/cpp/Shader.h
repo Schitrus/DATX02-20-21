@@ -16,23 +16,90 @@ static const char VERTEX_SHADER[] =
 
 static const char INTERIOR_FRAGMENT_SHADER[] =
         "#version 310 es\n"
+
         "precision highp float;\n"
         "precision highp sampler3D;\n"
+
         "layout(binding = 0) uniform sampler3D data;\n"
         "uniform int depth; \n"
         "out float outColor;\n"
+
         "void main() {\n"
         "   ivec2 tcoord = ivec2(gl_FragCoord.xy); \n"
+
         "   float value = texelFetch(data ,ivec3( tcoord.x - 1, tcoord.y, depth),0).x;\n"
         "   value += texelFetch(data ,ivec3( tcoord.x + 1, tcoord.y, depth),0).x;\n"
         "   value += texelFetch(data ,ivec3( tcoord.x, tcoord.y - 1, depth),0).x;\n"
         "   value += texelFetch(data ,ivec3( tcoord.x, tcoord.y + 1, depth),0).x;\n"
         "   value += texelFetch(data ,ivec3( tcoord.x, tcoord.y, depth +1 ),0).x;\n"
         "   value += texelFetch(data ,ivec3( tcoord.x, tcoord.y, depth -1 ),0).x;\n"
+
         "   outColor = value;\n"
         "}\n";
 
-static const char BOUNDARY_FRAGMENT_SHADER[] =
+
+static const char FRONT_AND_BACK_INTERIOR_FRAGMENT_SHADER[] =
+        "#version 310 es\n"
+
+        "precision highp float;\n"
+        "precision highp sampler3D;\n"
+
+        "layout(binding = 0) uniform sampler3D data;\n"
+        "uniform int depth; \n"
+        "out float outColor;\n"
+
+        "void main() {\n"
+        "   int dir = depth == 0 ? 1 : -1; \n"   // todo remove if statement
+        "   ivec2 tcoord = ivec2(gl_FragCoord.xy); \n"
+        "   float value = texelFetch(data ,ivec3( tcoord.x, tcoord.y, depth + dir),0).x;\n"
+        "   outColor = value;\n"
+        "}\n";
+
+
+static const char FRONT_AND_BACK_BOUNDARY_FRAGMENT_SHADER[] = // todo remove all if statement
+        "#version 310 es\n"
+        "precision highp float;\n"
+        "precision highp sampler3D;\n"
+
+        "layout(binding = 0) uniform sampler3D data;\n"
+
+        "uniform int width;\n"
+        "uniform int height; \n"
+        "uniform int depth; \n"
+        "uniform float scale; \n"
+
+        "out float outColor;\n"
+
+        "void main() {\n"
+        "    int dir = depth == 0 ? 1 : -1; \n"   // todo remove if statement
+        "    ivec2 tcoord = ivec2(gl_FragCoord.xy); \n"
+        "    float value = 0.0f;\n"
+
+        "    if(tcoord.x == 0){ \n"
+        "    value += 0.5 * scale * ( texelFetch(data , ivec3( tcoord.x + 1, tcoord.y, depth),0) + texelFetch(data , ivec3( tcoord.x , tcoord.y, depth + dir),0) );\n"
+        "    }\n"
+        "    if(tcoord.x == width -1){ \n"
+        "    value += 0.5 * scale * ( texelFetch(data , ivec3( tcoord.x - 1, tcoord.y, depth),0) + texelFetch(data , ivec3( tcoord.x , tcoord.y, depth + dir),0) );\n"
+        "    }\n"
+        "    if(tcoord.y == 0){\n"
+        "    value += 0.5 * scale * ( texelFetch(data , ivec3( tcoord.x, tcoord.y + 1, depth),0) + texelFetch(data , ivec3( tcoord.x , tcoord.y, depth + dir),0) );\n"
+        "    }\n"
+        "    if(tcoord.y == height -1){ \n"
+        "    value += 0.5 * scale * ( texelFetch(data , ivec3( tcoord.x, tcoord.y -1, depth),0) + texelFetch(data , ivec3( tcoord.x , tcoord.y, depth + dir),0) );\n"
+        "    }\n"
+
+        "    bool corner = ((tcoord.x == 0 || tcoord.x == width -1) && (tcoord.y == 0 || tcoord.y == height -1 )); \n"
+        "    if(corner){ \n"
+        "        value *= 2.0f; \n"
+        "        value -= scale * texelFetch(data , ivec3( tcoord.x , tcoord.y, depth + dir),0);\n"
+        "        value *= 0.3333333333333333f;\n"
+        "     } \n"
+
+        "    outColor = value;\n"
+        "}\n";
+
+
+static const char BOUNDARY_FRAGMENT_SHADER[] = // todo remove all if statement
         "#version 310 es\n"
         "precision highp float;\n"
         "precision highp sampler3D;\n"
@@ -48,13 +115,16 @@ static const char BOUNDARY_FRAGMENT_SHADER[] =
 
         "void main() {\n"
         "    ivec2 tcoord = ivec2(gl_FragCoord.xy); \n"
+
         "    float value = 0.0f;\n"
         "    if(tcoord.x == 0){ value += scale * texelFetch(data , ivec3( tcoord.x + 1, tcoord.y, depth),0).x;}\n"
         "    if(tcoord.x == width -1){ value += scale * texelFetch(data , ivec3( tcoord.x - 1, tcoord.y, depth),0).x;}\n"
         "    if(tcoord.y == 0){ value += scale * texelFetch(data , ivec3( tcoord.x, tcoord.y + 1, depth ),0).x;}\n"
         "    if(tcoord.y == height -1){ value += scale * texelFetch(data , ivec3( tcoord.x, tcoord.y - 1, depth),0).x;}\n"
         "    bool corner = ((tcoord.x == 0 || tcoord.x == width -1) && (tcoord.y == 0 || tcoord.y == height -1 )); \n"
+
         "    if(corner){ value *= 0.5f; }"
+
         "    outColor = value;\n"
         "}\n";
 
@@ -76,9 +146,9 @@ static const char RESULTS_FRAGMENT_SHADER[] =
         "in vec2 texcoord;\n"
         "out vec4 outColor;\n"
         "void main() {\n"
-        "vec3 coords = vec3(texcoord, 0.0f);"
+        "vec3 coords = vec3(texcoord, 0.5f);"
         "    float q = texture(result, coords).x;\n"
-        "    float c = q / 6.0f; "
+        "    float c = q / 1.0f; "
         "    outColor = vec4(c, c, c, 1.0);\n"
         "}\n";
 

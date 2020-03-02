@@ -112,21 +112,22 @@ void createMatrixFBO(int width, int height, GLuint *framebufferId, GLuint *color
         glGenFramebuffers(1, framebufferId);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, *framebufferId);
-    // create a color attachment texture
 
-    glGenTextures(1, colorTextureTarget);
-    glBindTexture(GL_TEXTURE_2D, *colorTextureTarget);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL); //GL_DEPTH_COMPONENT //GL_UNSIGNED_BYTE
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *colorTextureTarget,
-                           0);
-
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void create3DTexture(GLuint *id, int width, int height, int depth, float *data){
+
+    glGenTextures(1, id);
+    glBindTexture(GL_TEXTURE_3D, *id);
+
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, width, height, depth, 0, GL_RED,
+                 GL_FLOAT, data); //GL_FLOAT
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
