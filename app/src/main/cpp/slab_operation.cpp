@@ -86,9 +86,9 @@ void init(JNIEnv *env, jobject assetManager) {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    grid_width = 6;
-    grid_height = 6;
-    grid_depth = 6;
+    grid_width = 512;
+    grid_height = 512;
+    grid_depth = 512;
     createMatrixFBO(grid_width, grid_height, &slabFBO, &resultTarget);
     initData();
 
@@ -101,7 +101,7 @@ void init(JNIEnv *env, jobject assetManager) {
 void initData() {
 
     int size = grid_width * grid_height * grid_depth;
-    float data[size];
+    float* data = new float[size];
     int b = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
         data[i] = 0.16666f;
