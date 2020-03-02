@@ -61,6 +61,7 @@ GLuint texcoordsBuffer;
 
 // matrices
 GLuint dataMatrix;
+GLuint ResultMatrix;
 
 // interior
 GLuint interiorShaderProgram;
@@ -73,17 +74,18 @@ GLuint boundaryShaderProgram;
 GLuint boundaryVAO;
 GLuint boundaryPositionBuffer;
 
-int width, height;
+int grid_width, grid_height, grid_depth;
 
 void init(JNIEnv *env, jobject assetManager) {
 
-    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    width = 20;
-    height = 20;
-    createMatrixFBO(width, height, &slabFBO, &resultTarget);
+    grid_width = 6;
+    grid_height = 6;
+    grid_depth = 6;
+    createMatrixFBO(grid_width, grid_height, &slabFBO, &resultTarget);
     initData();
 
     initQuad();
@@ -94,22 +96,38 @@ void init(JNIEnv *env, jobject assetManager) {
 
 void initData() {
 
-    float data[width * height];
+    int size = grid_width * grid_height * grid_depth;
+    float data[size];
 
-    for (int i = 0; i < width * height; ++i) {
-      // data[i] = i * 1.0f / (width * height);
+    for (int i = 0; i < size; ++i) {
+        //data[i] = (i)* 1.0f / (grid_width * grid_height *grid_depth);
         data[i] = 1.0f;
     }
 
     glGenTextures(1, &dataMatrix);
-    glBindTexture(GL_TEXTURE_2D, dataMatrix);
+    glBindTexture(GL_TEXTURE_3D, dataMatrix);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT,
-                 data); //GL_DEPTH_COMPONENT //GL_UNSIGNED_BYTE
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, grid_width, grid_height, grid_depth, 0, GL_RED,
+                 GL_FLOAT, data); // todo: use GL_HALF_FLOAT
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+
+    glGenTextures(1, &ResultMatrix);
+    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
+
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, grid_width, grid_height, grid_depth, 0, GL_RED,
+                 GL_FLOAT, NULL); //GL_FLOAT
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void initLine() {
@@ -215,48 +233,119 @@ void initProgram() {
     resultShaderProgram = createProgram(RESULTS_VERTEX_SHADER, RESULTS_FRAGMENT_SHADER);
 }
 
+void display_results();
+
 void step() {
     slabOperation();
+    display_results();
 }
 
+int current_depth = 0; //layer
 
 void slabOperation() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
+
+    for (int current_depth = 0; current_depth < grid_depth - 1; ++current_depth) {
+/*
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
+                                  current_depth);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        //boundaries // todo improve and specific shaders for front and back face
+        glViewport(0, 0, grid_width, grid_height);
+        glUseProgram(boundaryShaderProgram);
+        glBindVertexArray(boundaryVAO);
+        glLineWidth(10000.0f);
+        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "depth"), current_depth);
+        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "width"), grid_width);
+        glUniform1i(glGetUniformLocation(boundaryShaderProgram, "height"), grid_height);
+        glUniform1f(glGetUniformLocation(boundaryShaderProgram, "scale"), 1.0f);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, dataMatrix);
+        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+
+
+        //interior
+        glViewport(1, 1, grid_width - 2, grid_height - 2);
+        glBindVertexArray(interiorVAO);
+        glUseProgram(interiorShaderProgram);
+        glUniform1i(glGetUniformLocation(interiorShaderProgram, "depth"), current_depth);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, dataMatrix);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+*/
+
+        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+
+    }
+/*
+    // todo
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, 0);
+    //boundaries
+    glViewport(0, 0, grid_width, grid_height);
+
+    //interior
+    glViewport(1, 1, grid_width - 2, grid_height - 2);
+
+    // todo
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
+                              grid_depth - 1);
+    //boundaries
+    glViewport(0, 0, grid_width, grid_height);
+
+    //interior
+    glViewport(1, 1, grid_width - 2, grid_height - 2);
+
+*/
+}
+
+void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale){
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0,
+                              current_depth);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //boundaries
-    glViewport(0, 0, width, height);
-    glUseProgram(boundaryShaderProgram);
+    //boundaries // todo improve and specific shaders for front and back face
+    glViewport(0, 0, grid_width, grid_height);
+    glUseProgram(boundariesProgram);
     glBindVertexArray(boundaryVAO);
     glLineWidth(10000.0f);
-    glUniform1i(glGetUniformLocation(boundaryShaderProgram, "width"), width);
-    glUniform1i(glGetUniformLocation(boundaryShaderProgram, "height"), height);
+    glUniform1i(glGetUniformLocation(boundariesProgram, "depth"), layer);
+    glUniform1i(glGetUniformLocation(boundariesProgram, "width"), grid_width);
+    glUniform1i(glGetUniformLocation(boundariesProgram, "height"), grid_height);
+    glUniform1f(glGetUniformLocation(boundariesProgram, "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, dataMatrix);
+    glBindTexture(GL_TEXTURE_3D, dataMatrix);
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
 
 
     //interior
-    glViewport(1, 1, width - 2, height - 2);
+    glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
-    glUseProgram(interiorShaderProgram);
+    glUseProgram(interiorProgram);
+    glUniform1i(glGetUniformLocation(interiorProgram, "depth"), layer);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, dataMatrix);
+    glBindTexture(GL_TEXTURE_3D, dataMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
 
-
+void display_results() {
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, screen_width, screen_height);
     glUseProgram(resultShaderProgram);
-
+    glBindVertexArray(interiorVAO);
+    //glUniform1i(glGetUniformLocation(interiorShaderProgram, "depth"), current_depth);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, resultTarget);
+    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

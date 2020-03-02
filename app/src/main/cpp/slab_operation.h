@@ -22,4 +22,6 @@ void step();
 
 void slabOperation();
 
+void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale);
+
 #endif //DATX02_20_21_SLAB_OPERATION_H
