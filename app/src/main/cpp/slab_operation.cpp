@@ -110,6 +110,8 @@ void initData() {
     create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
     create3DTexture(&ResultMatrix, grid_width, grid_height, grid_depth, NULL);
+
+    delete[] data;
 }
 
 void initLine() {
