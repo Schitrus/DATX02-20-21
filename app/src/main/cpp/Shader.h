@@ -221,7 +221,9 @@ static const char FRONT_FACE_FRAGMENT_SHADER[] =
         "   }\n"
         "\n"
         "color.w = 1.0f - color.w;\n"
+     //   "color.rgb = pow( color.rgb, vec3(0.4545)); \n"
         "outColor = color;\n"
+      //  "outColor = vec4(hit,1.0f);" // todo
         "}\n";
 
 
