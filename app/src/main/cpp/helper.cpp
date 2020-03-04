@@ -116,6 +116,74 @@ void createMatrixFBO(int width, int height, GLuint *framebufferId, GLuint *color
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void
+createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo) {
+    // framebuffer configuration
+    // -------------------------
+    if(*framebufferId == UINT32_MAX) {
+        glGenFramebuffers(1, framebufferId);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, *framebufferId);
+    // create a color attachment texture
+
+    glGenTextures(1, colorTextureTarget);
+    glBindTexture(GL_TEXTURE_2D, *colorTextureTarget);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *colorTextureTarget,
+                           0);
+    // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+    glGenRenderbuffers(1, rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, *rbo);
+
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width,
+                          height); // use a single renderbuffer object for both a depth AND stencil buffer.
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                              *rbo); // now actually attach it
+
+
+    // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void resizeFBO(int width, int height, GLuint *colorTextureTarget, GLuint *rbo) {
+
+    // Allocate a texture
+    glBindTexture(GL_TEXTURE_2D, *colorTextureTarget);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+    // Allocate for renderBuffer
+    glBindRenderbuffer(GL_RENDERBUFFER, *rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+}
+
+char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
+
+    // Open your file
+    AAsset *file = AAssetManager_open(mgr, filename, AASSET_MODE_BUFFER);
+    // Get the file length
+    off_t fileLength = AAsset_getLength(file);
+
+    // Allocate memory to read your file
+    char *fileContent = new char[fileLength];
+
+    // Read your file
+    float error = AAsset_read(file, fileContent, fileLength);
+
+    if (error < fileLength || error == 0) {
+        std::cout << "Failed to load image: " << filename << ".\n";
+        ALOGE("Failed to load image: ");
+    }
+
+    return fileContent;
+}
+
 void create3DTexture(GLuint *id, int width, int height, int depth, float *data){
 
     glGenTextures(1, id);
@@ -131,3 +199,35 @@ void create3DTexture(GLuint *id, int width, int height, int depth, float *data){
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
+void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
+                   GLsizei depth,GLuint *volumeTexID) {
+   const char *fileContent = loadFileToMemory(mgr, filename);
+
+    if (*volumeTexID == UINT32_MAX) {
+        glGenTextures(1, volumeTexID);
+    }
+
+    glBindTexture(GL_TEXTURE_3D, *volumeTexID);
+
+    glTexImage3D(GL_TEXTURE_3D,
+                 0,
+                 GL_R8,
+                 width,
+                 height,
+                 depth,
+                 0,
+                 GL_RED,
+                 GL_UNSIGNED_BYTE,
+                 fileContent);
+
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glGenerateMipmap( GL_TEXTURE_3D );
+
+    // Free the memoery you allocated earlier
+    delete[] fileContent;
+}
