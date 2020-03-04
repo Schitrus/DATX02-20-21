@@ -21,9 +21,11 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        fire_renderer.cpp
+        fire.cpp
+        renderer.cpp
+        simulator.cpp
+        ray_renderer.cpp
         slab_operation.cpp
-        RayRenderer.cpp
         helper.cpp
         )
 

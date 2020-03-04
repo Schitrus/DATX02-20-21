@@ -20,12 +20,10 @@
 #include <android/log.h>
 
 #include "helper.h"
-#include "Shader.h"
+#include "shader.h"
 
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-
-using namespace slab;
 
 using namespace glm;
 
@@ -33,26 +31,6 @@ using namespace glm;
 
 int screen_width;
 int screen_height;
-
-extern "C" {
-
-JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_SlabRenderer_init(JNIEnv *env, jobject, jobject mgr) {
-    init(env, mgr);
-}
-
-JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_SlabRenderer_resize(JNIEnv *env, jobject, jint width, jint height) {
-    screen_width = width;
-    screen_height = height;
-}
-
-JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_SlabRenderer_step(JNIEnv *env, jobject) {
-    step();
-}
-
-}
 
 // fbo
 GLuint slabFBO = UINT32_MAX;
@@ -81,17 +59,14 @@ GLuint boundaryPositionBuffer;
 GLuint frontAndBackInteriorShaderProgram;
 GLuint frontAndBackBoundaryShaderProgram;
 
-int grid_width, grid_height, grid_depth;
-
-void slab::init(JNIEnv *env, jobject assetManager) {
+void SlabOperator::init() {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    grid_width = 512;
-    grid_height = 512;
-    grid_depth = 512;
+    resize(16, 16, 16);
+
     createMatrixFBO(grid_width, grid_height, &slabFBO, &resultTarget);
     initData();
 
@@ -100,8 +75,13 @@ void slab::init(JNIEnv *env, jobject assetManager) {
     initProgram();
 }
 
+void SlabOperator::resize(int width, int height, int depth){
+    grid_width = width;
+    grid_height = height;
+    grid_depth = depth;
+}
 
-void slab::initData() {
+void SlabOperator::initData() {
 
     int size = grid_width * grid_height * grid_depth;
     float* data = new float[size];
@@ -117,7 +97,7 @@ void slab::initData() {
     delete[] data;
 }
 
-void slab::initLine() {
+void SlabOperator::initLine() {
     glGenVertexArrays(1, &boundaryVAO);
     // Bind the vertex array object
     // The following calls will affect this vertex array object.
@@ -154,7 +134,7 @@ void slab::initLine() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void slab::initQuad() {
+void SlabOperator::initQuad() {
 
     glGenVertexArrays(1, &interiorVAO);
     // Bind the vertex array object
@@ -213,7 +193,7 @@ void slab::initQuad() {
 
 }
 
-void slab::initProgram() {
+void SlabOperator::initProgram() {
 
     interiorShaderProgram = createProgram(SLAB_VERTEX_SHADER, INTERIOR_FRAGMENT_SHADER);
     boundaryShaderProgram = createProgram(SLAB_VERTEX_SHADER, BOUNDARY_FRAGMENT_SHADER);
@@ -228,15 +208,13 @@ void slab::initProgram() {
 
 }
 
-void slab::display_results();
-
-void slab::step() {
-    //slabOperation();
+void SlabOperator::update() {
+    slabOperation();
     //display_results(); // todo remove
 }
 
 
-void slab::slabOperation() {
+void SlabOperator::slabOperation() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
 
@@ -254,7 +232,7 @@ void slab::slabOperation() {
 
 }
 
-void slab::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
 
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, layer);
 
@@ -286,7 +264,7 @@ void slab::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int l
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void slab::display_results() {
+void SlabOperator::display_results() {
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

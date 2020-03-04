@@ -1,9 +1,12 @@
-package com.example.datx02_20_21;
+package com.pbf;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.os.Bundle;
 
-public class MainActivity extends Activity {
+import com.example.datx02_20_21.R;
+
+public class FireActivity extends Activity {
 
     // Used to load the 'fire-lib' library on application startup.
     static {
@@ -17,10 +20,16 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Point dimension = new Point();
+        getWindowManager().getDefaultDisplay().getSize(dimension);
+
+        init(dimension.x, dimension.y);
+
         fire = new FireView(getApplication());
         setContentView(fire);
 
     }
 
+    public native void init(int width, int height);
 
 }

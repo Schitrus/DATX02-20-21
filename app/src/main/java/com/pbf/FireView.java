@@ -1,4 +1,4 @@
-package com.example.datx02_20_21;
+package com.pbf;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
@@ -18,7 +18,7 @@ public class FireView extends GLSurfaceView {
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
 
-        renderer = new FireRenderer();
+        renderer = new FireRenderer(context);
         setRenderer(renderer);
 
         listener = new FireListener(context);

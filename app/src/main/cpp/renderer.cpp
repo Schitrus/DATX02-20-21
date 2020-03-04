@@ -1,4 +1,4 @@
-#include "fire_renderer.h"
+#include "renderer.h"
 
 #include <jni.h>
 #include <string>
@@ -12,62 +12,6 @@
 
 #include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
-
-extern "C" {
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_init(
-        JNIEnv *env,
-        jobject,
-        jint width,
-        jint height);
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_update(
-        JNIEnv *env,
-        jobject);
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_touch(
-        JNIEnv *env,
-        jobject,
-        jdouble dx,
-        jdouble dy);
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_scale(
-        JNIEnv *env,
-        jobject,
-        jfloat scaleFactor,
-        jdouble scaleX,
-        jdouble scaleY);
-};
-
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_scale(
-        JNIEnv *env,
-        jobject,
-        jfloat scaleFactor,
-        jdouble scaleX,
-        jdouble scaleY){
-    fire::scale(scaleFactor, scaleX, scaleY);
-}
-
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireListener_touch(
-        JNIEnv *env,
-        jobject,
-        jdouble dx,
-        jdouble dy){
-    fire::touch(dx, dy);
-
-}
-
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_init(
-        JNIEnv *env,
-        jobject,
-        jint width,
-        jint height){
-    fire::initGraphics(width, height);
-}
-
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_FireRenderer_update(
-        JNIEnv *env,
-        jobject){
-    fire::updateGraphics();
-}
-
-namespace fire{
 
 float vertices[] = {
          1.0f,  1.0f, 0.0f,   // top right
@@ -162,7 +106,14 @@ float zoom = 1.0f;
 unsigned int pos_index;
 unsigned int scale_index;
 
-void initGraphics(int width, int height){
+void Renderer::init(JNIEnv *env, jobject assetManager){
+    rayRenderer.init(env, assetManager);
+}
+
+void Renderer::resize(int width, int height){
+
+    rayRenderer.resize(width, height);
+    return;
 
     window_width = width;
     window_height = height;
@@ -291,7 +242,10 @@ void initGraphics(int width, int height){
 using namespace std::chrono;
 double last_sec = duration_cast< milliseconds >(system_clock::now().time_since_epoch()).count()/1000.0;
 
-void updateGraphics(){
+void Renderer::update(){
+    rayRenderer.step();
+    return;
+
     // Time
 
     milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
@@ -337,14 +291,13 @@ void updateGraphics(){
     }
 }
 
-void scale(float scaleFactor, double scaleX, double scaleY){
+void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
     posX = (posX)*(scaleFactor / zoom);//(2*scaleX/window_width-1) * (zoom - scaleFactor);
     posY = (posY)*(scaleFactor / zoom);//(2*scaleY/window_height-1) * (zoom - scaleFactor);
     zoom = scaleFactor;
 }
 
-void touch(double dx, double dy){
-    posX += dx/window_width; posY += dy/window_height;
-}
-
+void Renderer::touch(double dx, double dy){
+    posX += dx/window_width;
+    posY += dy/window_height;
 }

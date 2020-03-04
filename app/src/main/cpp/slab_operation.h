@@ -8,10 +8,15 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 
-namespace slab {
+class SlabOperator{
+    int grid_width, grid_height, grid_depth;
+public:
+    void init();
 
-    void init(JNIEnv *env, jobject mgr);
+    void resize(int width, int height, int depth);
 
+    void update();
+private:
     void initData();
 
     void initLine();
@@ -20,13 +25,10 @@ namespace slab {
 
     void initProgram();
 
-    void step();
-
     void slabOperation();
-
-    void display_results();
-
     void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale);
 
-}
+    void display_results();
+};
+
 #endif //DATX02_20_21_SLAB_OPERATION_H
