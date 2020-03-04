@@ -8,28 +8,30 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 
-void init(JNIEnv *env, jobject mgr);
+namespace ray {
 
-void loadAssetManager(JNIEnv *env, jobject assetManager);
+    void init(JNIEnv *env, jobject mgr);
 
-void load3DTexture(const char *fileName);
+    void loadAssetManager(JNIEnv *env, jobject assetManager);
 
-void initCube();
-git
-void initProgram();
+    void load3DTexture(const char *fileName);
 
-void loadAssetManager(JNIEnv *env, jobject mgr);
+    void initCube();
 
-void load3DTexture(const char *fileName);
+    void initProgram();
 
-void resize(int width, int height);
+    void loadAssetManager(JNIEnv *env, jobject mgr);
 
-void step();
+    void load3DTexture(const char *fileName);
 
-void loadMVP(GLuint shaderProgram);
+    void resize(int width, int height);
 
-void display();
+    void step();
 
-//THIS IS NOW CHANGED!!!!!!!
+    void loadMVP(GLuint shaderProgram);
+
+    void display();
+
+}
 
 #endif //DATX02_20_21_RAYRENDERER_H

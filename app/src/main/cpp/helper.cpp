@@ -116,8 +116,7 @@ void createMatrixFBO(int width, int height, GLuint *framebufferId, GLuint *color
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void
-createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo) {
+void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo) {
     // framebuffer configuration
     // -------------------------
     if(*framebufferId == UINT32_MAX) {

@@ -25,27 +25,12 @@
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+using namespace ray;
+
 using namespace glm;
 
 #define PI 3.14159265359f
 
-extern "C" {
-
-JNIEXPORT void JNICALL Java_com_example_datx02_120_121_RayRenderer_init(JNIEnv *env, jobject, jobject mgr) {
-    init(env, mgr);
-}
-
-JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_RayRenderer_resize(JNIEnv *env, jobject, jint width, jint height) {
-    resize(width, height);
-}
-
-JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_RayRenderer_step(JNIEnv *env, jobject /* this */) {
-    step();
-}
-
-}
 // fbo
 GLuint framebufferId = UINT32_MAX;
 GLuint colorTextureTarget, renderBuffer ;
@@ -65,7 +50,7 @@ float scaleX, scaleY, scaleZ;
 int w, h = 0;
 vec3 worldUp = vec3(0.0f, 1.0f, 0.0f);
 
-void init(JNIEnv *env, jobject assetManager) {
+void ray::init(JNIEnv *env, jobject assetManager) {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -79,7 +64,7 @@ void init(JNIEnv *env, jobject assetManager) {
     initProgram();
 }
 
-void resize(int width, int height) {
+void ray::resize(int width, int height) {
 
     glViewport(0, 0, width, height);
 
@@ -94,7 +79,7 @@ void resize(int width, int height) {
 
 }
 
-void loadAssetManager(JNIEnv *env, jobject assetManager) {
+void ray::loadAssetManager(JNIEnv *env, jobject assetManager) {
     mgr = AAssetManager_fromJava(env, assetManager);
     if (mgr == NULL) {
         __android_log_print(ANDROID_LOG_ERROR, "RayRenderer", "error loading asset maanger");
@@ -109,12 +94,12 @@ void scaleBoundingBox(float x, float y, float z) {
     scaleZ = z;
 }
 
-void load3DTexture(const char *fileName) {
+void ray::load3DTexture(const char *fileName) {
     load3DTexture(mgr, fileName, 256, 256, 178, &volumeTexID);
     scaleBoundingBox(1, 1, 0.7);
 }
 
-void initCube() {
+void ray::initCube() {
 
     glGenVertexArrays(1, &vertexArrayObject);
     // Bind the vertex array object
@@ -160,17 +145,17 @@ void initCube() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void initProgram() {
+void ray::initProgram() {
 
-    backFaceShaderProgram = createProgram(VERTEX_SHADER, BACK_FACE_FRAGMENT_SHADER);
-    frontFaceShaderProgram = createProgram(VERTEX_SHADER, FRONT_FACE_FRAGMENT_SHADER);
+    backFaceShaderProgram = createProgram(RAY_VERTEX_SHADER, BACK_FACE_FRAGMENT_SHADER);
+    frontFaceShaderProgram = createProgram(RAY_VERTEX_SHADER, FRONT_FACE_FRAGMENT_SHADER);
 }
 
 void step() {
-    display();
+    ray::display();
 }
 
-void display() {
+void ray::display() {
 
     glBindVertexArray(vertexArrayObject);
 
@@ -219,7 +204,7 @@ float rotTime = 10;
 float rot = 0;
 
 
-void loadMVP(GLuint shaderProgram) {
+void ray::loadMVP(GLuint shaderProgram) {
 
     std::chrono::milliseconds ms = duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
     float currentTime = ms.count()/1000.0 - start_sec;

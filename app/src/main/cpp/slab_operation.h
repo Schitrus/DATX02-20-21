@@ -8,20 +8,25 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 
-void init(JNIEnv *env, jobject mgr);
+namespace slab {
 
-void initData();
+    void init(JNIEnv *env, jobject mgr);
 
-void initLine();
+    void initData();
 
-void initQuad();
+    void initLine();
 
-void initProgram();
+    void initQuad();
 
-void step();
+    void initProgram();
 
-void slabOperation();
+    void step();
 
-void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale);
+    void slabOperation();
 
+    void display_results();
+
+    void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale);
+
+}
 #endif //DATX02_20_21_SLAB_OPERATION_H

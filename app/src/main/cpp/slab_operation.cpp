@@ -25,6 +25,8 @@
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+using namespace slab;
+
 using namespace glm;
 
 #define PI 3.14159265359f
@@ -80,7 +82,7 @@ GLuint frontAndBackBoundaryShaderProgram;
 
 int grid_width, grid_height, grid_depth;
 
-void init(JNIEnv *env, jobject assetManager) {
+void slab::init(JNIEnv *env, jobject assetManager) {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_DEPTH_TEST);
@@ -98,7 +100,7 @@ void init(JNIEnv *env, jobject assetManager) {
 }
 
 
-void initData() {
+void slab::initData() {
 
     int size = grid_width * grid_height * grid_depth;
     float* data = new float[size];
@@ -114,7 +116,7 @@ void initData() {
     delete[] data;
 }
 
-void initLine() {
+void slab::initLine() {
     glGenVertexArrays(1, &boundaryVAO);
     // Bind the vertex array object
     // The following calls will affect this vertex array object.
@@ -151,7 +153,7 @@ void initLine() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void initQuad() {
+void slab::initQuad() {
 
     glGenVertexArrays(1, &interiorVAO);
     // Bind the vertex array object
@@ -210,14 +212,14 @@ void initQuad() {
 
 }
 
-void initProgram() {
+void slab::initProgram() {
 
-    interiorShaderProgram = createProgram(VERTEX_SHADER, INTERIOR_FRAGMENT_SHADER);
-    boundaryShaderProgram = createProgram(VERTEX_SHADER, BOUNDARY_FRAGMENT_SHADER);
+    interiorShaderProgram = createProgram(SLAB_VERTEX_SHADER, INTERIOR_FRAGMENT_SHADER);
+    boundaryShaderProgram = createProgram(SLAB_VERTEX_SHADER, BOUNDARY_FRAGMENT_SHADER);
 
-    frontAndBackInteriorShaderProgram = createProgram(VERTEX_SHADER,
+    frontAndBackInteriorShaderProgram = createProgram(SLAB_VERTEX_SHADER,
                                                       FRONT_AND_BACK_INTERIOR_FRAGMENT_SHADER);
-    frontAndBackBoundaryShaderProgram = createProgram(VERTEX_SHADER,
+    frontAndBackBoundaryShaderProgram = createProgram(SLAB_VERTEX_SHADER,
                                                       FRONT_AND_BACK_BOUNDARY_FRAGMENT_SHADER);
 
     resultShaderProgram = createProgram(RESULTS_VERTEX_SHADER,
@@ -225,15 +227,15 @@ void initProgram() {
 
 }
 
-void display_results();
+void slab::display_results();
 
-void step() {
+void slab::step() {
     slabOperation();
     display_results(); // todo remove
 }
 
 
-void slabOperation() {
+void slab::slabOperation() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
 
@@ -251,7 +253,7 @@ void slabOperation() {
 
 }
 
-void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+void slab::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
 
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, layer);
 
@@ -283,7 +285,7 @@ void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void display_results() {
+void slab::display_results() {
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
