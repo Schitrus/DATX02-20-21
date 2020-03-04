@@ -31,6 +31,24 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
+extern "C" {
+
+JNIEXPORT void JNICALL Java_com_example_datx02_120_121_RayRenderer_init(JNIEnv *env, jobject, jobject mgr) {
+    init(env, mgr);
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_datx02_120_121_RayRenderer_resize(JNIEnv *env, jobject, jint width, jint height) {
+    resize(width, height);
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_datx02_120_121_RayRenderer_step(JNIEnv *env, jobject /* this */) {
+    step();
+}
+
+}
+
 // fbo
 GLuint framebufferId = UINT32_MAX;
 GLuint colorTextureTarget, renderBuffer ;
@@ -151,7 +169,7 @@ void ray::initProgram() {
     frontFaceShaderProgram = createProgram(RAY_VERTEX_SHADER, FRONT_FACE_FRAGMENT_SHADER);
 }
 
-void step() {
+void ray::step() {
     ray::display();
 }
 

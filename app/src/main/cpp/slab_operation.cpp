@@ -48,11 +48,12 @@ Java_com_example_datx02_120_121_SlabRenderer_resize(JNIEnv *env, jobject, jint w
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_datx02_120_121_SlabRenderer_step(JNIEnv *env, jobject /* this */) {
+Java_com_example_datx02_120_121_SlabRenderer_step(JNIEnv *env, jobject) {
     step();
 }
 
 }
+
 // fbo
 GLuint slabFBO = UINT32_MAX;
 GLuint resultTarget;
@@ -230,8 +231,8 @@ void slab::initProgram() {
 void slab::display_results();
 
 void slab::step() {
-    slabOperation();
-    display_results(); // todo remove
+    //slabOperation();
+    //display_results(); // todo remove
 }
 
 

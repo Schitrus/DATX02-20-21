@@ -16,33 +16,33 @@ public class SlabRenderer implements GLSurfaceView.Renderer {
         this.context = contex;
     }
 
-    static {
-        System.loadLibrary("ray-lib");
-    }
+    /*static {
+        System.loadLibrary("fire-lib");
+    }*/
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
         AssetManager mgr = context.getResources().getAssets();
-        init(mgr);
+        //init(mgr);
 
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        resize(width, height);
+        //resize(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
 
-        step();
+        //step();
         FPSCounter.logFrame();
     }
 
-    private native void step();
-    private native void init(AssetManager mgr);
-    private native void resize(int width, int height);
+    //private native void step();
+    //private native void init(AssetManager mgr);
+    //private native void resize(int width, int height);
 }
 
 class FPSCounter {
