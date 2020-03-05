@@ -1,6 +1,7 @@
 package com.pbf;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.os.Bundle;
 
@@ -26,10 +27,16 @@ public class FireActivity extends Activity {
         init(dimension.x, dimension.y);
 
         fire = new FireView(getApplication());
+
+        AssetManager mgr = getResources().getAssets();
+        initFileLoader(mgr);
+
         setContentView(fire);
 
     }
 
     public native void init(int width, int height);
+
+    private native void initFileLoader(AssetManager manager);
 
 }

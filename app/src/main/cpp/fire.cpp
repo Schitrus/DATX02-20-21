@@ -3,9 +3,11 @@
 //
 
 #include "fire.h"
+#include "file_loader.h"
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <android/log.h>
 
 Fire::Fire(int width, int height) : screen_width(width), screen_height(height){
 
@@ -19,6 +21,12 @@ void Fire::update(){
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JCT, jint width, jint height){
     fire = new Fire(width, height);
+}
+
+JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager){
+    fileLoader = new FileLoader(env, obj, assetManager);
+    std::string fileText = fileLoader->loadFile("shader.vert");
+    __android_log_print(ANDROID_LOG_INFO, "FileLoader", "%s", fileText.c_str());
 }
 
 // FireRenderer
@@ -43,5 +51,4 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->renderer.scale(scaleFactor, scaleX, scaleY);
 }
-
 

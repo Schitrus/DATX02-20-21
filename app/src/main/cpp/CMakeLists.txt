@@ -27,6 +27,7 @@ add_library( # Sets the name of the library.
         ray_renderer.cpp
         slab_operation.cpp
         helper.cpp
+        file_loader.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

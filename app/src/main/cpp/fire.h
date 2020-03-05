@@ -30,6 +30,7 @@ Fire* fire;
 
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JCT, jint width, jint height);
+JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
 // FireRenderer
 JC(void) Java_com_pbf_FireRenderer_init(JCT, jobject mgr);
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height);
