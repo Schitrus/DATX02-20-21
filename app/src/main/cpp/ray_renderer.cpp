@@ -155,6 +155,8 @@ void RayRenderer::step() {
 
 void RayRenderer::display() {
 
+    glViewport(0, 0, w, h);
+
     glBindVertexArray(vertexArrayObject);
 
     // back

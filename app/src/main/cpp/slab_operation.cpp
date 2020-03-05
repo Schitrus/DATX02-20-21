@@ -219,16 +219,16 @@ void SlabOperator::slabOperation() {
     glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-
-        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth,
-                      1.0f); // todo fix so they are done at the same time
+        // todo fix so they are done at the same time
+        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
 
     }
 
     slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram,
-                  grid_depth - 1, 1.0f);
+    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -262,6 +262,7 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 }
 
 void SlabOperator::display_results() {
