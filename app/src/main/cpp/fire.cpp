@@ -24,8 +24,8 @@ JC(void) Java_com_pbf_FireActivity_init(JCT, jint width, jint height){
 }
 
 JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager){
-    fileLoader = new FileLoader(env, obj, assetManager);
-    std::string fileText = fileLoader->loadFile("shader.vert");
+    initFileLoader(env, obj, assetManager);
+    std::string fileText = loadFileFromAssets("shader.vert");
     __android_log_print(ANDROID_LOG_INFO, "FileLoader", "%s", fileText.c_str());
 }
 

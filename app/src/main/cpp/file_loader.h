@@ -10,9 +10,9 @@
 #include <android/asset_manager.h>
 #include <string>
 
-class FileLoader;
 
-extern FileLoader *fileLoader;
+void initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
+std::string loadFileFromAssets(const char *path);
 
 class FileLoader {
     AAssetManager *assetManager;

@@ -5,8 +5,17 @@
 #include <android/asset_manager_jni.h>
 #include <string>
 #include "file_loader.h"
+#include <memory>
 
-FileLoader *fileLoader;
+static FileLoader *fileLoader;
+
+void initFileLoader(JNIEnv *env, jobject obj, jobject assetManager){
+    fileLoader = new FileLoader(env, obj, assetManager);
+}
+
+std::string loadFileFromAssets(const char *path){
+    return fileLoader->loadFile(path);
+}
 
 FileLoader::FileLoader(JNIEnv *env, jobject obj, jobject assetManager) {
     this->assetManager = AAssetManager_fromJava(env, assetManager);
@@ -16,7 +25,7 @@ FileLoader::FileLoader(JNIEnv *env, jobject obj, jobject assetManager) {
 std::string FileLoader::loadFile(const char *path) {
     AAsset *asset = AAssetManager_open(assetManager, path, AASSET_MODE_BUFFER);
     off_t size = AAsset_getLength(asset);
-    std::string bufferString;
+
     std::unique_ptr<char[]> buffer(new char[size]);
     int bytesRead = AAsset_read(asset, buffer.get(), size);
 
