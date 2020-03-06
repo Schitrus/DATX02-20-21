@@ -15,7 +15,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
 
@@ -47,7 +46,9 @@ float scaleX, scaleY, scaleZ;
 int w, h = 0;
 vec3 worldUp = vec3(0.0f, 1.0f, 0.0f);
 
-void RayRenderer::init(JNIEnv *env, jobject assetManager) {
+void RayRenderer::init(AAssetManager* assetManager) {
+
+    mgr = assetManager;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -55,7 +56,6 @@ void RayRenderer::init(JNIEnv *env, jobject assetManager) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     framebufferId = UINT32_MAX;
 
-    loadAssetManager(env, assetManager);
     load3DTexture("BostonTeapot.raw");
     initCube();
     initProgram();
@@ -74,15 +74,6 @@ void RayRenderer::resize(int width, int height) {
         createFbo(width, height, &framebufferId, &colorTextureTarget, &renderBuffer);
     }
 
-}
-
-void RayRenderer::loadAssetManager(JNIEnv *env, jobject assetManager) {
-    mgr = AAssetManager_fromJava(env, assetManager);
-    if (mgr == NULL) {
-        __android_log_print(ANDROID_LOG_ERROR, "RayRenderer", "error loading asset maanger");
-    } else {
-        __android_log_print(ANDROID_LOG_VERBOSE, "RayRenderer", "loaded asset manager");
-    }
 }
 
 void scaleBoundingBox(float x, float y, float z) {

@@ -11,13 +11,13 @@
 #include <string>
 
 
-void initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
+void initFileLoader(AAssetManager* assetManager);
 std::string loadFileFromAssets(const char *path);
 
 class FileLoader {
     AAssetManager *assetManager;
 public:
-    FileLoader(JNIEnv *env, jobject obj, jobject assetManager);
+    FileLoader(AAssetManager* assetManager);
     std::string loadFile(const char *path);
 };
 
