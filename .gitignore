@@ -8,3 +8,4 @@
 .externalNativeBuild
 .cxx
 /gradle/
+/_windows/
