@@ -20,7 +20,6 @@
 #include <android/log.h>
 
 #include "helper.h"
-#include "shader.h"
 
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -145,8 +144,8 @@ void RayRenderer::initCube() {
 
 void RayRenderer::initProgram() {
 
-    backFaceShaderProgram = createProgram(RAY_VERTEX_SHADER, BACK_FACE_FRAGMENT_SHADER);
-    frontFaceShaderProgram = createProgram(RAY_VERTEX_SHADER, FRONT_FACE_FRAGMENT_SHADER);
+    backFaceShaderProgram = createProgram("shaders/ray.vert", "shaders/back_face.frag");
+    frontFaceShaderProgram = createProgram("shaders/ray.vert", "shaders/front_face.frag");
 }
 
 void RayRenderer::step() {
@@ -172,7 +171,7 @@ void RayRenderer::display() {
 
     // front
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -213,10 +212,10 @@ void RayRenderer::loadMVP(GLuint shaderProgram) {
     float rot = 2 * PI * p;
 
 
-    mat4 modelMatrix = mat4(1.0);
-    mat4 viewMatrix = mat4(1.0);
-    mat4 projectionMatrix = mat4(1.0);
-    mat4 MVP = mat4(1.0);
+    mat4 modelMatrix(1.0);
+    mat4 viewMatrix(1.0);
+    mat4 projectionMatrix(1.0);
+    mat4 MVP(1.0);
 
     // Set up a projection matrix
     float nearPlane = 0.01f;

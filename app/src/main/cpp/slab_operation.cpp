@@ -20,7 +20,6 @@
 #include <android/log.h>
 
 #include "helper.h"
-#include "shader.h"
 
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -195,16 +194,16 @@ void SlabOperator::initQuad() {
 
 void SlabOperator::initProgram() {
 
-    interiorShaderProgram = createProgram(SLAB_VERTEX_SHADER, INTERIOR_FRAGMENT_SHADER);
-    boundaryShaderProgram = createProgram(SLAB_VERTEX_SHADER, BOUNDARY_FRAGMENT_SHADER);
+    interiorShaderProgram = createProgram("shaders/slab.vert", "shaders/interior.frag");
+    boundaryShaderProgram = createProgram("shaders/slab.vert", "shaders/boundary.frag");
 
-    frontAndBackInteriorShaderProgram = createProgram(SLAB_VERTEX_SHADER,
-                                                      FRONT_AND_BACK_INTERIOR_FRAGMENT_SHADER);
-    frontAndBackBoundaryShaderProgram = createProgram(SLAB_VERTEX_SHADER,
-                                                      FRONT_AND_BACK_BOUNDARY_FRAGMENT_SHADER);
+    frontAndBackInteriorShaderProgram = createProgram("shaders/slab.vert",
+                                                      "shaders/front_and_back_interior.frag");
+    frontAndBackBoundaryShaderProgram = createProgram("shaders/slab.vert",
+                                                      "shaders/front_and_back_boundary.frag");
 
-    resultShaderProgram = createProgram(RESULTS_VERTEX_SHADER,
-                                        RESULTS_FRAGMENT_SHADER); // todo remove
+    resultShaderProgram = createProgram("shaders/results.vert",
+                                        "shaders/results.frag"); // todo remove
 
 }
 
