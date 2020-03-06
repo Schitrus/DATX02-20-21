@@ -6,6 +6,10 @@
 #include <string>
 #include "file_loader.h"
 #include <memory>
+#include <android/log.h>
+
+#define LOG_TAG "file_loader"
+#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 static FileLoader *fileLoader;
 

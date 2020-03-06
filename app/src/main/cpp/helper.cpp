@@ -7,6 +7,7 @@
 #include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <jni.h>
 #include <android/log.h>
@@ -14,8 +15,11 @@
 #include <android/asset_manager_jni.h>
 #include <iostream>
 
+#include "file_loader.h"
+
 #define LOG_TAG "helper"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
 bool checkGlError(const char *funcName) {
@@ -34,6 +38,7 @@ GLuint createShader(GLenum shaderType, const char *src) {
         checkGlError("glCreateShader");
         return 0;
     }
+
     glShaderSource(shader, 1, &src, NULL);
 
     GLint compiled = GL_FALSE;
@@ -60,20 +65,35 @@ GLuint createShader(GLenum shaderType, const char *src) {
 }
 
 
-GLuint createProgram(const char *vtxSrc, const char *fragSrc) {
+GLuint createProgram(const char *vert_path, const char *frag_path) {
     GLuint vtxShader = 0;
     GLuint fragShader = 0;
     GLuint program = 0;
     GLint linked = GL_FALSE;
 
+    const char* vtxSrc;
+    const char* fragSrc;
+
+    std::string vert;
+    std::string frag;
+
+    vert = loadFileFromAssets(vert_path);
+    vtxSrc = vert.c_str();
+
+    LOGE("Creating Vertex Shader: %s", vert_path);
     vtxShader = createShader(GL_VERTEX_SHADER, vtxSrc);
     if (!vtxShader)
         goto exit;
 
+    frag = loadFileFromAssets(frag_path);
+    fragSrc = frag.c_str();
+
+    LOGE("Creating Fragment Shader: %s", frag_path);
     fragShader = createShader(GL_FRAGMENT_SHADER, fragSrc);
     if (!fragShader)
         goto exit;
 
+    LOGE("Creating Program: %s, %s", vert_path, frag_path);
     program = glCreateProgram();
     if (!program) {
         checkGlError("glCreateProgram");

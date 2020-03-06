@@ -26,10 +26,10 @@ public class FireActivity extends Activity {
 
         init(dimension.x, dimension.y);
 
-        fire = new FireView(getApplication());
-
         AssetManager mgr = getResources().getAssets();
         initFileLoader(mgr);
+
+        fire = new FireView(getApplication());
 
         setContentView(fire);
 
