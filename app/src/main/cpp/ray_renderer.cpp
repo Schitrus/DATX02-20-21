@@ -197,7 +197,7 @@ void RayRenderer::display() {
 
 }
 
-float start_sec = duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count()/1000.0;
+float start_sec = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count()/1000.0;
 float dt;
 float rotTime = 10;
 float rot = 0;
@@ -205,7 +205,7 @@ float rot = 0;
 
 void RayRenderer::loadMVP(GLuint shaderProgram) {
 
-    std::chrono::milliseconds ms = duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
     float currentTime = ms.count()/1000.0 - start_sec;
     float p = currentTime / 10.0f;
     p = p - ((int)p);
