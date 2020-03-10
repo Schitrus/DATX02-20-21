@@ -28,36 +28,6 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
-int screen_width;
-int screen_height;
-
-// fbo
-GLuint slabFBO = UINT32_MAX;
-GLuint resultTarget;
-
-// result // todo remove
-GLuint resultShaderProgram;
-GLuint texcoordsBuffer;
-
-// matrices
-GLuint dataMatrix;
-GLuint ResultMatrix;
-
-// interior
-GLuint interiorShaderProgram;
-GLuint interiorVAO;
-GLuint interiorPositionBuffer;
-GLuint interiorIndexBuffer;
-
-// boundary
-GLuint boundaryShaderProgram;
-GLuint boundaryVAO;
-GLuint boundaryPositionBuffer;
-
-// front and back face
-GLuint frontAndBackInteriorShaderProgram;
-GLuint frontAndBackBoundaryShaderProgram;
-
 void SlabOperator::init() {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -65,8 +35,8 @@ void SlabOperator::init() {
     glDisable(GL_CULL_FACE);
 
     resize(16, 16, 16);
-
-    createMatrixFBO(grid_width, grid_height, &slabFBO, &resultTarget);
+    FBO = new Framebuffer();
+    FBO->create(grid_width, grid_height, true);
     initData();
 
     initQuad();
@@ -194,16 +164,16 @@ void SlabOperator::initQuad() {
 
 void SlabOperator::initProgram() {
 
-    interiorShaderProgram = createProgram("shaders/slab.vert", "shaders/interior.frag");
-    boundaryShaderProgram = createProgram("shaders/slab.vert", "shaders/boundary.frag");
+    interiorShader.load("shaders/slab.vert", "shaders/interior.frag");
+    boundaryShader.load("shaders/slab.vert", "shaders/boundary.frag");
 
-    frontAndBackInteriorShaderProgram = createProgram("shaders/slab.vert",
-                                                      "shaders/front_and_back_interior.frag");
-    frontAndBackBoundaryShaderProgram = createProgram("shaders/slab.vert",
-                                                      "shaders/front_and_back_boundary.frag");
+    FABInteriorShader.load("shaders/slab.vert",
+                           "shaders/front_and_back_interior.frag");
+    FABBoundaryShader.load("shaders/slab.vert",
+                           "shaders/front_and_back_boundary.frag");
 
-    resultShaderProgram = createProgram("shaders/results.vert",
-                                        "shaders/results.frag"); // todo remove
+    resultShader.load("shaders/results.vert",
+                      "shaders/results.frag"); // todo remove
 
 }
 
@@ -215,23 +185,23 @@ void SlabOperator::update() {
 
 void SlabOperator::slabOperation() {
 
-    glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
+    FBO->use();
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
-        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        slabOperation(interiorShader, boundaryShader, current_depth, 1.0f);
 
     }
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
+    slabOperation(FABInteriorShader, FABBoundaryShader, 0, 1.0f);
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
+    slabOperation(FABInteriorShader, FABBoundaryShader, grid_depth - 1, 1.0f);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    FBO->null();
 
 }
 
-void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale) {
 
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, layer);
 
@@ -239,13 +209,13 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
 
     //boundaries
     glViewport(0, 0, grid_width, grid_height);
-    glUseProgram(boundariesProgram);
+    boundariesProgram.use();
     glBindVertexArray(boundaryVAO);
     glLineWidth(10000.0f);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "depth"), layer);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "width"), grid_width);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "height"), grid_height);
-    glUniform1f(glGetUniformLocation(boundariesProgram, "scale"), scale);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "depth"), layer);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "width"), grid_width);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "height"), grid_height);
+    glUniform1f(glGetUniformLocation(boundariesProgram.program(), "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
@@ -255,8 +225,8 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
     //interior
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
-    glUseProgram(interiorProgram);
-    glUniform1i(glGetUniformLocation(interiorProgram, "depth"), layer);
+    interiorProgram.use();
+    glUniform1i(glGetUniformLocation(interiorProgram.program(), "depth"), layer);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
@@ -268,8 +238,8 @@ void SlabOperator::display_results() {
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, screen_width, screen_height);
-    glUseProgram(resultShaderProgram);
+    glViewport(0, 0, grid_width, grid_height);
+    resultShader.use();
     glBindVertexArray(interiorVAO);
 
     glActiveTexture(GL_TEXTURE0);

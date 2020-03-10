@@ -8,8 +8,37 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 
+#include "shader.h"
+#include "framebuffer.h"
+
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
+
+    // Framebuffer
+    Framebuffer* FBO;
+
+    // result // todo remove
+    Shader resultShader;
+    GLuint texcoordsBuffer;
+
+    // matrices
+    GLuint dataMatrix;
+    GLuint ResultMatrix;
+
+    // interior
+    Shader interiorShader;
+    GLuint interiorVAO;
+    GLuint interiorPositionBuffer;
+    GLuint interiorIndexBuffer;
+
+    // boundary
+    Shader boundaryShader;
+    GLuint boundaryVAO;
+    GLuint boundaryPositionBuffer;
+
+    // front and back face
+    Shader FABInteriorShader;
+    Shader FABBoundaryShader;
 public:
     void init();
 
@@ -26,7 +55,7 @@ private:
     void initProgram();
 
     void slabOperation();
-    void slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale);
+    void slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale);
 
     void display_results();
 };
