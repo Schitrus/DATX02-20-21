@@ -151,7 +151,7 @@ void RayRenderer::display() {
 
     // back
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -162,17 +162,9 @@ void RayRenderer::display() {
 
     // front
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
-
-    // temp solution to fix flickering
-    float tmpScaleX = scaleX;
-    float tmpScaleY = scaleY;
-    float tmpScaleZ = scaleZ;
-    scaleX = scaleX * 0.99f;
-    scaleY = scaleY * 0.99f;
-    scaleZ = scaleZ * 0.99f;
 
     glUseProgram(frontFaceShaderProgram);
     loadMVP(frontFaceShaderProgram);
@@ -181,10 +173,6 @@ void RayRenderer::display() {
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_3D, volumeTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-    scaleX = tmpScaleX;
-    scaleY = tmpScaleY;
-    scaleZ = tmpScaleZ;
 
 }
 

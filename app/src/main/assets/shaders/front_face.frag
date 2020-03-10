@@ -12,32 +12,27 @@ void main() {
    float D = length(direction);
    direction = normalize(direction);
    vec4 color = vec4(0.0f);
-   color.a = 1.0f;
-   float h = 0.015f;         // todo fix
+   color.a = 0.0f;
+   float h = 1.0/256.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
    float alpha;
    vec3 sampColor;
    vec3 baseColor = vec3(1.0,0.0,0.0);
-   vec3 otherColor = vec3(1.0,1.0,0.0);
-   baseColor = mix(baseColor, otherColor, length(gl_FragCoord.xy));
    //float opacityThreshold = 0.95f;
-   for(float t = 0.0f; t<=D; t += h){
-           float samp = texture(volume, tr).x;
+   for(float t = 0.0; t<=D; t+=h){
+           ivec3 iv = ivec3(tr);
+           float samp = texture(volume, tr).x*0.05;
            //calculate Alpha
-           alpha = 1.0f - exp(-0.5f * samp);
+           alpha = samp;
            //accumulating collor and alpha using under operator
-           sampColor = baseColor * alpha;
-           color.rgb += sampColor * color.a;
-           color.a *= 1.0f - samp;
+           color.a = color.a + alpha * (1.0 - color.a);
            // checking early ray termination
            //if(1.0f - color.w > opacityThreshold) break;
            //increment ray step
            tr += rayStep;
    }
-
-color.w = 1.0f - color.w;
-color.rgb = pow( color.rgb, vec3(0.4545)); 
-outColor = color;
-//  outColor = vec4(hit,1.0f); // todo
+        color.rgb = pow( baseColor.rgb, vec3(0.4545)); 
+        outColor = color;
+        //  outColor = vec4(hit,1.0f); // todo
 }

@@ -14,6 +14,7 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <iostream>
+#include <algorithm>
 
 #include "file_loader.h"
 
@@ -227,7 +228,27 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
     }
 
     glBindTexture(GL_TEXTURE_3D, *volumeTexID);
+/*
+    char* data = new char[32*32*32];
+    for(int z = 0; z < 32; z++){
+        for(int y = 0; y < 32; y++){
+            for(int x = 0; x < 32; x++){
+                data[z*32*32+y*32+x] = 255;
+            }
+        }
+    }
+    glTexImage3D(GL_TEXTURE_3D,
+                 0,
+                 GL_R8,
+                 32,
+                 32,
+                 32,
+                 0,
+                 GL_RED,
+                 GL_UNSIGNED_BYTE,
+                 data);
 
+    */
     glTexImage3D(GL_TEXTURE_3D,
                  0,
                  GL_R8,
