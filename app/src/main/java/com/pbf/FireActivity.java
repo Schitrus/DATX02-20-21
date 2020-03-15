@@ -24,10 +24,7 @@ public class FireActivity extends Activity {
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
 
-        init(dimension.x, dimension.y);
-
-        AssetManager mgr = getResources().getAssets();
-        initFileLoader(mgr);
+        init(getResources().getAssets(), dimension.x, dimension.y);
 
         fire = new FireView(getApplication());
 
@@ -35,8 +32,6 @@ public class FireActivity extends Activity {
 
     }
 
-    public native void init(int width, int height);
-
-    private native void initFileLoader(AssetManager manager);
+    public native void init(AssetManager mgr, int width, int height);
 
 }

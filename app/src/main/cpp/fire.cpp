@@ -4,13 +4,25 @@
 
 #include "fire.h"
 #include "file_loader.h"
+#include <android/asset_manager_jni.h>
 
 #include <jni.h>
 #include <GLES3/gl31.h>
 #include <android/log.h>
 
-Fire::Fire(int width, int height) : screen_width(width), screen_height(height){
+Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
+    : javaEnvironment(javaEnvironment), assetManager(assetManager),
+      screen_width(width), screen_height(height) {
+    initFileLoader(assetManager);
+}
 
+void Fire::init(){
+    renderer.init(assetManager);
+    simulator.init();
+}
+
+void Fire::resize(int width, int height){
+    fire->renderer.resize(width, height);
 }
 
 void Fire::update(){
@@ -18,25 +30,40 @@ void Fire::update(){
     renderer.update();
 }
 
-// FireActivity
-JC(void) Java_com_pbf_FireActivity_init(JCT, jint width, jint height){
-    fire = new Fire(width, height);
+void Fire::touch(double dx, double dy){
+    renderer.touch(dx, dy);
 }
 
-JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager){
-    initFileLoader(env, obj, assetManager);
-    std::string fileText = loadFileFromAssets("shader.vert");
-    __android_log_print(ANDROID_LOG_INFO, "FileLoader", "%s", fileText.c_str());
+void Fire::scale(float scaleFactor, double scaleX, double scaleY){
+    renderer.scale(scaleFactor, scaleX, scaleY);
+}
+
+
+AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
+    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+    if (mgr == NULL) {
+        ALOGE("error loading asset manger");
+    } else {
+        LOGE("loaded asset manager");
+    }
+    return mgr;
+}
+
+
+
+// FireActivity
+JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject , jobject mgr, jint width, jint height){
+
+    fire = new Fire(env, loadAssetManager(env, mgr), width, height);
 }
 
 // FireRenderer
-JC(void) Java_com_pbf_FireRenderer_init(JNIEnv *env, jobject, jobject mgr){
-    fire->renderer.init(env, mgr);
-    fire->simulator.init();
+JC(void) Java_com_pbf_FireRenderer_init(JCT){
+    fire->init();
 }
 
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height){
-    fire->renderer.resize(width, height);
+    fire->resize(width, height);
 }
 
 JC(void) Java_com_pbf_FireRenderer_update(JCT){
@@ -45,10 +72,10 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT){
 
 // FireListener
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
-    fire->renderer.touch(dx, dy);
+    fire->touch(dx, dy);
 }
 
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
-    fire->renderer.scale(scaleFactor, scaleX, scaleY);
+    fire->scale(scaleFactor, scaleX, scaleY);
 }
 

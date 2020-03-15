@@ -8,13 +8,15 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 
+#include <android/asset_manager.h>
+
 #include "ray_renderer.h"
 
 class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
 public:
-    void init(JNIEnv* env, jobject assetManager);
+    void init(AAssetManager* assetManager);
     void resize(int width, int height);
     void update();
 

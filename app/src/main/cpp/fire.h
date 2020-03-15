@@ -7,9 +7,15 @@
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 #include "renderer.h"
 #include "simulator.h"
+
+#define LOG_TAG "FIRE"
+#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 /*
  Did you ever hear the tragedy of Darth Plagueis The Wise?
@@ -32,21 +38,32 @@ public:
     Renderer renderer;
     Simulator simulator;
 
-    Fire(int width, int height);
+    JNIEnv* javaEnvironment;
+    AAssetManager* assetManager;
+
+    Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height);
+
+    void init();
+    void resize(int width, int height);
     void update();
+
+    void touch(double dx, double dy);
+    void scale(float scaleFactor, double scaleX, double scaleY);
 };
 
 Fire* fire;
+
+AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager);
 
 // Interface between java and c++
 #define JC(T) extern "C" JNIEXPORT T JNICALL
 #define JCT JNIEnv*, jobject
 
 // FireActivity
-JC(void) Java_com_pbf_FireActivity_init(JCT, jint width, jint height);
+JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject, jobject mgr, jint width, jint height);
 JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
 // FireRenderer
-JC(void) Java_com_pbf_FireRenderer_init(JCT, jobject mgr);
+JC(void) Java_com_pbf_FireRenderer_init(JCT);
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height);
 JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener
