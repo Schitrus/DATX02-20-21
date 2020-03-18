@@ -40,8 +40,8 @@ GLuint resultShaderProgram;
 GLuint texcoordsBuffer;
 
 // matrices
-GLuint dataMatrix;
-GLuint ResultMatrix;
+GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix;
+GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
 
 // interior
 GLuint interiorShaderProgram;
@@ -57,6 +57,9 @@ GLuint boundaryPositionBuffer;
 // front and back face
 GLuint frontAndBackInteriorShaderProgram;
 GLuint frontAndBackBoundaryShaderProgram;
+
+// simulation
+GLuint dissipateShaderProgram, divergenceShaderProgram, jacobiShaderProgram, projectionShaderProgram;
 
 void SlabOperator::init() {
 
@@ -81,20 +84,51 @@ void SlabOperator::resize(int width, int height, int depth){
 }
 
 void SlabOperator::initData() {
-
     int size = grid_width * grid_height * grid_depth;
+    initVelocity(size);
+    // todo remove ordinary data array
     float* data = new float[size];
-    int b = sizeof(data) / sizeof(data[0]);
+    //int b = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
         data[i] = 0.16666f;
     }
+    initPressure(data);
+    initDensity(data);
+    initTemperature(data);
 
     create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
-    create3DTexture(&ResultMatrix, grid_width, grid_height, grid_depth, NULL);
+    create3DTexture(&resultMatrix, grid_width, grid_height, grid_depth, NULL);
+    create3DTexture(&divMatrix, grid_width, grid_height, grid_depth, NULL);
 
     delete[] data;
 }
+
+void SlabOperator::initVelocity(int size){
+    float* data = new float[size*3];
+    for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
+        data[i] = 0.16666f;
+    }
+    create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
+    create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
+    delete[] data;
+}
+
+void SlabOperator::initPressure(float* data){
+    create3DTexture(&pressureMatrix, grid_width, grid_height, grid_depth, data);
+    create3DTexture(&resultPMatrix, grid_width, grid_height, grid_depth, NULL);
+}
+
+void SlabOperator::initDensity(float* data){
+    create3DTexture(&densityMatrix, grid_width, grid_height, grid_depth, data);
+    create3DTexture(&resultDMatrix, grid_width, grid_height, grid_depth, NULL);
+}
+
+void SlabOperator::initTemperature(float* data){
+    create3DTexture(&temperatureMatrix, grid_width, grid_height, grid_depth, data);
+    create3DTexture(&resultTMatrix, grid_width, grid_height, grid_depth, NULL);
+}
+
 
 void SlabOperator::initLine() {
     glGenVertexArrays(1, &boundaryVAO);
@@ -194,13 +228,19 @@ void SlabOperator::initQuad() {
 
 void SlabOperator::initProgram() {
 
-    interiorShaderProgram = createProgram("shaders/slab.vert", "shaders/interior.frag");
-    boundaryShaderProgram = createProgram("shaders/slab.vert", "shaders/boundary.frag");
+    interiorShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/advection.frag");
+    boundaryShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/boundary.frag");
+    frontAndBackInteriorShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_interior.frag");
+    frontAndBackBoundaryShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_boundary.frag");
+    dissipateShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
+    divergenceShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/divergence.frag");
+    jacobiShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/jacobi.frag");
+    projectionShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/projection.frag");
 
-    frontAndBackInteriorShaderProgram = createProgram("shaders/slab.vert",
-                                                      "shaders/front_and_back_interior.frag");
-    frontAndBackBoundaryShaderProgram = createProgram("shaders/slab.vert",
-                                                      "shaders/front_and_back_boundary.frag");
+    //frontAndBackInteriorShaderProgram = createProgram("shaders/slab.vert",
+    //                                                  "shaders/front_and_back_interior.frag");
+    //frontAndBackBoundaryShaderProgram = createProgram("shaders/slab.vert",
+    //                                                  "shaders/front_and_back_boundary.frag");
 
     resultShaderProgram = createProgram("shaders/results.vert",
                                         "shaders/results.frag"); // todo remove
@@ -220,20 +260,62 @@ void SlabOperator::slabOperation() {
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
         slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
-
     }
 
     slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
 
     slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
 
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(divergenceShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+    }
+    for(int i = 0; i < 20; i++) {
+        for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+            // todo fix so they are done at the same time
+            slabOperation(jacobiShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        }
+    }
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(projectionShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+    }
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(dissipateShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
 void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+    GLuint temp = 0;
 
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ResultMatrix, 0, layer);
+    if(interiorProgram == interiorShaderProgram) {
+        resultMatrix = resultVMatrix;
+        temp = dataMatrix;
+        dataMatrix = velocityMatrix;
+    } else if(frontAndBackInteriorShaderProgram) {
+        resultMatrix = resultVMatrix;
+        dataMatrix = velocityMatrix;
+    } else if(divergenceShaderProgram) {
+        resultMatrix = divMatrix;
+        dataMatrix = velocityMatrix;
+    } else if(jacobiShaderProgram) {
+        resultMatrix = resultPMatrix;
+        dataMatrix = pressureMatrix;
+        temp = divMatrix;
+    } else if(projectionShaderProgram) {
+        resultMatrix = resultVMatrix;
+        dataMatrix = velocityMatrix;
+        temp = velocityMatrix;
+    } else if(dissipateShaderProgram) {
+        resultMatrix = resultPMatrix;
+        dataMatrix = pressureMatrix;
+    }
+
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultMatrix, 0, layer);
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -249,6 +331,10 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
+    if(temp != 0) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_3D, temp);
+    }
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
 
 
@@ -256,12 +342,22 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
     glUseProgram(interiorProgram);
+    // standard
     glUniform1i(glGetUniformLocation(interiorProgram, "depth"), layer);
+    // advection
+    glUniform1f(glGetUniformLocation(interiorProgram, "dt"), 1.0f/60.0f);
+    glUniform1f(glGetUniformLocation(interiorProgram, "dh"), 1.0f);
+    glUniform3f(glGetUniformLocation(interiorProgram, "gridSize"), grid_width, grid_height, grid_depth);
+    // dissipate
+    glUniform1f(glGetUniformLocation(interiorProgram, "aS"), 1.0f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
+    if(temp != 0) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_3D, temp);
+    }
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 }
 
 void SlabOperator::display_results() {
@@ -273,7 +369,7 @@ void SlabOperator::display_results() {
     glBindVertexArray(interiorVAO);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
+    glBindTexture(GL_TEXTURE_3D, resultMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

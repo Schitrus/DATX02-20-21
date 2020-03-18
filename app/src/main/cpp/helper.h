@@ -21,6 +21,7 @@ void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextur
 void resizeFBO(int w, int h, GLuint *colorTextureTarget, GLuint *rbo);
 
 void create3DTexture(GLuint *id, int width, int height, int depth, float *data);
+void create3DTextureV(GLuint *id, int width, int height, int depth, float *data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);

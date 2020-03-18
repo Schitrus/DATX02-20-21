@@ -18,6 +18,13 @@ public:
     void update();
 private:
     void initData();
+    void initVelocity(int size);
+
+    void initPressure(float* data);
+
+    void initDensity(float* data);
+
+    void initTemperature(float* data);
 
     void initLine();
 
