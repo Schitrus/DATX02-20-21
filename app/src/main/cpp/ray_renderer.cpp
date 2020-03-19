@@ -70,8 +70,10 @@ void RayRenderer::resize(int width, int height) {
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
-    ::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
-    boundingScale = vec3(1, 1, 0.7);
+    //::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
+    //boundingScale = vec3(1, 1, 0.7);
+    generate3DTexture(&volumeTexID, 48, 48, 48);
+    boundingScale = vec3(1.0f);
 }
 
 void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
@@ -88,6 +90,7 @@ void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
             1.0f, 0.0f, 0.0f,    //v1
             1.0f, 1.0f, 0.0f,    //v2
             0.0f, 1.0f, 0.0f,    //v3
+
             0.0f, 0.0f, 1.0f,    //v4
             1.0f, 0.0f, 1.0f,    //v5
             1.0f, 1.0f, 1.0f,    //v6
@@ -135,6 +138,11 @@ void RayRenderer::step() {
     float delta_time = DURATION(NOW, last_time);
     last_time = NOW;
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glViewport(0, 0, window_width, window_height);
 
@@ -149,6 +157,7 @@ void RayRenderer::step() {
     backFaceShader.use();
     loadMVP(backFaceShader, current_time);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
 
 
     // front
