@@ -37,5 +37,5 @@ void main() {
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
         outColor = color;
-        //  outColor = vec4(hit,1.0f); // todo
+        //outColor = vec4(hit,color.r); // todo
 }

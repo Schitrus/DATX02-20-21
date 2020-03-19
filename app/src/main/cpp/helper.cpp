@@ -134,13 +134,16 @@ double perlin(double x, double y, double z){
 }
 
 vec4 noise(double x, double y, double z){
+    double b = 0;
 	double g = 0;
 	double a = 0;
-	for(int octave = 1; octave <= 5; octave++)
-		g += 1.0/(octave+1) * perlin(octave*x+15254, octave*y+23564, octave*z+73536);
+	for(int octave = 2; octave <= 5; octave++)
+		g += 1.0/(octave+2) * perlin(octave*x+3213, octave*y+939, octave*z+2425);
+    for(int octave = 1; octave <= 2; octave++)
+        b += 1.0/(octave+1) * perlin(octave*x+15254, octave*y+23564, octave*z+73536);
 	for(int octave = 1; octave <= 5; octave++)
 		a += 1.0/(octave+1) * perlin(octave*x, octave*y, octave*z);
-    return vec4(1.0f, (g+0.5f)/2, 0.0f, std::max(0.25f*round((a+0.5f)), 0.0));
+    return vec4(1.0f-(b+0.5f)/2, (g+0.5f)/2, (b+0.5f)/2, std::max(0.25f*round((a+0.5f)), 0.0));
 }
 
 void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei depth){
@@ -157,18 +160,19 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
 				data[z * height * width + y * width + x] = noise((double) x / width,
 																 (double) y / height,
 																 (double) z / depth);
+                //data[z * height * width + y * width + x] = vec4(1.0f, 0.0f, 1.0f, 0.24f);
 			}
 		}
 	}
     LOGE("GENERATION DONE");
 
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, width, height, depth, 0, GL_RGBA, GL_FLOAT, data);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, width, height, depth, 0, GL_RGBA, GL_FLOAT, data);
 
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     delete[] data;
 }
@@ -185,7 +189,7 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 
     glTexImage3D(GL_TEXTURE_3D,
                  0,
-                 GL_RED,
+                 GL_R8,
                  width,
                  height,
                  depth,

@@ -72,7 +72,7 @@ void RayRenderer::resize(int width, int height) {
 void RayRenderer::load3DTexture(const char *fileName) {
     //::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
     //boundingScale = vec3(1, 1, 0.7);
-    generate3DTexture(&volumeTexID, 48, 48, 48);
+    generate3DTexture(&volumeTexID, 96, 96, 96);
     boundingScale = vec3(1.0f);
 }
 
