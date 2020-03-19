@@ -90,7 +90,7 @@ void SlabOperator::initData() {
     float* data = new float[size];
     //int b = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
-        data[i] = 0.16666f;
+        data[i] = 0.0f;
     }
     initPressure(data);
     initDensity(data);
@@ -107,7 +107,7 @@ void SlabOperator::initData() {
 void SlabOperator::initVelocity(int size){
     float* data = new float[size*3];
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
-        data[i] = 0.16666f;
+        data[i] = 0.0f;
     }
     create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
     create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
@@ -262,10 +262,6 @@ void SlabOperator::slabOperation() {
         slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
     }
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
-
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
-
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
         slabOperation(divergenceShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
@@ -284,6 +280,10 @@ void SlabOperator::slabOperation() {
         // todo fix so they are done at the same time
         slabOperation(dissipateShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
     }
+
+    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
+
+    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -349,7 +349,7 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
     glUniform1f(glGetUniformLocation(interiorProgram, "dh"), 1.0f);
     glUniform3f(glGetUniformLocation(interiorProgram, "gridSize"), grid_width, grid_height, grid_depth);
     // dissipate
-    glUniform1f(glGetUniformLocation(interiorProgram, "aS"), 1.0f);
+    glUniform1f(glGetUniformLocation(interiorProgram, "aS"), 0.15f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
