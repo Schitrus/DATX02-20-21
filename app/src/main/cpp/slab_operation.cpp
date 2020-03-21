@@ -40,7 +40,7 @@ GLuint resultShaderProgram;
 GLuint texcoordsBuffer;
 
 // matrices
-GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix;
+GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
 GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
 
 // interior
@@ -95,6 +95,7 @@ void SlabOperator::initData() {
     initPressure(data);
     initDensity(data);
     initTemperature(data);
+    initSources();
 
     create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
@@ -129,6 +130,30 @@ void SlabOperator::initTemperature(float* data){
     create3DTexture(&resultTMatrix, grid_width, grid_height, grid_depth, NULL);
 }
 
+void SlabOperator::initSources(){
+    int size = grid_width * grid_height * grid_depth;
+
+    float* tempSource = new float[size];
+    float* velSource = new float[3*size];
+
+    int radius = grid_width/10;
+    for(int x = - radius; x <= radius; x++){
+        int dz = (int) std::round(sqrt(radius * radius - x * x));
+        for(int z = -dz; z <= dz; z++){
+            //I have not verified that this is the correct way to calculate the index
+            int index = x + grid_width*(0 + grid_height*z);
+
+            tempSource[index] = 1;
+            velSource[3*index + 1] = 1;
+        }
+    }
+
+    create3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
+    create3DTextureV(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
+
+    delete[] tempSource;
+    delete[] velSource;
+}
 
 void SlabOperator::initLine() {
     glGenVertexArrays(1, &boundaryVAO);

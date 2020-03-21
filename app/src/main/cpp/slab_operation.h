@@ -26,6 +26,8 @@ private:
 
     void initTemperature(float* data);
 
+    void initSources();
+
     void initLine();
 
     void initQuad();
