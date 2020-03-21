@@ -1,5 +1,6 @@
 #version 310 es
 
+precision highp float;
 precision highp sampler3D;
 
 layout(binding = 0) uniform sampler3D target;
