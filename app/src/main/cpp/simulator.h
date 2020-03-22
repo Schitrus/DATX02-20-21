@@ -16,6 +16,12 @@ public:
     void init();
     void resize(int width, int height, int depth);
     void update();
+
+    void swapData();
+
+    void setData(GLuint data, int width, int height, int depth);
+    void getData(GLuint& data, int& width, int& height, int& depth);
+
 };
 
 #endif //DATX02_20_21_SIMULATOR_H

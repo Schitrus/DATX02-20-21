@@ -67,9 +67,9 @@ void SlabOperator::init() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(16, 16, 16);
-
-    createMatrixFBO(grid_width, grid_height, &slabFBO, &resultTarget);
+    resize(32, 32, 32);
+    FBO = new Framebuffer();
+    FBO->create(grid_width, grid_height, true);
     initData();
 
     initQuad();
@@ -81,6 +81,8 @@ void SlabOperator::resize(int width, int height, int depth){
     grid_width = width;
     grid_height = height;
     grid_depth = depth;
+    FBO = new Framebuffer();
+    FBO->create(grid_width, grid_height, true);
 }
 
 void SlabOperator::initData() {
@@ -253,22 +255,18 @@ void SlabOperator::initQuad() {
 
 void SlabOperator::initProgram() {
 
-    interiorShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/advection.frag");
-    boundaryShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/boundary.frag");
-    frontAndBackInteriorShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_interior.frag");
-    frontAndBackBoundaryShaderProgram = createProgram("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_boundary.frag");
-    dissipateShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
-    divergenceShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/divergence.frag");
-    jacobiShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/jacobi.frag");
-    projectionShaderProgram = createProgram("shaders/slab.vert", "shaders/simulation/projection/projection.frag");
+    interiorShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/advection.frag");
+    boundaryShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/boundary.frag");
 
-    //frontAndBackInteriorShaderProgram = createProgram("shaders/slab.vert",
-    //                                                  "shaders/front_and_back_interior.frag");
-    //frontAndBackBoundaryShaderProgram = createProgram("shaders/slab.vert",
-    //                                                  "shaders/front_and_back_boundary.frag");
+    FABInteriorShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_interior.frag");
+    FABBoundaryShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_boundary.frag");
 
-    resultShaderProgram = createProgram("shaders/results.vert",
-                                        "shaders/results.frag"); // todo remove
+    dissipateShader.load("shaders/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
+    divergenceShader.load("shaders/slab.vert", "shaders/simulation/projection/divergence.frag");
+    jacobiShader.load("shaders/slab.vert", "shaders/simulation/projection/jacobi.frag");
+    projectionShader.load("shaders/slab.vert", "shaders/simulation/projection/projection.frag");
+
+    resultShader.load("shaders/results.vert", "shaders/results.frag"); // todo remove
 
 }
 
@@ -277,15 +275,38 @@ void SlabOperator::update() {
     //display_results(); // todo remove
 }
 
+void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
+    data = dataMatrix;
+    width = grid_width;
+    height = grid_height;
+    depth = grid_depth;
+}
+
+void SlabOperator::swapData(){
+    GLuint tmp = dataMatrix;
+    dataMatrix = ResultMatrix;
+    ResultMatrix = tmp;
+
+}
+
+void SlabOperator::setData(GLuint data, int width, int height, int depth){
+    resize(width, height, depth);
+    dataMatrix = data;
+    create3DTexture(&ResultMatrix, width, height, depth, NULL);
+}
+
 
 void SlabOperator::slabOperation() {
 
-    glBindFramebuffer(GL_FRAMEBUFFER, slabFBO);
+    FBO->use();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
-        slabOperation(interiorShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
-    }
+        slabOperation(interiorShader, boundaryShader, current_depth, 1.0f);
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
@@ -306,15 +327,15 @@ void SlabOperator::slabOperation() {
         slabOperation(dissipateShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
     }
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, 0, 1.0f);
+    slabOperation(FABInteriorShader, FABBoundaryShader, 0, 1.0f);
 
-    slabOperation(frontAndBackInteriorShaderProgram, frontAndBackBoundaryShaderProgram, grid_depth - 1, 1.0f);
+    slabOperation(FABInteriorShader, FABBoundaryShader, grid_depth - 1, 1.0f);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    FBO->null();
 
 }
 
-void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgram, int layer, float scale) {
+void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale) {
     GLuint temp = 0;
 
     if(interiorProgram == interiorShaderProgram) {
@@ -346,13 +367,14 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
 
     //boundaries
     glViewport(0, 0, grid_width, grid_height);
-    glUseProgram(boundariesProgram);
+    boundariesProgram.use();
     glBindVertexArray(boundaryVAO);
     glLineWidth(10000.0f);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "depth"), layer);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "width"), grid_width);
-    glUniform1i(glGetUniformLocation(boundariesProgram, "height"), grid_height);
-    glUniform1f(glGetUniformLocation(boundariesProgram, "scale"), scale);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "depth"), layer);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "width"), grid_width);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "height"), grid_height);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "max_depth"), grid_depth);
+    glUniform1f(glGetUniformLocation(boundariesProgram.program(), "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
@@ -366,15 +388,16 @@ void SlabOperator::slabOperation(GLuint interiorProgram, GLuint boundariesProgra
     //interior
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
-    glUseProgram(interiorProgram);
+    interiorProgram.use();
     // standard
-    glUniform1i(glGetUniformLocation(interiorProgram, "depth"), layer);
+    glUniform1i(glGetUniformLocation(interiorProgram.program(), "depth"), layer);
+    glUniform1i(glGetUniformLocation(interiorProgram.program(), "max_depth"), grid_depth);
     // advection
-    glUniform1f(glGetUniformLocation(interiorProgram, "dt"), 1.0f/60.0f);
-    glUniform1f(glGetUniformLocation(interiorProgram, "dh"), 1.0f);
-    glUniform3f(glGetUniformLocation(interiorProgram, "gridSize"), grid_width, grid_height, grid_depth);
+    glUniform1f(glGetUniformLocation(interiorProgram.program(), "dt"), 1.0f/60.0f);
+    glUniform1f(glGetUniformLocation(interiorProgram.program(), "dh"), 1.0f);
+    glUniform3f(glGetUniformLocation(interiorProgram.program(), "gridSize"), grid_width, grid_height, grid_depth);
     // dissipate
-    glUniform1f(glGetUniformLocation(interiorProgram, "aS"), 0.15f);
+    glUniform1f(glGetUniformLocation(interiorProgram.program(), "aS"), 0.15f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
@@ -389,12 +412,12 @@ void SlabOperator::display_results() {
     // display result
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, screen_width, screen_height);
-    glUseProgram(resultShaderProgram);
+    glViewport(0, 0, grid_width, grid_height);
+    resultShader.use();
     glBindVertexArray(interiorVAO);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, resultMatrix);
+    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

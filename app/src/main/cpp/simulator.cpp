@@ -18,3 +18,15 @@ void Simulator::update(){
     slab.update();
 }
 
+void Simulator::setData(GLuint data, int width, int height, int depth) {
+    slab.setData(data, width, height, depth);
+}
+
+void Simulator::getData(GLuint& data, int& width, int& height, int& depth){
+    slab.getData(data, width, height, depth);
+}
+
+void Simulator::swapData(){
+    slab.swapData();
+}
+
