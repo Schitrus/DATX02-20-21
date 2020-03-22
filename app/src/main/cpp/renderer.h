@@ -22,6 +22,9 @@ public:
 
     void scale(float scaleFactor, double scaleX, double scaleY);
     void touch(double dx, double dy);
+
+    void setData(GLuint data, int width, int height, int depth);
+    void getData(GLuint& data, int& width, int& height, int& depth);
 };
 
 #endif //DATX02_20_21_RENDERER_H

@@ -34,7 +34,7 @@ void SlabOperator::init() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(16, 16, 16);
+    resize(32, 32, 32);
     FBO = new Framebuffer();
     FBO->create(grid_width, grid_height, true);
     initData();
@@ -48,15 +48,16 @@ void SlabOperator::resize(int width, int height, int depth){
     grid_width = width;
     grid_height = height;
     grid_depth = depth;
+    FBO = new Framebuffer();
+    FBO->create(grid_width, grid_height, true);
 }
 
 void SlabOperator::initData() {
 
     int size = grid_width * grid_height * grid_depth;
-    float* data = new float[size];
-    int b = sizeof(data) / sizeof(data[0]);
+    vec4* data = new vec4[size];
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
-        data[i] = 0.16666f;
+        data[i] = vec4(1.0f);
     }
 
     create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
@@ -182,10 +183,34 @@ void SlabOperator::update() {
     //display_results(); // todo remove
 }
 
+void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
+    data = dataMatrix;
+    width = grid_width;
+    height = grid_height;
+    depth = grid_depth;
+}
+
+void SlabOperator::swapData(){
+    GLuint tmp = dataMatrix;
+    dataMatrix = ResultMatrix;
+    ResultMatrix = tmp;
+
+}
+
+void SlabOperator::setData(GLuint data, int width, int height, int depth){
+    resize(width, height, depth);
+    dataMatrix = data;
+    create3DTexture(&ResultMatrix, width, height, depth, NULL);
+}
+
 
 void SlabOperator::slabOperation() {
 
     FBO->use();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
@@ -215,6 +240,7 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
     glUniform1i(glGetUniformLocation(boundariesProgram.program(), "depth"), layer);
     glUniform1i(glGetUniformLocation(boundariesProgram.program(), "width"), grid_width);
     glUniform1i(glGetUniformLocation(boundariesProgram.program(), "height"), grid_height);
+    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "max_depth"), grid_depth);
     glUniform1f(glGetUniformLocation(boundariesProgram.program(), "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
@@ -223,10 +249,11 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
 
 
     //interior
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
+    glViewport(1, 1, grid_width - 1, grid_height - 1);
     glBindVertexArray(interiorVAO);
     interiorProgram.use();
     glUniform1i(glGetUniformLocation(interiorProgram.program(), "depth"), layer);
+    glUniform1i(glGetUniformLocation(interiorProgram.program(), "max_depth"), grid_depth);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);

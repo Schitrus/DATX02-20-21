@@ -58,21 +58,6 @@ char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
     return fileContent;
 }
 
-void create3DTexture(GLuint *id, int width, int height, int depth, float *data){
-
-    glGenTextures(1, id);
-    glBindTexture(GL_TEXTURE_3D, *id);
-
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, width, height, depth, 0, GL_RED,
-                 GL_FLOAT, data); //GL_FLOAT
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
 vec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
                    {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
 
@@ -134,16 +119,27 @@ double perlin(double x, double y, double z){
 }
 
 vec4 noise(double x, double y, double z){
-    double b = 0;
 	double g = 0;
 	double a = 0;
 	for(int octave = 2; octave <= 5; octave++)
 		g += 1.0/(octave+2) * perlin(octave*x+3213, octave*y+939, octave*z+2425);
-    for(int octave = 1; octave <= 2; octave++)
-        b += 1.0/(octave+1) * perlin(octave*x+15254, octave*y+23564, octave*z+73536);
 	for(int octave = 1; octave <= 5; octave++)
 		a += 1.0/(octave+1) * perlin(octave*x, octave*y, octave*z);
-    return vec4(1.0f-(b+0.5f)/2, (g+0.5f)/2, (b+0.5f)/2, std::max(0.25f*round((a+0.5f)), 0.0));
+    return vec4(1.0f, (g+0.5f)/2, 0.0f, std::max(0.25f*round((a+0.5f)), 0.0));
+}
+
+void create3DTexture(GLuint *id, int width, int height, int depth, vec4* data){
+
+    glGenTextures(1, id);
+    glBindTexture(GL_TEXTURE_3D, *id);
+
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, width, height, depth, 0, GL_RGBA, GL_FLOAT, data); //GL_FLOAT
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei depth){
@@ -171,8 +167,8 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     delete[] data;
 }

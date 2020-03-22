@@ -24,7 +24,7 @@ vec4 noise(double x, double y, double z);
 
 void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei depth);
 
-void create3DTexture(GLuint *id, int width, int height, int depth, float *data);
+void create3DTexture(GLuint *id, int width, int height, int depth, vec4* data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);

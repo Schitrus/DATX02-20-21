@@ -22,6 +22,7 @@ using std::chrono::system_clock;
 
 class RayRenderer{
     int window_width, window_height;
+    int texture_width, texture_height, texture_depth;
     AAssetManager* assetManager;
 
     // Framebuffers
@@ -48,6 +49,9 @@ public:
     void resize(int width, int height);
 
     void step();
+
+    void setData(GLuint data, int width, int height, int depth);
+    void getData(GLuint& data, int& width, int& height, int& depth);
 
 private:
 

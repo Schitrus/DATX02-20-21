@@ -69,10 +69,27 @@ void RayRenderer::resize(int width, int height) {
 
 }
 
+void RayRenderer::setData(GLuint data, int width, int height, int depth){
+    volumeTexID = data;
+    texture_width = width;
+    texture_height = height;
+    texture_depth = depth;
+}
+
+void RayRenderer::getData(GLuint& data, int& width, int& height, int& depth){
+    data = volumeTexID;
+    width = texture_width;
+    height = texture_height;
+    depth = texture_depth;
+}
+
 void RayRenderer::load3DTexture(const char *fileName) {
     //::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
     //boundingScale = vec3(1, 1, 0.7);
-    generate3DTexture(&volumeTexID, 96, 96, 96);
+    texture_width = 32;
+    texture_height = 32;
+    texture_depth = 32;
+    generate3DTexture(&volumeTexID, texture_width, texture_height, texture_depth);
     boundingScale = vec3(1.0f);
 }
 

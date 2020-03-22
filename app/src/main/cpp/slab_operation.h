@@ -45,6 +45,11 @@ public:
     void resize(int width, int height, int depth);
 
     void update();
+
+    void setData(GLuint data, int width, int height, int depth);
+    void getData(GLuint& data, int& width, int& height, int& depth);
+
+    void swapData();
 private:
     void initData();
 
