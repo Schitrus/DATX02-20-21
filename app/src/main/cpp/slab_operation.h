@@ -21,10 +21,6 @@ class SlabOperator{
     Shader resultShader;
     GLuint texcoordsBuffer;
 
-    // matrices
-    GLuint dataMatrix;
-    GLuint ResultMatrix;
-
     // interior
     Shader interiorShader;
     GLuint interiorVAO;
@@ -39,6 +35,12 @@ class SlabOperator{
     // front and back face
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
+
+    GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
+    GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
+
+    Shader advectionShader, dissipateShader, divergenceShader, jacobiShader,
+           projectionShader, temperatureShader, buoyancyShader, additionShader;
 public:
     void init();
 

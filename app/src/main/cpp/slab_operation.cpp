@@ -28,39 +28,6 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
-int screen_width;
-int screen_height;
-
-// fbo
-GLuint slabFBO = UINT32_MAX;
-GLuint resultTarget;
-
-// result // todo remove
-GLuint resultShaderProgram;
-GLuint texcoordsBuffer;
-
-// matrices
-GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
-GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
-
-// interior
-GLuint interiorShaderProgram;
-GLuint interiorVAO;
-GLuint interiorPositionBuffer;
-GLuint interiorIndexBuffer;
-
-// boundary
-GLuint boundaryShaderProgram;
-GLuint boundaryVAO;
-GLuint boundaryPositionBuffer;
-
-// front and back face
-GLuint frontAndBackInteriorShaderProgram;
-GLuint frontAndBackBoundaryShaderProgram;
-
-// simulation
-GLuint dissipateShaderProgram, divergenceShaderProgram, jacobiShaderProgram, projectionShaderProgram;
-
 void SlabOperator::init() {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -284,15 +251,15 @@ void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
 
 void SlabOperator::swapData(){
     GLuint tmp = dataMatrix;
-    dataMatrix = ResultMatrix;
-    ResultMatrix = tmp;
+    dataMatrix = resultMatrix;
+    resultMatrix = tmp;
 
 }
 
 void SlabOperator::setData(GLuint data, int width, int height, int depth){
     resize(width, height, depth);
     dataMatrix = data;
-    create3DTexture(&ResultMatrix, width, height, depth, NULL);
+    create3DTexture(&resultMatrix, width, height, depth, NULL);
 }
 
 
@@ -307,24 +274,24 @@ void SlabOperator::slabOperation() {
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
         slabOperation(interiorShader, boundaryShader, current_depth, 1.0f);
-
+    }
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
-        slabOperation(divergenceShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        slabOperation(divergenceShader, boundaryShader, current_depth, 1.0f);
     }
     for(int i = 0; i < 20; i++) {
         for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
             // todo fix so they are done at the same time
-            slabOperation(jacobiShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+            slabOperation(jacobiShader, boundaryShader, current_depth, 1.0f);
         }
     }
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
-        slabOperation(projectionShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        slabOperation(projectionShader, boundaryShader, current_depth, 1.0f);
     }
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
-        slabOperation(dissipateShaderProgram, boundaryShaderProgram, current_depth, 1.0f);
+        slabOperation(dissipateShader, boundaryShader, current_depth, 1.0f);
     }
 
     slabOperation(FABInteriorShader, FABBoundaryShader, 0, 1.0f);
@@ -338,25 +305,25 @@ void SlabOperator::slabOperation() {
 void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale) {
     GLuint temp = 0;
 
-    if(interiorProgram == interiorShaderProgram) {
+    if(interiorProgram.program() == interiorShader.program()) {
         resultMatrix = resultVMatrix;
         temp = dataMatrix;
         dataMatrix = velocityMatrix;
-    } else if(frontAndBackInteriorShaderProgram) {
+    } else if(interiorProgram.program() == FABInteriorShader.program()) {
         resultMatrix = resultVMatrix;
         dataMatrix = velocityMatrix;
-    } else if(divergenceShaderProgram) {
+    } else if(interiorProgram.program() == divergenceShader.program()) {
         resultMatrix = divMatrix;
         dataMatrix = velocityMatrix;
-    } else if(jacobiShaderProgram) {
+    } else if(interiorProgram.program() == jacobiShader.program()) {
         resultMatrix = resultPMatrix;
         dataMatrix = pressureMatrix;
         temp = divMatrix;
-    } else if(projectionShaderProgram) {
+    } else if(interiorProgram.program() == projectionShader.program()) {
         resultMatrix = resultVMatrix;
         dataMatrix = velocityMatrix;
         temp = velocityMatrix;
-    } else if(dissipateShaderProgram) {
+    } else if(interiorProgram.program() == dissipateShader.program()) {
         resultMatrix = resultPMatrix;
         dataMatrix = pressureMatrix;
     }
@@ -417,7 +384,8 @@ void SlabOperator::display_results() {
     glBindVertexArray(interiorVAO);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, ResultMatrix);
+    glBindTexture(GL_TEXTURE_3D, resultMatrix);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
+
 
