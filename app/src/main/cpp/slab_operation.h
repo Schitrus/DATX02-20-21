@@ -50,7 +50,7 @@ public:
     void setData(GLuint data, int width, int height, int depth);
     void getData(GLuint& data, int& width, int& height, int& depth);
 
-    void swapData(GLuint d1, GLuint d2);
+    void swapData(GLuint& d1, GLuint& d2);
 private:
     void initData();
     void initVelocity(int size);
@@ -72,6 +72,9 @@ private:
     void slabFABOperation(float scale);
 
     void slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale);
+
+    void buoyancy(float dt);
+    void advection(float dt);
 
     void velocityStep(float dt);
     void pressureStep(float dt);

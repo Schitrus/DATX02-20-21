@@ -239,6 +239,25 @@ void SlabOperator::initShaders() {
     temperatureShader.load("shaders/slab.vert", "shaders/simulation/temperature/temperature.frag");
 }
 
+void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
+    data = pressureMatrix;
+    width = grid_width;
+    height = grid_height;
+    depth = grid_depth;
+}
+
+void SlabOperator::swapData(GLuint& d1, GLuint& d2){
+    GLuint tmp = d1;
+    d1 = d2;
+    d2 = tmp;
+}
+
+void SlabOperator::setData(GLuint data, int width, int height, int depth){
+    resize(width, height, depth);
+    dataMatrix = data;
+    create3DTexture(&resultMatrix, width, height, depth, NULL);
+}
+
 void SlabOperator::update() {
     // Setup GPU
     FBO->use();
@@ -256,25 +275,6 @@ void SlabOperator::update() {
 
 
     FBO->null();
-}
-
-void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = velocityMatrix;
-    width = grid_width;
-    height = grid_height;
-    depth = grid_depth;
-}
-
-void SlabOperator::swapData(GLuint d1, GLuint d2){
-    GLuint tmp = d1;
-    d1 = d2;
-    d2 = tmp;
-}
-
-void SlabOperator::setData(GLuint data, int width, int height, int depth){
-    resize(width, height, depth);
-    dataMatrix = data;
-    create3DTexture(&resultMatrix, width, height, depth, NULL);
 }
 
 void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale) {
@@ -351,7 +351,91 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
+void SlabOperator::buoyancy(float dt){
+    for(int depth = 1; depth < grid_depth - 1; depth++){
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultVMatrix, 0, depth);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Exterior
+        glViewport(0, 0, grid_width, grid_height);
+        buoyancyShader.use();
+        glBindVertexArray(boundaryVAO);
+
+        glLineWidth(10000.0f);
+        glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), depth);
+        glUniform3f(glGetUniformLocation(boundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
+        glUniform1f(glGetUniformLocation(boundaryShader.program(), "scale"), 1.0f);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, velocityMatrix);
+
+        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+
+        // Interior
+        glViewport(1, 1, grid_width - 2, grid_height - 2);
+        buoyancyShader.use();
+        glBindVertexArray(interiorVAO);
+
+        glUniform1i(glGetUniformLocation(buoyancyShader.program(), "depth"), depth);
+        glUniform1f(glGetUniformLocation(buoyancyShader.program(), "dt"), dt);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, temperatureMatrix);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_3D, velocityMatrix);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+
+    swapData(velocityMatrix, resultVMatrix);
+}
+
+void SlabOperator::advection(float dt) {
+    for(int depth = 1; depth < grid_depth - 1; depth++){
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultVMatrix, 0, depth);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Exterior
+        glViewport(0, 0, grid_width, grid_height);
+        boundaryShader.use();
+        glBindVertexArray(boundaryVAO);
+
+        glLineWidth(10000.0f);
+        glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), depth);
+        glUniform3f(glGetUniformLocation(boundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
+        glUniform1f(glGetUniformLocation(boundaryShader.program(), "scale"), 1.0f);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, velocityMatrix);
+
+        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+
+        // Interior
+        glViewport(1, 1, grid_width - 2, grid_height - 2);
+        buoyancyShader.use();
+        glBindVertexArray(interiorVAO);
+
+        glUniform1i(glGetUniformLocation(buoyancyShader.program(), "depth"), depth);
+        glUniform1f(glGetUniformLocation(buoyancyShader.program(), "dt"), dt);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, temperatureMatrix);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_3D, velocityMatrix);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+
+    slabFABOperation(1.0f);
+
+    swapData(velocityMatrix, resultVMatrix);
+}
+
 void SlabOperator::velocityStep(float dt){
+
+    buoyancy(dt);
+
+    advection(dt);
 
     for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
         // todo fix so they are done at the same time
@@ -411,4 +495,6 @@ void SlabOperator::slabFABOperation(float scale){
     slabOperation(FABInteriorShader, FABBoundaryShader, 0, scale);
     slabOperation(FABInteriorShader, FABBoundaryShader, grid_depth - 1, scale);
 }
+
+
 

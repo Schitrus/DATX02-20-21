@@ -3,22 +3,26 @@
 precision highp float;
 precision highp sampler3D;
 
-layout(binding = 0) uniform sampler3D temperature;
-layout(binding = 1) uniform sampler3D velocity;
+layout(binding = 0) uniform sampler3D temperature_field;
+layout(binding = 1) uniform sampler3D velocity_field;
 
 uniform float dt;
-uniform float alpha;
+uniform float scale;
 uniform int depth;
 
-out vec3 outColor;
+out vec3 outVelocity;
 
 void main() {
 
-    float Tair = 0.0;
+    float ambient_temperature = 0.0f;
 
-    ivec3 ipos = ivec3(gl_FragCoord.xy, depth);
-    float temp = texelFetch(temperature, ipos, 0).x;
-    vec3 v = texelFetch(velocity, ipos, 0).xyz;
+    ivec3 position = ivec3(gl_FragCoord.xy, depth);
+    float temperature = texelFetch(temperature_field, position, 0).x;
+    vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    outColor = v + (alpha * (temp - Tair) * vec3(0.0f, 1.0f, 0.0f) * dt);
+    vec3 vertical_direction = vec3(0.0f, 0.0f, 1.0f);
+
+    vec3 buoyancy = scale * (temperature - ambient_temperature) * vertical_direction
+
+    outVelocity = velocity +  buoouncy * dt;
 }
