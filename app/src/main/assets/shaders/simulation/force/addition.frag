@@ -11,6 +11,7 @@ uniform int depth;
 
 out vec3 outColor;
 
+//Adds together the target texture with the source texture with a given dt
 void main() {
     ivec3 ipos = ivec3(gl_FragCoord.xy, depth);
 

@@ -13,6 +13,7 @@ uniform vec3 gridSize;
 
 out vec3 outColor;
 
+//Performs the advection step on the given data under the given velocity
 void main() {
 
     vec3 ipos = floor(vec3(gl_FragCoord.xy, depth));
