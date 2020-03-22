@@ -26,10 +26,10 @@ void main() {
 
     float temp = texture(temprature, pos).x;
 
-    float Tair = 0;
-    float Tmax = 3000 - 273.15;
-    float tempLoss = pow((temp -Tair)/(Tmax-tair), 4);
-    float lossConst = 3000 - 273.15;
+    float Tair = 0.0;
+    float Tmax = 3000.0 - 273.15;
+    float tempLoss = pow((temp -Tair)/(Tmax-Tair), 4.0);
+    float lossConst = 3000.0 - 273.15;
     temp -= dt * tempLoss * lossConst;
 
     outColor = temp;

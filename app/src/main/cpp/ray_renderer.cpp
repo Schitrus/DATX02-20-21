@@ -48,7 +48,7 @@ void RayRenderer::init(AAssetManager* assetManager) {
     FBO = nullptr;
     volumeTexID = UINT32_MAX;
 
-    load3DTexture("BostonTeapot.raw");
+    //load3DTexture("BostonTeapot.raw");
     initCube(VAO, VBO, EBO);
     initProgram();
 }
@@ -74,6 +74,7 @@ void RayRenderer::setData(GLuint data, int width, int height, int depth){
     texture_width = width;
     texture_height = height;
     texture_depth = depth;
+    boundingScale = vec3(1.0f);
 }
 
 void RayRenderer::getData(GLuint& data, int& width, int& height, int& depth){
@@ -174,8 +175,6 @@ void RayRenderer::step() {
     backFaceShader.use();
     loadMVP(backFaceShader, current_time);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-
 
     // front
     FBO->null();

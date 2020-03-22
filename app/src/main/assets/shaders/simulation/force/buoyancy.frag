@@ -14,9 +14,11 @@ out vec3 outColor;
 
 void main() {
 
-    ivec3 ipos = ivec3(gl_FragCoord.xy, depth);
-    float temp = texelFetch(temperature, ipos, 0);
-    float v = texelFetch(velocity, ipos, 0);
+    float Tair = 0.0;
 
-    outColor = v + (alpha * temp * vec3(0.0f, 1.0f, 0.0f) * dt);
+    ivec3 ipos = ivec3(gl_FragCoord.xy, depth);
+    float temp = texelFetch(temperature, ipos, 0).x;
+    vec3 v = texelFetch(velocity, ipos, 0).xyz;
+
+    outColor = v + (alpha * (temp - Tair) * vec3(0.0f, 1.0f, 0.0f) * dt);
 }

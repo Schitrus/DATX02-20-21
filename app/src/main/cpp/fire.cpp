@@ -21,8 +21,8 @@ void Fire::init(){
     GLuint data;
     int width, height, depth;
     simulator.init();
-    renderer.getData(data, width, height, depth);
-    simulator.setData(data, width, height, depth);
+    simulator.getData(data, width, height, depth);
+    renderer.setData(data, width, height, depth);
 }
 
 void Fire::resize(int width, int height){
@@ -33,7 +33,6 @@ void Fire::update(){
     simulator.update();
     GLuint data;
     int width, height, depth;
-    simulator.swapData();
     simulator.getData(data, width, height, depth);
     renderer.setData(data, width, height, depth);
     renderer.update();

@@ -26,7 +26,3 @@ void Simulator::getData(GLuint& data, int& width, int& height, int& depth){
     slab.getData(data, width, height, depth);
 }
 
-void Simulator::swapData(){
-    slab.swapData();
-}
-

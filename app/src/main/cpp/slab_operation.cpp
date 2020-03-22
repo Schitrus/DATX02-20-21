@@ -34,14 +34,14 @@ void SlabOperator::init() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(32, 32, 32);
+    resize(16, 16, 16);
     FBO = new Framebuffer();
     FBO->create(grid_width, grid_height, true);
     initData();
 
     initQuad();
     initLine();
-    initProgram();
+    initShaders();
 }
 
 void SlabOperator::resize(int width, int height, int depth){
@@ -220,40 +220,55 @@ void SlabOperator::initQuad() {
 
 }
 
-void SlabOperator::initProgram() {
-
-    interiorShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/advection.frag");
-    boundaryShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/boundary.frag");
-
-    FABInteriorShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_interior.frag");
-    FABBoundaryShader.load("shaders/simulation/advection/advection.vert", "shaders/simulation/advection/front_and_back_boundary.frag");
-
+void SlabOperator::initShaders() {
+    // Advection Shaders
+    advectionShader.load("shaders/slab.vert", "shaders/simulation/advection/advection.frag");
+    boundaryShader.load("shaders/slab.vert", "shaders/simulation/advection/boundary.frag");
+    FABInteriorShader.load("shaders/slab.vert", "shaders/simulation/advection/front_and_back_interior.frag");
+    FABBoundaryShader.load("shaders/slab.vert", "shaders/simulation/advection/front_and_back_boundary.frag");
+    // Dissipate Shaders
     dissipateShader.load("shaders/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
+    // Force Shaders
+    additionShader.load("shaders/slab.vert", "shaders/simulation/force/addition.frag");
+    buoyancyShader.load("shaders/slab.vert", "shaders/simulation/force/buoyancy.frag");
+    // Projection Shaders
     divergenceShader.load("shaders/slab.vert", "shaders/simulation/projection/divergence.frag");
     jacobiShader.load("shaders/slab.vert", "shaders/simulation/projection/jacobi.frag");
     projectionShader.load("shaders/slab.vert", "shaders/simulation/projection/projection.frag");
-
-    resultShader.load("shaders/results.vert", "shaders/results.frag"); // todo remove
-
+    // Temperature Shaders
+    temperatureShader.load("shaders/slab.vert", "shaders/simulation/temperature/temperature.frag");
 }
 
 void SlabOperator::update() {
-    slabOperation();
-    //display_results(); // todo remove
+    // Setup GPU
+    FBO->use();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+
+    // Do Operations
+    float dt = 1.0f/30.0f;
+
+    velocityStep(dt);
+
+    pressureStep(dt);
+
+
+    FBO->null();
 }
 
 void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = dataMatrix;
+    data = velocityMatrix;
     width = grid_width;
     height = grid_height;
     depth = grid_depth;
 }
 
-void SlabOperator::swapData(){
-    GLuint tmp = dataMatrix;
-    dataMatrix = resultMatrix;
-    resultMatrix = tmp;
-
+void SlabOperator::swapData(GLuint d1, GLuint d2){
+    GLuint tmp = d1;
+    d1 = d2;
+    d2 = tmp;
 }
 
 void SlabOperator::setData(GLuint data, int width, int height, int depth){
@@ -262,52 +277,12 @@ void SlabOperator::setData(GLuint data, int width, int height, int depth){
     create3DTexture(&resultMatrix, width, height, depth, NULL);
 }
 
-
-void SlabOperator::slabOperation() {
-
-    FBO->use();
-
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
-
-    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-        // todo fix so they are done at the same time
-        slabOperation(interiorShader, boundaryShader, current_depth, 1.0f);
-    }
-    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-        // todo fix so they are done at the same time
-        slabOperation(divergenceShader, boundaryShader, current_depth, 1.0f);
-    }
-    for(int i = 0; i < 20; i++) {
-        for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-            // todo fix so they are done at the same time
-            slabOperation(jacobiShader, boundaryShader, current_depth, 1.0f);
-        }
-    }
-    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-        // todo fix so they are done at the same time
-        slabOperation(projectionShader, boundaryShader, current_depth, 1.0f);
-    }
-    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
-        // todo fix so they are done at the same time
-        slabOperation(dissipateShader, boundaryShader, current_depth, 1.0f);
-    }
-
-    slabOperation(FABInteriorShader, FABBoundaryShader, 0, 1.0f);
-
-    slabOperation(FABInteriorShader, FABBoundaryShader, grid_depth - 1, 1.0f);
-
-    FBO->null();
-
-}
-
 void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale) {
-    GLuint temp = 0;
+    GLuint tmp = 0;
 
-    if(interiorProgram.program() == interiorShader.program()) {
+    if(interiorProgram.program() == advectionShader.program()) {
         resultMatrix = resultVMatrix;
-        temp = dataMatrix;
+        tmp = dataMatrix;
         dataMatrix = velocityMatrix;
     } else if(interiorProgram.program() == FABInteriorShader.program()) {
         resultMatrix = resultVMatrix;
@@ -318,11 +293,11 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
     } else if(interiorProgram.program() == jacobiShader.program()) {
         resultMatrix = resultPMatrix;
         dataMatrix = pressureMatrix;
-        temp = divMatrix;
+        tmp = divMatrix;
     } else if(interiorProgram.program() == projectionShader.program()) {
         resultMatrix = resultVMatrix;
         dataMatrix = velocityMatrix;
-        temp = velocityMatrix;
+        tmp = velocityMatrix;
     } else if(interiorProgram.program() == dissipateShader.program()) {
         resultMatrix = resultPMatrix;
         dataMatrix = pressureMatrix;
@@ -332,25 +307,26 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //boundaries
-    glViewport(0, 0, grid_width, grid_height);
-    boundariesProgram.use();
-    glBindVertexArray(boundaryVAO);
-    glLineWidth(10000.0f);
-    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "depth"), layer);
-    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "width"), grid_width);
-    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "height"), grid_height);
-    glUniform1i(glGetUniformLocation(boundariesProgram.program(), "max_depth"), grid_depth);
-    glUniform1f(glGetUniformLocation(boundariesProgram.program(), "scale"), scale);
+    if(scale != 0.0f) {
+        //boundaries
+        glViewport(0, 0, grid_width, grid_height);
+        boundariesProgram.use();
+        glBindVertexArray(boundaryVAO);
+        glLineWidth(10000.0f);
+        glUniform1i(glGetUniformLocation(boundariesProgram.program(), "depth"), layer);
+        glUniform1i(glGetUniformLocation(boundariesProgram.program(), "width"), grid_width);
+        glUniform1i(glGetUniformLocation(boundariesProgram.program(), "height"), grid_height);
+        glUniform1i(glGetUniformLocation(boundariesProgram.program(), "max_depth"), grid_depth);
+        glUniform1f(glGetUniformLocation(boundariesProgram.program(), "scale"), scale);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, dataMatrix);
-    if(temp != 0) {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_3D, temp);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, dataMatrix);
+        if (tmp != 0) {
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_3D, tmp);
+        }
+        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
     }
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
-
 
     //interior
     glViewport(1, 1, grid_width - 2, grid_height - 2);
@@ -361,31 +337,78 @@ void SlabOperator::slabOperation(Shader interiorProgram, Shader boundariesProgra
     glUniform1i(glGetUniformLocation(interiorProgram.program(), "max_depth"), grid_depth);
     // advection
     glUniform1f(glGetUniformLocation(interiorProgram.program(), "dt"), 1.0f/60.0f);
-    glUniform1f(glGetUniformLocation(interiorProgram.program(), "dh"), 1.0f);
+    glUniform1f(glGetUniformLocation(interiorProgram.program(), "dh"), 1.0f/16.0f);
     glUniform3f(glGetUniformLocation(interiorProgram.program(), "gridSize"), grid_width, grid_height, grid_depth);
     // dissipate
     glUniform1f(glGetUniformLocation(interiorProgram.program(), "aS"), 0.15f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
-    if(temp != 0) {
+    if(tmp != 0) {
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_3D, temp);
+        glBindTexture(GL_TEXTURE_3D, tmp);
     }
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void SlabOperator::display_results() {
-    // display result
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, grid_width, grid_height);
-    resultShader.use();
-    glBindVertexArray(interiorVAO);
+void SlabOperator::velocityStep(float dt){
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, resultMatrix);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(advectionShader, boundaryShader, current_depth, 1.0f);
+    }
+    slabFABOperation(1.0f);
+    swapData(velocityMatrix, resultVMatrix);
+
+
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(divergenceShader, boundaryShader, current_depth, 1.0f);
+    }
+    swapData(velocityMatrix, resultVMatrix);
+
+    for(int i = 0; i < 20; i++) {
+        for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+            // todo fix so they are done at the same time
+            slabOperation(jacobiShader, boundaryShader, current_depth, 0.0f);
+        }
+        swapData(velocityMatrix, resultVMatrix);
+    }
+
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(projectionShader, boundaryShader, current_depth, 0.0f);
+    }
+    slabFABOperation(1.0f);
+    swapData(velocityMatrix, resultVMatrix);
+
 }
 
+void SlabOperator::pressureStep(float dt){
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(additionShader, boundaryShader, current_depth, -1.0f);
+    }
+    slabFABOperation(-1.0f);
+    swapData(pressureMatrix,resultPMatrix);
+
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(advectionShader, boundaryShader, current_depth, -1.0f);
+    }
+    slabFABOperation(-1.0f);
+    swapData(pressureMatrix,resultPMatrix);
+
+    for (int current_depth = 1; current_depth < grid_depth - 1; ++current_depth) {
+        // todo fix so they are done at the same time
+        slabOperation(dissipateShader, boundaryShader, current_depth, -1.0f);
+    }
+    slabFABOperation(-1.0f);
+    swapData(pressureMatrix,resultPMatrix);
+}
+
+void SlabOperator::slabFABOperation(float scale){
+    slabOperation(FABInteriorShader, FABBoundaryShader, 0, scale);
+    slabOperation(FABInteriorShader, FABBoundaryShader, grid_depth - 1, scale);
+}
 

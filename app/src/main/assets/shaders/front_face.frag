@@ -16,19 +16,19 @@ void main() {
    float h = 1.0/256.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
-   vec3 baseColor = vec3(1.0,0.0,0.0);
+   vec3 baseColor = vec3(1.0,0.5,0.0);
    //float opacityThreshold = 0.95f;
    for(float t = 0.0; t<=D; t+=h){
            ivec3 iv = ivec3(tr);
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
-           vec4 samp = texture(volume, tr);
+           float samp = min(texture(volume, tr).x, 1.0);
            //calculate Alpha
            //accumulating collor and alpha using under operator
-           float alpha = pow(samp.a,2.0);
+           float alpha = pow(samp,1.0);
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)
-              color.rgb = ( color.rgb * color.a + samp.rgb * alpha * (1.0 - color.a))/over;
+              color.rgb = ( color.rgb * color.a + baseColor * alpha * (1.0 - color.a))/over;
            color.a = over;
            // checking early ray termination
            //if(1.0f - color.w > opacityThreshold) break;
@@ -37,5 +37,5 @@ void main() {
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
         outColor = color;
-        //outColor = vec4(hit,color.r); // todo
+        //outColor = vec4(1.0f,1.0f,1.0f,1.0f); // todo
 }

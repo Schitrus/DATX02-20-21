@@ -18,17 +18,14 @@ class SlabOperator{
     Framebuffer* FBO;
 
     // result // todo remove
-    Shader resultShader;
     GLuint texcoordsBuffer;
 
     // interior
-    Shader interiorShader;
     GLuint interiorVAO;
     GLuint interiorPositionBuffer;
     GLuint interiorIndexBuffer;
 
     // boundary
-    Shader boundaryShader;
     GLuint boundaryVAO;
     GLuint boundaryPositionBuffer;
 
@@ -39,8 +36,10 @@ class SlabOperator{
     GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
     GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
 
-    Shader advectionShader, dissipateShader, divergenceShader, jacobiShader,
-           projectionShader, temperatureShader, buoyancyShader, additionShader;
+    Shader temperatureShader;
+    Shader buoyancyShader, jacobiShader, projectionShader;
+    Shader additionShader, divergenceShader, advectionShader, boundaryShader, dissipateShader;
+
 public:
     void init();
 
@@ -51,7 +50,7 @@ public:
     void setData(GLuint data, int width, int height, int depth);
     void getData(GLuint& data, int& width, int& height, int& depth);
 
-    void swapData();
+    void swapData(GLuint d1, GLuint d2);
 private:
     void initData();
     void initVelocity(int size);
@@ -68,12 +67,15 @@ private:
 
     void initQuad();
 
-    void initProgram();
+    void initShaders();
 
-    void slabOperation();
+    void slabFABOperation(float scale);
+
     void slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale);
 
-    void display_results();
+    void velocityStep(float dt);
+    void pressureStep(float dt);
+
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H
