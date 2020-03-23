@@ -10,6 +10,7 @@ uniform float scale;
 
 out vec3 outData;
 
+// Performs boundary condition computation to all 2D grid slices except front and back
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
