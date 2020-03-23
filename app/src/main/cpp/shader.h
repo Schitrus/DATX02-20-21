@@ -16,6 +16,10 @@ public:
     void use();
 
     GLuint program();
+
+    void uniform1i(const GLchar *name, GLint value);
+
+    void uniform1f(const GLchar *name, GLfloat value);
 private:
     GLuint createShader(GLenum type, const char* src);
 

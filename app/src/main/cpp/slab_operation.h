@@ -70,7 +70,7 @@ private:
     void initShaders();
 
     void buoyancy(float dt);
-    void advection(GLuint data, float dt);
+    void advection(GLuint &data, float dt);
 
     void divergence();
     void jacobi();
@@ -82,6 +82,18 @@ private:
 
     void velocityStep(float dt);
     void pressureStep(float dt);
+
+    // Performs the operation with the set shader over the entirety of the given data.
+    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
+    void performOperation(Shader shader, GLuint &target, GLuint &result, int boundaryScale);
+
+    // Binds the given 3d texture to slot 0
+    // Note that the active texture is left at slot 0 after this!
+    void bind3DTexture0(GLuint texture);
+
+    // Binds the given 3d texture to slot 1
+    // Note that the active texture is left at slot 1 after this!
+    void bind3DTexture1(GLuint texture);
 
     void setBoundary(GLuint data, GLuint result, int scale);
 
