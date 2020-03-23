@@ -13,7 +13,10 @@ uniform vec3 gridSize;
 
 out float outTemperature;
 
+// Performs an advection of the temperature field and heat dissipation
 void main() {
+
+    // Advection part
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
     vec3 previous_position = vec3(position) * dh;
@@ -25,6 +28,8 @@ void main() {
     previous_position /= (dh * (gridSize - 1.0f));
 
     float temperature = texture(temperature_field, previous_position).x;
+
+    // Heat dissipation part
 
     float ambient_temperature = 0.0f;
     float max_temperature = 3000.0f - 273.15f;
