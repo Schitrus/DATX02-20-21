@@ -66,10 +66,12 @@ void SlabOperator::initData() {
     initTemperature(data);
     initSources();
 
-    create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
+    createScalar3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
-    create3DTexture(&resultMatrix, grid_width, grid_height, grid_depth, NULL);
-    create3DTexture(&divMatrix, grid_width, grid_height, grid_depth, NULL);
+    createScalar3DTexture(&scalarResultMatrix, grid_width, grid_height, grid_depth, NULL);
+    createVector3DTexture(&vectorResultMatrix, grid_width, grid_height, grid_depth, NULL);
+
+    createScalar3DTexture(&divMatrix, grid_width, grid_height, grid_depth, NULL);
 
     delete[] data;
 }
@@ -81,8 +83,7 @@ void SlabOperator::initVelocity(int size){
         data[i*3+1] = 0.0f;
         data[i*3+2] = 1.0f;
     }
-    create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
-    create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
+    createVector3DTexture(&velocityMatrix, grid_width, grid_height, grid_depth, data);
     delete[] data;
 }
 
@@ -93,18 +94,15 @@ void SlabOperator::initPressure(){
         data[i] = 0.25f;
     }
 
-    create3DTexture(&pressureMatrix, grid_width, grid_height, grid_depth, data);
-    create3DTexture(&resultPMatrix, grid_width, grid_height, grid_depth, NULL);
+    createScalar3DTexture(&pressureMatrix, grid_width, grid_height, grid_depth, data);
 }
 
 void SlabOperator::initDensity(float* data){
-    create3DTexture(&densityMatrix, grid_width, grid_height, grid_depth, data);
-    create3DTexture(&resultDMatrix, grid_width, grid_height, grid_depth, NULL);
+    createScalar3DTexture(&densityMatrix, grid_width, grid_height, grid_depth, data);
 }
 
 void SlabOperator::initTemperature(float* data){
-    create3DTexture(&temperatureMatrix, grid_width, grid_height, grid_depth, data);
-    create3DTexture(&resultTMatrix, grid_width, grid_height, grid_depth, NULL);
+    createScalar3DTexture(&temperatureMatrix, grid_width, grid_height, grid_depth, data);
 }
 
 void SlabOperator::initSources(){
@@ -131,9 +129,9 @@ void SlabOperator::initSources(){
         }
     }
 
-    create3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
-    create3DTextureV(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
-    create3DTexture(&sourcePMatrix, grid_width, grid_height, grid_depth, presSource);
+    createScalar3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
+    createVector3DTexture(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
+    createScalar3DTexture(&sourcePMatrix, grid_width, grid_height, grid_depth, presSource);
 
     delete[] tempSource;
     delete[] velSource;
@@ -272,7 +270,6 @@ void SlabOperator::swapData(GLuint& d1, GLuint& d2){
 void SlabOperator::setData(GLuint data, int width, int height, int depth){
     resize(width, height, depth);
     dataMatrix = data;
-    create3DTexture(&resultMatrix, width, height, depth, NULL);
 }
 
 void SlabOperator::update() {
@@ -371,11 +368,10 @@ void SlabOperator::buoyancy(float dt){
     bind3DTexture0(temperatureMatrix);
     bind3DTexture1(velocityMatrix);
 
-    performOperation(buoyancyShader, velocityMatrix, resultVMatrix, 1);
-    swapData(velocityMatrix, resultVMatrix);
+    performOperation(buoyancyShader, velocityMatrix, true, 1);
 }
 
-void SlabOperator::advection(GLuint &data, float dt) {
+void SlabOperator::advection(GLuint &data, bool isVectorField, float dt) {
     swapData(dataMatrix, data);
 
     advectionShader.use();
@@ -386,7 +382,7 @@ void SlabOperator::advection(GLuint &data, float dt) {
     bind3DTexture0(velocityMatrix);
     bind3DTexture1(dataMatrix);
 
-    performOperation(advectionShader, data, resultMatrix, 0);
+    performOperation(advectionShader, data, isVectorField, 0);
 }
 
 void SlabOperator::divergence(){
@@ -395,7 +391,7 @@ void SlabOperator::divergence(){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, velocityMatrix);
 
-    performOperation(divergenceShader, divMatrix, resultDMatrix, 0);
+    performOperation(divergenceShader, divMatrix, false, 0);
 }
 
 void SlabOperator::jacobi(){
@@ -405,7 +401,7 @@ void SlabOperator::jacobi(){
     bind3DTexture1(divMatrix);
 
     for(int i = 0; i < 20; i++){
-        performOperation(jacobiShader, pressureMatrix, resultPMatrix, 0);
+        performOperation(jacobiShader, pressureMatrix, false, 0);
     }
 }
 
@@ -416,14 +412,14 @@ void SlabOperator::proj(){
     bind3DTexture0(pressureMatrix);
     bind3DTexture1(velocityMatrix);
 
-    performOperation(projectionShader, velocityMatrix, resultVMatrix, -1);
+    performOperation(projectionShader, velocityMatrix, true, -1);
 }
 
 void SlabOperator::velocityStep(float dt){
     // Force
     buoyancy(dt);
     // Transport
-    advection(velocityMatrix, dt);
+    advection(velocityMatrix, true, dt);
     // Project
     divergence();
     jacobi();
@@ -437,7 +433,7 @@ void SlabOperator::addition(float dt){
     bind3DTexture0(pressureMatrix);
     bind3DTexture1(sourcePMatrix);
 
-    performOperation(additionShader, pressureMatrix, resultPMatrix, 0);
+    performOperation(additionShader, pressureMatrix, false, 0);
 }
 
 void SlabOperator::dissipate(float dt){
@@ -447,19 +443,22 @@ void SlabOperator::dissipate(float dt){
 
     bind3DTexture0(pressureMatrix);
 
-    performOperation(dissipateShader, pressureMatrix, resultPMatrix, 0);
+    performOperation(dissipateShader, pressureMatrix, false, 0);
 }
 
 void SlabOperator::pressureStep(float dt){
     // Source
     addition(dt);
     // Transport
-    advection(pressureMatrix, dt);
+    advection(pressureMatrix, false, dt);
     // Dissipate
     dissipate(dt);
 }
 
-void SlabOperator::performOperation(Shader shader, GLuint &target, GLuint &result, int boundaryScale) {
+void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
+
+    GLuint result = isVectorField ? vectorResultMatrix : scalarResultMatrix;
+
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);

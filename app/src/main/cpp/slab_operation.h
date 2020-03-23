@@ -33,8 +33,9 @@ class SlabOperator{
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
 
-    GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
-    GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix, sourcePMatrix;
+    GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix, divMatrix, sourcePMatrix;
+    // Result textures. They are only used temporarily during simulation steps to store the result, and only exist here for reuse-ability
+    GLuint scalarResultMatrix, vectorResultMatrix;
 
     Shader temperatureShader;
     Shader buoyancyShader, jacobiShader, projectionShader;
@@ -70,7 +71,7 @@ private:
     void initShaders();
 
     void buoyancy(float dt);
-    void advection(GLuint &data, float dt);
+    void advection(GLuint &data, bool isVectorField, float dt);
 
     void divergence();
     void jacobi();
@@ -85,7 +86,7 @@ private:
 
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void performOperation(Shader shader, GLuint &target, GLuint &result, int boundaryScale);
+    void performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale);
 
     // Binds the given 3d texture to slot 0
     // Note that the active texture is left at slot 0 after this!

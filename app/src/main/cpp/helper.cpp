@@ -128,7 +128,7 @@ vec4 noise(double x, double y, double z){
     return vec4(1.0f, (g+0.5f)/2, 0.0f, std::max(0.25f*round((a+0.5f)), 0.0));
 }
 
-void create3DTexture(GLuint *id, int width, int height, int depth, float* data){
+void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* data){
 
     glGenTextures(1, id);
     glBindTexture(GL_TEXTURE_3D, *id);
@@ -140,7 +140,7 @@ void create3DTexture(GLuint *id, int width, int height, int depth, float* data){
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-void create3DTextureV(GLuint *id, int width, int height, int depth, float *data){
+void createVector3DTexture(GLuint *id, int width, int height, int depth, float *data){
 
     glGenTextures(1, id);
     glBindTexture(GL_TEXTURE_3D, *id);
