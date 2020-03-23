@@ -71,15 +71,15 @@ private:
     void initShaders();
 
     void buoyancy(float dt);
-    void advection(GLuint &data, bool isVectorField, float dt);
+    void advection(GLuint &data, bool isVectorField, float dh, float dt);
 
     void divergence();
     void jacobi();
     void proj();
 
-    void addition(float dt);
+    void addition(GLuint &target, GLuint &source, bool isVectorField, float dt);
 
-    void dissipate(float dt);
+    void dissipate(float dissipationRate, float dt);
 
     void velocityStep(float dt);
     void pressureStep(float dt);

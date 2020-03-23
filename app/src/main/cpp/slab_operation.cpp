@@ -371,12 +371,12 @@ void SlabOperator::buoyancy(float dt){
     performOperation(buoyancyShader, velocityMatrix, true, 1);
 }
 
-void SlabOperator::advection(GLuint &data, bool isVectorField, float dt) {
+void SlabOperator::advection(GLuint &data, bool isVectorField, float dh, float dt) {
     swapData(dataMatrix, data);
 
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform1f("dh", 1.0f/16.0f);
+    advectionShader.uniform1f("dh", dh);
     glUniform3f(glGetUniformLocation(advectionShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
 
     bind3DTexture0(velocityMatrix);
@@ -419,27 +419,27 @@ void SlabOperator::velocityStep(float dt){
     // Force
     buoyancy(dt);
     // Transport
-    advection(velocityMatrix, true, dt);
+    advection(velocityMatrix, true, 1.0f/16.0f, dt);
     // Project
     divergence();
     jacobi();
     proj();
 }
 
-void SlabOperator::addition(float dt){
+void SlabOperator::addition(GLuint &target, GLuint &source, bool isVectorField, float dt){
     additionShader.use();
     additionShader.uniform1f("dt", dt);
 
-    bind3DTexture0(pressureMatrix);
-    bind3DTexture1(sourcePMatrix);
+    bind3DTexture0(target);
+    bind3DTexture1(source);
 
-    performOperation(additionShader, pressureMatrix, false, 0);
+    performOperation(additionShader, target, isVectorField, 0);
 }
 
-void SlabOperator::dissipate(float dt){
+void SlabOperator::dissipate(float dissipationRate, float dt){
     dissipateShader.use();
     dissipateShader.uniform1f("dt", dt);
-    dissipateShader.uniform1f("dissipation_rate", 0.15f);
+    dissipateShader.uniform1f("dissipation_rate", dissipationRate);
 
     bind3DTexture0(pressureMatrix);
 
@@ -448,11 +448,11 @@ void SlabOperator::dissipate(float dt){
 
 void SlabOperator::pressureStep(float dt){
     // Source
-    addition(dt);
+    addition(pressureMatrix, sourcePMatrix, false, dt);
     // Transport
-    advection(pressureMatrix, false, dt);
+    advection(pressureMatrix, false, 1.0f/16.0f, dt);
     // Dissipate
-    dissipate(dt);
+    dissipate(0.15f, dt);
 }
 
 void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
