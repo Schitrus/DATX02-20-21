@@ -13,6 +13,7 @@ uniform vec3 gridSize;
 
 out vec3 outData;
 
+//Performs the advection step on the given data under the given velocity
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
