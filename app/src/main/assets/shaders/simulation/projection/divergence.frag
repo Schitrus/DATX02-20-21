@@ -9,6 +9,7 @@ uniform int depth;
 
 out float outDivergence;
 
+// Performs the divergence part of the projection step
 void main() {
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
