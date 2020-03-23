@@ -146,8 +146,8 @@ void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
 }
 
 void RayRenderer::initProgram() {
-    backFaceShader.load("shaders/ray.vert", "shaders/back_face.frag");
-    frontFaceShader.load("shaders/ray.vert", "shaders/front_face.frag");
+    backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
+    frontFaceShader.load("shaders/render/ray.vert", "shaders/render/front_face.frag");
 }
 
 void RayRenderer::step() {

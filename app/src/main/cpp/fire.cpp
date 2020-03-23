@@ -18,11 +18,7 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 
 void Fire::init(){
     renderer.init(assetManager);
-    GLuint data;
-    int width, height, depth;
     simulator.init();
-    simulator.getData(data, width, height, depth);
-    renderer.setData(data, width, height, depth);
 }
 
 void Fire::resize(int width, int height){

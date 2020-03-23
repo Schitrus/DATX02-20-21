@@ -2,28 +2,30 @@
 
 precision highp float;
 precision highp sampler3D;
-layout(binding = 0) uniform sampler3D pressure;
-layout(binding = 1) uniform sampler3D div;
+
+layout(binding = 0) uniform sampler3D pressure_field;
+layout(binding = 1) uniform sampler3D divergence_field;
+
 uniform int depth;
-out float outColor;
 
-float jacobi(){
-
-    ivec2 tcoord = ivec2(gl_FragCoord.xy);
-
-    float dC = texelFetch(div, ivec3(tcoord, depth), 0).x;
-
-    float value = texelFetch(pressure ,ivec3( tcoord.x - 1, tcoord.y, depth), 0).x;
-    value += texelFetch(pressure ,ivec3( tcoord.x + 1, tcoord.y, depth), 0).x;
-    value += texelFetch(pressure ,ivec3( tcoord.x, tcoord.y - 1, depth), 0).x;
-    value += texelFetch(pressure ,ivec3( tcoord.x, tcoord.y + 1, depth), 0).x;
-    value += texelFetch(pressure ,ivec3( tcoord.x, tcoord.y, depth +1 ), 0).x;
-    value += texelFetch(pressure ,ivec3( tcoord.x, tcoord.y, depth -1 ), 0).x;
-
-    return (value - dC) / 6.0f;
-}
-
+out float outPressure;
 
 void main() {
-    outColor = jacobi();
+    ivec3 position = ivec3(gl_FragCoord.xy, depth);
+
+    ivec3 dx = ivec3(1,0,0);
+    ivec3 dy = ivec3(0,1,0);
+    ivec3 dz = ivec3(0,0,1);
+
+    float divergence = texelFetch(divergence_field, position, 0).x;
+
+    float pressure;
+    pressure  = texelFetch(pressure_field, position - dx, 0).x;
+    pressure += texelFetch(pressure_field, position + dx, 0).x;
+    pressure += texelFetch(pressure_field, position - dy, 0).x;
+    pressure += texelFetch(pressure_field, position + dy, 0).x;
+    pressure += texelFetch(pressure_field, position - dz, 0).x;
+    pressure += texelFetch(pressure_field, position + dz, 0).x;
+
+    outPressure = (pressure - divergence) / 6.0f;
 }

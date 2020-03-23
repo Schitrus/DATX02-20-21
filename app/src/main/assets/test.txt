@@ -1,9 +1,0 @@
-Can you read this text
-
-testerino();
-
-abc();
-
-{
-
-}

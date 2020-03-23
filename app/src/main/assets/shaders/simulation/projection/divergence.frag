@@ -2,17 +2,23 @@
 
 precision highp float;
 precision highp sampler3D;
-layout(binding = 0) uniform sampler3D velocity;
+
+layout(binding = 0) uniform sampler3D velocity_field;
+
 uniform int depth;
-out float outColor;
+
+out float outDivergence;
 
 void main() {
-    ivec2 tcoord = ivec2(gl_FragCoord.xy);
+    ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    float x = texelFetch(velocity ,ivec3( tcoord.x + 1, tcoord.y, depth), 0).x - texelFetch(velocity ,ivec3( tcoord.x - 1, tcoord.y, depth), 0).x;
-    float y = texelFetch(velocity ,ivec3( tcoord.x, tcoord.y + 1, depth), 0).y - texelFetch(velocity ,ivec3( tcoord.x, tcoord.y -1, depth), 0).y;
-    float z = texelFetch(velocity ,ivec3( tcoord.x, tcoord.y, depth +1 ), 0).z - texelFetch(velocity ,ivec3( tcoord.x, tcoord.y, depth -1 ), 0).z;
+    ivec3 dx = ivec3(1,0,0);
+    ivec3 dy = ivec3(0,1,0);
+    ivec3 dz = ivec3(0,0,1);
 
-    outColor = 0.5f * (x + y + z);
+    float x = texelFetch(velocity_field, position + dx, 0).x - texelFetch(velocity_field, position - dx, 0).x;
+    float y = texelFetch(velocity_field, position + dy, 0).y - texelFetch(velocity_field, position - dy, 0).y;
+    float z = texelFetch(velocity_field, position + dz, 0).z - texelFetch(velocity_field, position - dz, 0).z;
 
+    outDivergence = 0.5f * (x + y + z);
 }

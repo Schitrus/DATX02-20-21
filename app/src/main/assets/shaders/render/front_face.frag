@@ -13,7 +13,7 @@ void main() {
    direction = normalize(direction);
    vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
    color.a = 0.0f;
-   float h = 1.0/256.0;         // todo fix
+   float h = 1.0/64.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
    vec3 baseColor = vec3(1.0,0.5,0.0);
@@ -22,7 +22,7 @@ void main() {
            ivec3 iv = ivec3(tr);
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
-           float samp = min(texture(volume, tr).x, 1.0);
+           float samp = texture(volume, tr).x;
            //calculate Alpha
            //accumulating collor and alpha using under operator
            float alpha = pow(samp,1.0);
@@ -36,6 +36,6 @@ void main() {
            tr += rayStep;
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
-        outColor = color;
+        outColor = vec4(baseColor, color.a);
         //outColor = vec4(1.0f,1.0f,1.0f,1.0f); // todo
 }

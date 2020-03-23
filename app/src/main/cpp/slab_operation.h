@@ -34,7 +34,7 @@ class SlabOperator{
     Shader FABBoundaryShader;
 
     GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
-    GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix;
+    GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix, sourcePMatrix;
 
     Shader temperatureShader;
     Shader buoyancyShader, jacobiShader, projectionShader;
@@ -55,7 +55,7 @@ private:
     void initData();
     void initVelocity(int size);
 
-    void initPressure(float* data);
+    void initPressure();
 
     void initDensity(float* data);
 
@@ -69,15 +69,21 @@ private:
 
     void initShaders();
 
-    void slabFABOperation(float scale);
-
-    void slabOperation(Shader interiorProgram, Shader boundariesProgram, int layer, float scale);
-
     void buoyancy(float dt);
-    void advection(float dt);
+    void advection(GLuint data, float dt);
+
+    void divergence();
+    void jacobi();
+    void proj();
+
+    void addition(float dt);
+
+    void dissipate(float dt);
 
     void velocityStep(float dt);
     void pressureStep(float dt);
+
+    void setBoundary(GLuint data, GLuint result, int scale);
 
 };
 

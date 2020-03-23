@@ -20,9 +20,9 @@ void main() {
     float temperature = texelFetch(temperature_field, position, 0).x;
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    vec3 vertical_direction = vec3(0.0f, 0.0f, 1.0f);
+    vec3 vertical_direction = vec3(0.0f, 1.0f, 0.0f);
 
-    vec3 buoyancy = scale * (temperature - ambient_temperature) * vertical_direction
+    vec3 buoyancy = scale * (temperature - ambient_temperature) * vertical_direction;
 
-    outVelocity = velocity +  buoouncy * dt;
+    outVelocity = velocity +  buoyancy * dt;
 }
