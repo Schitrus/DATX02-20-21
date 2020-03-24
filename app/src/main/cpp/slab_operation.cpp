@@ -303,31 +303,24 @@ void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
     }
 
     // Front
-    prepareResult(result, 0);
-
-    FABBoundaryShader.use();
-    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
-    FABBoundaryShader.uniform1f("scale", scale);
-    bind3DTexture0(data);
-    drawBoundaryToTexture(FABBoundaryShader, 0);
-
-    FABInteriorShader.use();
-    bind3DTexture0(dataMatrix);
-    drawInteriorToTexture(FABInteriorShader, 0);
+    setFrontOrBackBoundary(data, result, scale, 0);
 
     //Back
-    prepareResult(result, grid_depth - 1);
+    setFrontOrBackBoundary(data, result, scale, grid_depth - 1);
+}
+
+void SlabOperator::setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth){
+    prepareResult(result, depth);
 
     FABBoundaryShader.use();
     FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     FABBoundaryShader.uniform1f("scale", scale);
     bind3DTexture0(data);
-    drawBoundaryToTexture(FABBoundaryShader,  grid_depth - 1);
+    drawBoundaryToTexture(FABBoundaryShader,  depth);
 
     FABInteriorShader.use();
     bind3DTexture0(dataMatrix);
-    drawInteriorToTexture(FABInteriorShader, grid_depth - 1);
-
+    drawInteriorToTexture(FABInteriorShader, depth);
 }
 
 void SlabOperator::buoyancy(float dt){
