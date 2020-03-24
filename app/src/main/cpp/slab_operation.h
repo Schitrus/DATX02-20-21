@@ -103,6 +103,8 @@ private:
     // Performs one simulation step for velocity
     void velocityStep(float dh, float dt);
 
+    void temperatureStep(float dh, float dt);
+
     // Performs the usual steps for moving substances using the fluid velocity field
     // It will not perform the "add force" step, as that depends entirely on the individual substance
     void substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt);

@@ -286,6 +286,8 @@ void SlabOperator::update() {
     //Simulate changes in velocity
     velocityStep(dh, dt);
 
+    temperatureStep(dh, dt);
+
     //Move any other substances along the velocity field
 
     FBO->null();
@@ -388,6 +390,14 @@ void SlabOperator::velocityStep(float dh, float dt){
     advection(velocityMatrix, true, dh, dt);
     // Project
     projection(velocityMatrix);
+}
+
+void SlabOperator::temperatureStep(float dh, float dt) {
+    //Temperature source
+    addition(temperatureMatrix, tempSourceMatrix, false, dt);
+
+    // todo is it reasonable to perform heat dissipation through our dissipate shader?
+    substanceMovementStep(temperatureMatrix, 0, dh, dt);
 }
 
 void SlabOperator::substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt){
