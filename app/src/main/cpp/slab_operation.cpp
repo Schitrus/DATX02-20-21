@@ -61,7 +61,7 @@ void SlabOperator::initData() {
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
         data[i] = 0.0f;
     }
-    initJacobiMatrix();
+    initJacobiMatrix(data);
     initDensity(data);
     initTemperature(data);
     initSources();
@@ -85,13 +85,7 @@ void SlabOperator::initVelocity(int size){
     delete[] data;
 }
 
-void SlabOperator::initJacobiMatrix(){
-    float* data = new float[grid_width*grid_height*grid_depth];
-    //int b = sizeof(data) / sizeof(data[0]);
-    for (int i = 0; i < grid_width*grid_height*grid_depth; i++) {
-        data[i] = 0.25f;
-    }
-
+void SlabOperator::initJacobiMatrix(float* data){
     createScalar3DTexture(&jacobiMatrix, grid_width, grid_height, grid_depth, data);
 }
 
@@ -259,7 +253,7 @@ void SlabOperator::initShaders() {
 }
 
 void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = jacobiMatrix;
+    data = temperatureMatrix;
     width = grid_width;
     height = grid_height;
     depth = grid_depth;

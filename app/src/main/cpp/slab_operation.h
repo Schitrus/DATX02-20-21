@@ -60,7 +60,7 @@ private:
 
     void initVelocity(int size);
 
-    void initJacobiMatrix();
+    void initJacobiMatrix(float* data);
 
     void initDensity(float* data);
 
