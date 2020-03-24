@@ -66,8 +66,6 @@ void SlabOperator::initData() {
     initTemperature(data);
     initSources();
 
-    createScalar3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
-
     createScalar3DTexture(&scalarResultMatrix, grid_width, grid_height, grid_depth, NULL);
     createVector3DTexture(&vectorResultMatrix, grid_width, grid_height, grid_depth, NULL);
 
@@ -267,11 +265,6 @@ void SlabOperator::swapData(GLuint& d1, GLuint& d2){
     d2 = tmp;
 }
 
-void SlabOperator::setData(GLuint data, int width, int height, int depth){
-    resize(width, height, depth);
-    dataMatrix = data;
-}
-
 void SlabOperator::update() {
     // Setup GPU
     FBO->use();
@@ -312,16 +305,16 @@ void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
 }
 
 void SlabOperator::setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth){
+    bind3DTexture0(data);
+
     prepareResult(result, depth);
 
     FABBoundaryShader.use();
     FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     FABBoundaryShader.uniform1f("scale", scale);
-    bind3DTexture0(data);
     drawBoundaryToTexture(FABBoundaryShader,  depth);
 
     FABInteriorShader.use();
-    bind3DTexture0(dataMatrix);
     drawInteriorToTexture(FABInteriorShader, depth);
 }
 
@@ -336,15 +329,13 @@ void SlabOperator::buoyancy(float dt){
 }
 
 void SlabOperator::advection(GLuint &data, bool isVectorField, float dh, float dt) {
-    swapData(dataMatrix, data);
-
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
     advectionShader.uniform1f("dh", dh);
     advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
 
     bind3DTexture0(velocityMatrix);
-    bind3DTexture1(dataMatrix);
+    bind3DTexture1(data);
 
     performOperation(advectionShader, data, isVectorField, 0);
 }

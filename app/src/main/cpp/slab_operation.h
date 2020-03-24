@@ -33,7 +33,7 @@ class SlabOperator{
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
 
-    GLuint dataMatrix, velocityMatrix, densityMatrix, temperatureMatrix;
+    GLuint velocityMatrix, densityMatrix, temperatureMatrix;
     //Textures for sources
     GLuint tempSourceMatrix, velSourceMatrix, sourcePMatrix;
     // Result textures. They are only used temporarily during simulation steps to store the result, and only exist here for reuse-ability
@@ -52,7 +52,6 @@ public:
 
     void update();
 
-    void setData(GLuint data, int width, int height, int depth);
     void getData(GLuint& data, int& width, int& height, int& depth);
 
     void swapData(GLuint& d1, GLuint& d2);
