@@ -282,10 +282,12 @@ void SlabOperator::update() {
 
     // Do Operations
     float dt = 1.0f/30.0f;
+    float dh = 1.0f/16.0f;
 
-    velocityStep(dt);
+    //Simulate changes in velocity
+    velocityStep(dh, dt);
 
-    pressureStep(dt);
+    //Move any other substances along the velocity field
 
     FBO->null();
 }
@@ -350,8 +352,7 @@ void SlabOperator::advection(GLuint &data, bool isVectorField, float dh, float d
 void SlabOperator::divergence(){
     divergenceShader.use();
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, velocityMatrix);
+    bind3DTexture0(velocityMatrix);
 
     performOperation(divergenceShader, divMatrix, false, 0);
 }
@@ -377,15 +378,27 @@ void SlabOperator::proj(){
     performOperation(projectionShader, velocityMatrix, true, -1);
 }
 
-void SlabOperator::velocityStep(float dt){
+void SlabOperator::velocityStep(float dh, float dt){
     // Force
     buoyancy(dt);
     // Transport
-    advection(velocityMatrix, true, 1.0f/16.0f, dt);
+    advection(velocityMatrix, true, dh, dt);
     // Project
     divergence();
     jacobi();
     proj();
+}
+
+void SlabOperator::substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt){
+
+    advection(target, false, dh, dt);
+
+    // Usually there is also a diffusion step for fluid simulation here.
+    // However we assume that all fluids we simulate has a diffusion term of zero,
+    // removing the need of this simulation step
+
+    if(dissipationRate != 0)
+        dissipate(target, dissipationRate, dt);
 }
 
 void SlabOperator::addition(GLuint &target, GLuint &source, bool isVectorField, float dt){
@@ -398,23 +411,14 @@ void SlabOperator::addition(GLuint &target, GLuint &source, bool isVectorField, 
     performOperation(additionShader, target, isVectorField, 0);
 }
 
-void SlabOperator::dissipate(float dissipationRate, float dt){
+void SlabOperator::dissipate(GLuint &target, float dissipationRate, float dt){
     dissipateShader.use();
     dissipateShader.uniform1f("dt", dt);
     dissipateShader.uniform1f("dissipation_rate", dissipationRate);
 
-    bind3DTexture0(pressureMatrix);
+    bind3DTexture0(target);
 
-    performOperation(dissipateShader, pressureMatrix, false, 0);
-}
-
-void SlabOperator::pressureStep(float dt){
-    // Source
-    addition(pressureMatrix, sourcePMatrix, false, dt);
-    // Transport
-    advection(pressureMatrix, false, 1.0f/16.0f, dt);
-    // Dissipate
-    dissipate(0.15f, dt);
+    performOperation(dissipateShader, target, false, 0);
 }
 
 void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
@@ -463,6 +467,3 @@ void SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
 
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
 }
-
-
-

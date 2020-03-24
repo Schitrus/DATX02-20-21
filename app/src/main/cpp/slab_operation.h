@@ -79,10 +79,13 @@ private:
 
     void addition(GLuint &target, GLuint &source, bool isVectorField, float dt);
 
-    void dissipate(float dissipationRate, float dt);
+    void dissipate(GLuint &target, float dissipationRate, float dt);
 
-    void velocityStep(float dt);
-    void pressureStep(float dt);
+    void velocityStep(float dh, float dt);
+
+    // Performs the usual steps for moving substances using the fluid velocity field
+    // It will not perform the "add force" step, as that depends entirely on the individual substance
+    void substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt);
 
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
