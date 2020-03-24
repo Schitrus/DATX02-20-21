@@ -27,5 +27,5 @@ void main() {
         data += scale * texelFetch(data_field, position + ivec3(0, direction.y, 0), 0).xyz;
         data *= 0.5f;
     }
-    outData = data;
+    outData = vec3(0.0f);
 }

@@ -16,14 +16,17 @@ out vec3 outData;
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
-    vec3 previous_position = vec3(position) * dh;
+
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    previous_position -= dt * velocity;
+    vec3 previous_position = vec3(position) - dt * vec3(0.0, 1.0, 0.0);
+    previous_position /= gridSize;
+    //previous_position += vec3(0.5);
 
-    previous_position /= (dh * (gridSize - 1.0f));
+    //previous_position /= (dh * (gridSize - 1.0f));
 
-    outData = texture(data_field, previous_position).xyz;
+    //outData = texture(data_field, vec3(position)).xyz;
+    outData = texelFetch(data_field, ivec3(previous_position), 0).xyz;
 }
 

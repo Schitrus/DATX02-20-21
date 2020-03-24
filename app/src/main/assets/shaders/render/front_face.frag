@@ -22,10 +22,10 @@ void main() {
            ivec3 iv = ivec3(tr);
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
-           float samp = texture(volume, tr).x;
+           float samp = clamp(texture(volume, tr).x, 0.0, 1.0);
            //calculate Alpha
            //accumulating collor and alpha using under operator
-           float alpha = pow(samp,1.0);
+           float alpha = pow(samp,0.5);
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)
               color.rgb = ( color.rgb * color.a + baseColor * alpha * (1.0 - color.a))/over;

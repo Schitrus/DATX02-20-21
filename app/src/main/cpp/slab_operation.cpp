@@ -76,10 +76,10 @@ void SlabOperator::initData() {
 
 void SlabOperator::initVelocity(int size){
     float* data = new float[size*3];
-    for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
-        data[i*3] = 0.0f;
-        data[i*3+1] = 0.0f;
-        data[i*3+2] = 1.0f;
+    for(int i = 0; i < size; i++) {
+                data[i * 3] = 0.0;
+                data[i * 3 + 1] = 1.0;
+                data[i * 3 + 2] = 0.0;
     }
     create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
     create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
@@ -90,7 +90,7 @@ void SlabOperator::initPressure(){
     float* data = new float[grid_width*grid_height*grid_depth];
     //int b = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < grid_width*grid_height*grid_depth; i++) {
-        data[i] = 0.25f;
+        data[i] = 0.0;
     }
 
     create3DTexture(&pressureMatrix, grid_width, grid_height, grid_depth, data);
@@ -117,7 +117,7 @@ void SlabOperator::initSources(){
     for(int i = 0; i < size; i++)
         presSource[i] = 0.0f;
 
-    presSource[size/2] = 1.0f;
+    presSource[16*16*8+16*8+8] = 1.0f;
 
     int radius = grid_width/10;
     for(int x = - radius; x <= radius; x++){
@@ -126,8 +126,8 @@ void SlabOperator::initSources(){
             //I have not verified that this is the correct way to calculate the index
             int index = x + grid_width*(0 + grid_height*z);
 
-            tempSource[index] = 1;
-            velSource[3*index + 1] = 1;
+            tempSource[index] = 0;
+            velSource[3*index + 1] = 0;
         }
     }
 
@@ -151,9 +151,9 @@ void SlabOperator::initLine() {
     const float positions[] = {
             // X      Y       Z
             -1.0f, -1.0f, 0.0f,  // v0
-            -1.0f, 1.0f, 0.0f, // v1
-            1.0f, 1.0f, 0.0f, // v2
-            1.0f, -1.0f, 0.0f   // v3
+            -1.0f,  1.0f, 0.0f, // v1
+             1.0f,  1.0f, 0.0f, // v2
+             1.0f, -1.0f, 0.0f   // v3
     };
 
     // Create a handle for the position vertex buffer object
@@ -296,12 +296,11 @@ void SlabOperator::update() {
 void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         glViewport(0, 0, grid_width, grid_height);
         boundaryShader.use();
         glBindVertexArray(boundaryVAO);
-        glLineWidth(10000.0f);
+        glLineWidth(2.0f);
         glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), depth);
         glUniform3f(glGetUniformLocation(boundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
         glUniform1f(glGetUniformLocation(boundaryShader.program(), "scale"), scale);
@@ -312,24 +311,24 @@ void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
     }
     // Front
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     glViewport(0, 0, grid_width, grid_height);
     FABBoundaryShader.use();
     glBindVertexArray(boundaryVAO);
-    glLineWidth(10000.0f);
     glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), 0);
     glUniform3f(glGetUniformLocation(boundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
     glUniform1f(glGetUniformLocation(boundaryShader.program(), "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, data);
+    glLineWidth(2.0f);
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
 
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     FABInteriorShader.use();
     glBindVertexArray(interiorVAO);
-    glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), 0);
+    glLineWidth(2.0f);
+    glUniform1i(glGetUniformLocation(FABInteriorShader.program(), "depth"), 0);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, dataMatrix);
@@ -337,18 +336,17 @@ void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
 
     //Back
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, grid_depth - 1);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     glViewport(0, 0, grid_width, grid_height);
     FABBoundaryShader.use();
     glBindVertexArray(boundaryVAO);
-    glLineWidth(10000.0f);
     glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), grid_depth - 1);
     glUniform3f(glGetUniformLocation(boundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
     glUniform1f(glGetUniformLocation(boundaryShader.program(), "scale"), scale);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, data);
+    glLineWidth(2.0f);
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
 
     glViewport(1, 1, grid_width - 2, grid_height - 2);
@@ -386,10 +384,9 @@ void SlabOperator::buoyancy(float dt){
     swapData(velocityMatrix, resultVMatrix);
 }
 
-void SlabOperator::advection(GLuint data, float dt) {
-    swapData(dataMatrix, data);
+void SlabOperator::advection(GLuint data, GLuint result, float dt) {
     for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultMatrix, 0, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
@@ -399,19 +396,19 @@ void SlabOperator::advection(GLuint data, float dt) {
 
         glUniform1i(glGetUniformLocation(advectionShader.program(), "depth"), depth);
         glUniform1f(glGetUniformLocation(advectionShader.program(), "dt"), dt);
-        glUniform1f(glGetUniformLocation(advectionShader.program(), "dh"), 1.0f/16.0f);
+        glUniform1f(glGetUniformLocation(advectionShader.program(), "dh"), 1.0f/grid_width);
         glUniform3f(glGetUniformLocation(advectionShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, velocityMatrix);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_3D, dataMatrix);
+        glBindTexture(GL_TEXTURE_3D, data);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
 
-    //setBoundary(data, resultMatrix, 0);
-    swapData(data, resultMatrix);
+    setBoundary(data, result, 0);
+    swapData(data, result);
 }
 
 void SlabOperator::divergence(){
@@ -487,13 +484,13 @@ void SlabOperator::proj(){
 
 void SlabOperator::velocityStep(float dt){
     // Force
-    buoyancy(dt);
+    //buoyancy(dt);
     // Transport
-    advection(velocityMatrix, dt);
+    //advection(velocityMatrix, resultVMatrix, dt);
     // Project
-    divergence();
-    jacobi();
-    proj();
+    //divergence();
+    //jacobi();
+    //proj();
 }
 
 void SlabOperator::addition(float dt){
@@ -547,9 +544,9 @@ void SlabOperator::pressureStep(float dt){
     // Source
     addition(dt);
     // Transport
-    advection(pressureMatrix, dt);
+    advection(pressureMatrix, resultPMatrix, dt);
     // Dissipate
-    dissipate(dt);
+    //dissipate(dt);
 }
 
 

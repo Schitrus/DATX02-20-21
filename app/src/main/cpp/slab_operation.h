@@ -70,7 +70,7 @@ private:
     void initShaders();
 
     void buoyancy(float dt);
-    void advection(GLuint data, float dt);
+    void advection(GLuint data, GLuint result, float dt);
 
     void divergence();
     void jacobi();
