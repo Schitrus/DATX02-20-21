@@ -247,7 +247,7 @@ void SlabOperator::initShaders() {
     // Projection Shaders
     divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
     jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
-    projectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/projection.frag");
+    projectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
     temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
 }
