@@ -33,9 +33,13 @@ class SlabOperator{
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
 
-    GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix, divMatrix, sourcePMatrix;
+    GLuint dataMatrix, velocityMatrix, densityMatrix, temperatureMatrix;
+    //Textures for sources
+    GLuint tempSourceMatrix, velSourceMatrix, sourcePMatrix;
     // Result textures. They are only used temporarily during simulation steps to store the result, and only exist here for reuse-ability
     GLuint scalarResultMatrix, vectorResultMatrix;
+    // Textures used temporarily during projection
+    GLuint divMatrix, jacobiMatrix;
 
     Shader temperatureShader;
     Shader buoyancyShader, jacobiShader, projectionShader;
@@ -56,7 +60,7 @@ private:
     void initData();
     void initVelocity(int size);
 
-    void initPressure();
+    void initJacobiMatrix();
 
     void initDensity(float* data);
 
@@ -73,9 +77,18 @@ private:
     void buoyancy(float dt);
     void advection(GLuint &data, bool isVectorField, float dh, float dt);
 
-    void divergence();
-    void jacobi();
-    void proj();
+    // Projects the given *vector* field texture
+    void projection(GLuint &target);
+
+    // Calculates the divergence of the vector field "target" and stores it in result
+    void divergence(GLuint target, GLuint &result);
+
+    // Performs a number of jacobi iterations of the scalar "divergence" into jacobi
+    // Beware that the it will use the jacobi field passed as the starting value for the iterations
+    void jacobi(GLuint divergence, GLuint &jacobi);
+
+    // Subtracts the gradient of the given scalar field from the target vector field
+    void subtractGradient(GLuint &target, GLuint scalarField);
 
     void addition(GLuint &target, GLuint &source, bool isVectorField, float dt);
 

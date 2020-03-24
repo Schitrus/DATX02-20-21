@@ -61,7 +61,7 @@ void SlabOperator::initData() {
     for (int i = 0; i < size; ++i) { // todo fix crash on large arrays
         data[i] = 0.0f;
     }
-    initPressure();
+    initJacobiMatrix();
     initDensity(data);
     initTemperature(data);
     initSources();
@@ -87,14 +87,14 @@ void SlabOperator::initVelocity(int size){
     delete[] data;
 }
 
-void SlabOperator::initPressure(){
+void SlabOperator::initJacobiMatrix(){
     float* data = new float[grid_width*grid_height*grid_depth];
     //int b = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < grid_width*grid_height*grid_depth; i++) {
         data[i] = 0.25f;
     }
 
-    createScalar3DTexture(&pressureMatrix, grid_width, grid_height, grid_depth, data);
+    createScalar3DTexture(&jacobiMatrix, grid_width, grid_height, grid_depth, data);
 }
 
 void SlabOperator::initDensity(float* data){
@@ -255,7 +255,7 @@ void SlabOperator::initShaders() {
 }
 
 void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = pressureMatrix;
+    data = jacobiMatrix;
     width = grid_width;
     height = grid_height;
     depth = grid_depth;
@@ -349,33 +349,39 @@ void SlabOperator::advection(GLuint &data, bool isVectorField, float dh, float d
     performOperation(advectionShader, data, isVectorField, 0);
 }
 
-void SlabOperator::divergence(){
-    divergenceShader.use();
-
-    bind3DTexture0(velocityMatrix);
-
-    performOperation(divergenceShader, divMatrix, false, 0);
+void SlabOperator::projection(GLuint &target) {
+    divergence(target, divMatrix);
+    jacobi(divMatrix, jacobiMatrix);
+    subtractGradient(target, jacobiMatrix);
 }
 
-void SlabOperator::jacobi(){
+void SlabOperator::divergence(GLuint target, GLuint &result){
+    divergenceShader.use();
+
+    bind3DTexture0(target);
+
+    performOperation(divergenceShader, result, false, 0);
+}
+
+void SlabOperator::jacobi(GLuint divergence, GLuint &jacobi){
     jacobiShader.use();
 
-    bind3DTexture0(pressureMatrix);
-    bind3DTexture1(divMatrix);
+    bind3DTexture0(jacobi);
+    bind3DTexture1(divergence);
 
     for(int i = 0; i < 20; i++){
-        performOperation(jacobiShader, pressureMatrix, false, 0);
+        performOperation(jacobiShader, jacobi, false, 0);
     }
 }
 
-void SlabOperator::proj(){
+void SlabOperator::subtractGradient(GLuint &target, GLuint scalarField){
 
     projectionShader.use();
 
-    bind3DTexture0(pressureMatrix);
-    bind3DTexture1(velocityMatrix);
+    bind3DTexture0(scalarField);
+    bind3DTexture1(target);
 
-    performOperation(projectionShader, velocityMatrix, true, -1);
+    performOperation(projectionShader, target, true, -1);
 }
 
 void SlabOperator::velocityStep(float dh, float dt){
@@ -384,9 +390,7 @@ void SlabOperator::velocityStep(float dh, float dt){
     // Transport
     advection(velocityMatrix, true, dh, dt);
     // Project
-    divergence();
-    jacobi();
-    proj();
+    projection(velocityMatrix);
 }
 
 void SlabOperator::substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt){
