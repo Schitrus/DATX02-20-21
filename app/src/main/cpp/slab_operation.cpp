@@ -434,14 +434,23 @@ void SlabOperator::dissipate(GLuint &target, float dissipationRate, float dt){
 
 void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
 
+    // Get a result texture of the right type that is safe to overwrite
     GLuint &result = isVectorField ? vectorResultMatrix : scalarResultMatrix;
 
+    // Perform the operation onto result
     for(int depth = 1; depth < grid_depth - 1; depth++){
         prepareResult(result, depth);
         drawInteriorToTexture(shader, depth);
     }
 
+    // Swap so that we perform boundary operations on the previous result
+    // and write it to the now safe-to-overwrite texture in target
+    swapData(target, result);
+
+    // Force boundaries
     setBoundary(target, result, boundaryScale);
+
+    // Set target to the result we got from boundary
     swapData(target, result);
 }
 
