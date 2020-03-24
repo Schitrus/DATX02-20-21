@@ -57,6 +57,7 @@ public:
     void swapData(GLuint& d1, GLuint& d2);
 private:
     void initData();
+
     void initVelocity(int size);
 
     void initJacobiMatrix();
@@ -73,7 +74,10 @@ private:
 
     void initShaders();
 
+    // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(float dt);
+
+    // Performs advection on the given data
     void advection(GLuint &data, bool isVectorField, float dh, float dt);
 
     // Projects the given *vector* field texture
@@ -89,10 +93,14 @@ private:
     // Subtracts the gradient of the given scalar field from the target vector field
     void subtractGradient(GLuint &target, GLuint scalarField);
 
+    // Adds the given source field multiplied by dt to the target field
     void addition(GLuint &target, GLuint &source, bool isVectorField, float dt);
 
+    // Dissipates the given target field at the given dissipation rate
+    // Note that it will still execute the operation even if the dissipation rate is 0
     void dissipate(GLuint &target, float dissipationRate, float dt);
 
+    // Performs one simulation step for velocity
     void velocityStep(float dh, float dt);
 
     // Performs the usual steps for moving substances using the fluid velocity field
@@ -115,6 +123,8 @@ private:
 
     void setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth);
 
+    // Prepares the given texture and layer to be rendered to
+    // Intended to be called before drawInteriorToTexture() or drawBoundaryToTexture()
     void prepareResult(GLuint result, int depth);
 
     // Sets the depth uniform on the shader and then draws the interior
