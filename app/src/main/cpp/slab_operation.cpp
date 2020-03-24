@@ -457,7 +457,7 @@ void SlabOperator::pressureStep(float dt){
 
 void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
 
-    GLuint result = isVectorField ? vectorResultMatrix : scalarResultMatrix;
+    GLuint &result = isVectorField ? vectorResultMatrix : scalarResultMatrix;
 
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
