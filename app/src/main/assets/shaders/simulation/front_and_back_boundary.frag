@@ -11,6 +11,8 @@ uniform float scale;
 
 out vec3 outData;
 
+// Performs boundary condition computation for
+// only the front and back 2D grids of the 3D field
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
