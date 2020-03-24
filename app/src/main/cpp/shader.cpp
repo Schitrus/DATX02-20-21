@@ -130,3 +130,7 @@ void Shader::uniform1i(const GLchar *name, GLint value) {
 void Shader::uniform1f(const GLchar *name, GLfloat value) {
     glUniform1f(glGetUniformLocation(program(), name), value);
 }
+
+void Shader::uniform3f(const GLchar *name, GLfloat value1, GLfloat value2, GLfloat value3) {
+    glUniform3f(glGetUniformLocation(program(), name), value1, value2, value3);
+}

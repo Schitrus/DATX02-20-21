@@ -20,10 +20,13 @@ public:
     void uniform1i(const GLchar *name, GLint value);
 
     void uniform1f(const GLchar *name, GLfloat value);
+
+    void uniform3f(const GLchar *name, GLfloat value1, GLfloat value2, GLfloat value3);
 private:
     GLuint createShader(GLenum type, const char* src);
 
     GLuint createProgram(const char* vertex_path, const char* fragment_path);
+
 };
 
 

@@ -98,6 +98,16 @@ private:
 
     void setBoundary(GLuint data, GLuint result, int scale);
 
+    void prepareResult(GLuint result, int depth);
+
+    // Sets the depth uniform on the shader and then draws the interior
+    // Should be called after the relevant call to prepareResult()
+    void drawInteriorToTexture(Shader shader, int depth);
+
+    // Sets the depth uniform on the shader and then draws the boundary
+    // Should be called after the relevant call to prepareResult()
+    void drawBoundaryToTexture(Shader shader, int depth);
+
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H
