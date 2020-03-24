@@ -108,12 +108,18 @@ void SlabOperator::initSources(){
 
     float* tempSource = new float[size];
     float* velSource = new float[3*size];
-    float* presSource = new float[size];
+    float* centerSource = new float[size];
 
-    for(int i = 0; i < size; i++)
-        presSource[i] = 0.0f;
+    for(int i = 0; i < size; i++) {
+        tempSource[i] = 0.0f;
+        centerSource[i] = 0.0f;
 
-    presSource[size/2] = 1.0f;
+        velSource[3*i] = 0.0f;
+        velSource[3*i + 1] = 0.0f;
+        velSource[3*i + 2] = 0.0f;
+    }
+
+    centerSource[size / 2] = 1.0f;
 
     int radius = grid_width/10;
     for(int x = - radius; x <= radius; x++){
@@ -127,13 +133,13 @@ void SlabOperator::initSources(){
         }
     }
 
+    //createScalar3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, centerSource);
     createScalar3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
     createVector3DTexture(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
-    createScalar3DTexture(&sourcePMatrix, grid_width, grid_height, grid_depth, presSource);
 
     delete[] tempSource;
     delete[] velSource;
-    delete[] presSource;
+    delete[] centerSource;
 }
 
 void SlabOperator::initLine() {

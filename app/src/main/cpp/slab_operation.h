@@ -35,7 +35,7 @@ class SlabOperator{
 
     GLuint velocityMatrix, densityMatrix, temperatureMatrix;
     //Textures for sources
-    GLuint tempSourceMatrix, velSourceMatrix, sourcePMatrix;
+    GLuint tempSourceMatrix, velSourceMatrix;
     // Result textures. They are only used temporarily during simulation steps to store the result, and only exist here for reuse-ability
     GLuint scalarResultMatrix, vectorResultMatrix;
     // Textures used temporarily during projection
