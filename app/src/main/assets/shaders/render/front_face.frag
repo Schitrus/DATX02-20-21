@@ -3,7 +3,8 @@ precision highp float;
 precision highp sampler3D;
 in vec3 hit;
 layout(binding = 0) uniform sampler2D lastHit;
-layout(binding = 3) uniform sampler3D volume;
+layout(binding = 2) uniform sampler3D pressure;
+layout(binding = 3) uniform sampler3D temperature;
 out vec4 outColor;
 void main() {
    ivec2 tcoord = ivec2(gl_FragCoord.xy);
@@ -11,7 +12,7 @@ void main() {
    vec3 direction = last.xyz - hit.xyz;
    float D = length(direction);
    direction = normalize(direction);
-   vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+   vec4 color = vec4(1.0f, 0.4f, 0.01f, 0.0f);
    color.a = 0.0f;
    float h = 1.0/64.0;         // todo fix
    vec3 tr = hit;
@@ -22,9 +23,11 @@ void main() {
            ivec3 iv = ivec3(tr);
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
-           float samp = clamp(texture(volume, tr).x, 0.0, 1.0);
+           float samp = clamp(texture(pressure, tr).x, 0.0, 1.0);
+           float rad = 1.0f;//clamp(texture(temperature, tr).x/3.0, 0.0, 1.0);
            //calculate Alpha
            //accumulating collor and alpha using under operator
+           baseColor = mix(vec3(0.0, 0.0, 0.0), color.rgb, rad);
            float alpha = pow(samp,1.0);
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)

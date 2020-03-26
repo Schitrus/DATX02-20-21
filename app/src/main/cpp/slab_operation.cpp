@@ -69,6 +69,7 @@ void SlabOperator::initData() {
     create3DTexture(&dataMatrix, grid_width, grid_height, grid_depth, data);
 
     create3DTexture(&resultMatrix, grid_width, grid_height, grid_depth, NULL);
+    create3DTexture(&resultvec3Matrix, grid_width, grid_height, grid_depth, NULL);
     create3DTexture(&divMatrix, grid_width, grid_height, grid_depth, NULL);
 
     delete[] data;
@@ -84,7 +85,7 @@ void SlabOperator::initVelocity(int size){
 
     int middle = (grid_depth*grid_height*grid_width+grid_height*grid_width+grid_width)/2;
 
-    data[middle*3+1] = 10.0f;
+    data[middle*3+1] = 0.0f;
 
     create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
     create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
@@ -129,9 +130,9 @@ void SlabOperator::initSources(){
 
     int middle = (grid_depth*grid_height*grid_width+grid_height*grid_width+grid_width)/2;
 
-    presSource[middle] = 1.0f;
+    presSource[middle] = 10.0f;
     tempSource[middle] = 500.0f;
-    velSource[middle*3+1] = 10000.0f;
+    velSource[middle*3+1] = 1.0f;
 
     create3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
     create3DTextureV(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
@@ -258,8 +259,9 @@ void SlabOperator::initShaders() {
     temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
 }
 
-void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = temperatureMatrix;
+void SlabOperator::getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth) {
+    temperature = temperatureMatrix;
+    pressure = pressureMatrix;
     width = grid_width;
     height = grid_height;
     depth = grid_depth;
@@ -288,14 +290,45 @@ void SlabOperator::update() {
     // Do Operations
     float dt = 1.0f/30.0f;
 
-    velocityStep(dt);
+    ///// VEL STEP
 
-    pressureStep(dt);
+    // addForce
+    addition(velocityMatrix, resultVMatrix, velSourceMatrix, dt);
+    //buoyancy(dt);
+
+    dissipate(velocityMatrix, resultVMatrix, dt);
+
+    //Project
+    divergence();
+    jacobi();
+    proj();
+    swapData(velocityMatrix, resultVMatrix);
+
+    // Transport
+    advection(velocityMatrix, resultVMatrix, dt);
+
+    //Project
+    divergence();
+    jacobi();
+    proj();
+
+    ///// DENS STEP
+
+    //addForce
+    addition(pressureMatrix, resultPMatrix, sourcePMatrix, dt);
+    //addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
+
+    // Dissipate
+    dissipate(pressureMatrix, resultPMatrix, dt);
+
+    // Transport
+    advection(pressureMatrix, resultPMatrix, dt);
+    //advection(temperatureMatrix, resultTMatrix, dt);
 
     FBO->null();
 }
 
-void SlabOperator::setBoundary(GLuint data, GLuint result, int scale){
+void SlabOperator::setBoundary(GLuint& data, GLuint& result, int scale){
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
 
@@ -432,6 +465,7 @@ void SlabOperator::divergence(){
     }
 
     setBoundary(divMatrix, resultDMatrix, 0);
+    setBoundary(pressureMatrix, resultPMatrix, 0);
     swapData(divMatrix, resultDMatrix);
 }
 
@@ -480,19 +514,8 @@ void SlabOperator::proj(){
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
-    setBoundary(velocityMatrix, resultVMatrix, -1);
+    setBoundary(velocityMatrix, resultVMatrix, 0);
     swapData(velocityMatrix, resultVMatrix);
-}
-
-void SlabOperator::velocityStep(float dt){
-    // Force
-    buoyancy(dt);
-    // Transport
-    advection(velocityMatrix, resultVMatrix, dt);
-    // Project
-    divergence();
-    jacobi();
-    proj();
 }
 
 void SlabOperator::addition(GLuint& data, GLuint& result, GLuint& source, float dt){
@@ -515,13 +538,13 @@ void SlabOperator::addition(GLuint& data, GLuint& result, GLuint& source, float 
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
-    setBoundary(data, result, 0);
+    //setBoundary(data, result, 0);
     swapData(data, result);
 }
 
-void SlabOperator::dissipate(float dt){
+void SlabOperator::dissipate(GLuint& data, GLuint& result, float dt){
     for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultPMatrix, 0, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
@@ -534,25 +557,12 @@ void SlabOperator::dissipate(float dt){
         glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), 0.15f);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, pressureMatrix);
+        glBindTexture(GL_TEXTURE_3D, data);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
-    setBoundary(pressureMatrix, resultPMatrix, 0);
-    swapData(pressureMatrix, resultPMatrix);
+    setBoundary(data, result, 0);
+    swapData(data, result);
 }
-
-void SlabOperator::pressureStep(float dt){
-    // Source
-    addition(pressureMatrix, resultPMatrix, sourcePMatrix, dt);
-    addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
-    addition(velocityMatrix, resultVMatrix, velSourceMatrix, dt);
-    // Transport
-    advection(pressureMatrix, resultPMatrix, dt);
-    advection(temperatureMatrix, resultTMatrix, dt);
-    // Dissipate
-    dissipate(dt);
-}
-
 
 

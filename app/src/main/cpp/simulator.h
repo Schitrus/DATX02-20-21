@@ -20,7 +20,7 @@ public:
     void swapData();
 
     void setData(GLuint data, int width, int height, int depth);
-    void getData(GLuint& data, int& width, int& height, int& depth);
+    void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
 };
 

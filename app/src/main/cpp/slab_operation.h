@@ -35,7 +35,7 @@ class SlabOperator{
 
     GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
     GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix, sourcePMatrix;
-
+    GLuint resultvec3Matrix;
     Shader temperatureShader;
     Shader buoyancyShader, jacobiShader, projectionShader;
     Shader additionShader, divergenceShader, advectionShader, boundaryShader, dissipateShader;
@@ -48,7 +48,7 @@ public:
     void update();
 
     void setData(GLuint data, int width, int height, int depth);
-    void getData(GLuint& data, int& width, int& height, int& depth);
+    void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
     void swapData(GLuint& d1, GLuint& d2);
 private:
@@ -78,12 +78,9 @@ private:
 
     void addition(GLuint& data, GLuint& result, GLuint& source, float dt);
 
-    void dissipate(float dt);
+    void dissipate(GLuint& data, GLuint& result, float dt);
 
-    void velocityStep(float dt);
-    void pressureStep(float dt);
-
-    void setBoundary(GLuint data, GLuint result, int scale);
+    void setBoundary(GLuint& data, GLuint& result, int scale);
 
 };
 
