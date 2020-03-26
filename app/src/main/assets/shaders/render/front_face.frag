@@ -1,4 +1,4 @@
-#version 310 es
+#version 320 es
 precision highp float;
 precision highp sampler3D;
 in vec3 hit;
@@ -36,6 +36,6 @@ void main() {
            tr += rayStep;
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
-        outColor = vec4(baseColor, color.a);
+        outColor = vec4(hit, 1.0f);
         //outColor = vec4(1.0f,1.0f,1.0f,1.0f); // todo
 }
