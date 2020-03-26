@@ -131,7 +131,7 @@ void SlabOperator::initSources(){
 
     presSource[middle] = 1.0f;
     tempSource[middle] = 500.0f;
-    velSource[middle*3+1] = 100.0f;
+    velSource[middle*3+1] = 10000.0f;
 
     create3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
     create3DTextureV(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
@@ -545,7 +545,7 @@ void SlabOperator::dissipate(float dt){
 void SlabOperator::pressureStep(float dt){
     // Source
     addition(pressureMatrix, resultPMatrix, sourcePMatrix, dt);
-    addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
+    //addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
     addition(velocityMatrix, resultVMatrix, velSourceMatrix, dt);
     // Transport
     advection(pressureMatrix, resultPMatrix, dt);
