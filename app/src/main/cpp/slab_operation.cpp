@@ -259,7 +259,7 @@ void SlabOperator::initShaders() {
 }
 
 void SlabOperator::getData(GLuint& data, int& width, int& height, int& depth) {
-    data = pressureMatrix;
+    data = temperatureMatrix;
     width = grid_width;
     height = grid_height;
     depth = grid_depth;
@@ -545,10 +545,11 @@ void SlabOperator::dissipate(float dt){
 void SlabOperator::pressureStep(float dt){
     // Source
     addition(pressureMatrix, resultPMatrix, sourcePMatrix, dt);
-    //addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
+    addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
     addition(velocityMatrix, resultVMatrix, velSourceMatrix, dt);
     // Transport
     advection(pressureMatrix, resultPMatrix, dt);
+    advection(temperatureMatrix, resultTMatrix, dt);
     // Dissipate
     dissipate(dt);
 }
