@@ -78,9 +78,14 @@ void SlabOperator::initVelocity(int size){
     float* data = new float[size*3];
     for(int i = 0; i < size; i++) {
                 data[i * 3] = 0.0;
-                data[i * 3 + 1] = 1.0;
+                data[i * 3 + 1] = 0.0;
                 data[i * 3 + 2] = 0.0;
     }
+
+    int middle = (grid_depth*grid_height*grid_width+grid_height*grid_width+grid_width)/2;
+
+    data[middle*3+1] = 10.0f;
+
     create3DTextureV(&velocityMatrix, grid_width, grid_height, grid_depth, data);
     create3DTextureV(&resultVMatrix, grid_width, grid_height, grid_depth, NULL);
     delete[] data;
@@ -114,22 +119,19 @@ void SlabOperator::initSources(){
     float* velSource = new float[3*size];
     float* presSource = new float[size];
 
-    for(int i = 0; i < size; i++)
+    for(int i = 0; i < size; i++) {
         presSource[i] = 0.0f;
-
-    presSource[16*16*8+16*8+8] = 1.0f;
-
-    int radius = grid_width/10;
-    for(int x = - radius; x <= radius; x++){
-        int dz = (int) std::round(sqrt(radius * radius - x * x));
-        for(int z = -dz; z <= dz; z++){
-            //I have not verified that this is the correct way to calculate the index
-            int index = x + grid_width*(0 + grid_height*z);
-
-            tempSource[index] = 0;
-            velSource[3*index + 1] = 0;
-        }
+        velSource[i*3] = 0.0f;
+        velSource[i*3+1] = 0.0f;
+        velSource[i*3+2] = 0.0f;
+        tempSource[i] = 0.0f;
     }
+
+    int middle = (grid_depth*grid_height*grid_width+grid_height*grid_width+grid_width)/2;
+
+    presSource[middle] = 1.0f;
+    tempSource[middle] = 500.0f;
+    velSource[middle*3+1] = 100.0f;
 
     create3DTexture(&tempSourceMatrix, grid_width, grid_height, grid_depth, tempSource);
     create3DTextureV(&velSourceMatrix, grid_width, grid_height, grid_depth, velSource);
@@ -384,7 +386,7 @@ void SlabOperator::buoyancy(float dt){
     swapData(velocityMatrix, resultVMatrix);
 }
 
-void SlabOperator::advection(GLuint data, GLuint result, float dt) {
+void SlabOperator::advection(GLuint& data, GLuint& result, float dt) {
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -484,18 +486,18 @@ void SlabOperator::proj(){
 
 void SlabOperator::velocityStep(float dt){
     // Force
-    //buoyancy(dt);
+    buoyancy(dt);
     // Transport
-    //advection(velocityMatrix, resultVMatrix, dt);
+    advection(velocityMatrix, resultVMatrix, dt);
     // Project
-    //divergence();
-    //jacobi();
-    //proj();
+    divergence();
+    jacobi();
+    proj();
 }
 
-void SlabOperator::addition(float dt){
+void SlabOperator::addition(GLuint& data, GLuint& result, GLuint& source, float dt){
     for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultPMatrix, 0, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
@@ -507,14 +509,14 @@ void SlabOperator::addition(float dt){
         glUniform1f(glGetUniformLocation(additionShader.program(), "dt"), dt);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, pressureMatrix);
+        glBindTexture(GL_TEXTURE_3D, data);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_3D, sourcePMatrix);
+        glBindTexture(GL_TEXTURE_3D, source);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
-    setBoundary(pressureMatrix, resultPMatrix, 0);
-    swapData(pressureMatrix, resultPMatrix);
+    setBoundary(data, result, 0);
+    swapData(data, result);
 }
 
 void SlabOperator::dissipate(float dt){
@@ -542,11 +544,13 @@ void SlabOperator::dissipate(float dt){
 
 void SlabOperator::pressureStep(float dt){
     // Source
-    addition(dt);
+    addition(pressureMatrix, resultPMatrix, sourcePMatrix, dt);
+    addition(temperatureMatrix, resultTMatrix, tempSourceMatrix, dt);
+    addition(velocityMatrix, resultVMatrix, velSourceMatrix, dt);
     // Transport
     advection(pressureMatrix, resultPMatrix, dt);
     // Dissipate
-    //dissipate(dt);
+    dissipate(dt);
 }
 
 

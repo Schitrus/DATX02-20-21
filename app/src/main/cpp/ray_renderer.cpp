@@ -207,7 +207,7 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     vec3 modelPos(0, 0, -2.5);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
-                     * rotate(mat4(1.0f), 0.24f * PI, vec3(1, 1, 0))
+                     * rotate(mat4(1.0f), rot, vec3(0, 1, 0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 

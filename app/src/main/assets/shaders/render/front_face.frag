@@ -16,7 +16,7 @@ void main() {
    float h = 1.0/64.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
-   vec3 baseColor = vec3(1.0,0.5,0.0);
+   vec3 baseColor = vec3(1.0,0.4,0.0);
    //float opacityThreshold = 0.95f;
    for(float t = 0.0; t<=D; t+=h){
            ivec3 iv = ivec3(tr);
@@ -25,7 +25,7 @@ void main() {
            float samp = clamp(texture(volume, tr).x, 0.0, 1.0);
            //calculate Alpha
            //accumulating collor and alpha using under operator
-           float alpha = pow(samp,0.5);
+           float alpha = pow(samp,1.0);
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)
               color.rgb = ( color.rgb * color.a + baseColor * alpha * (1.0 - color.a))/over;

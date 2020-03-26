@@ -20,13 +20,14 @@ void main() {
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    vec3 previous_position = vec3(position) - dt * vec3(0.0, 1.0, 0.0);
+    vec3 previous_position = vec3(position) - dt * velocity;
+    previous_position += vec3(0.5);
     previous_position /= gridSize;
-    //previous_position += vec3(0.5);
+
 
     //previous_position /= (dh * (gridSize - 1.0f));
 
     //outData = texture(data_field, vec3(position)).xyz;
-    outData = texelFetch(data_field, ivec3(previous_position), 0).xyz;
+    outData = texture(data_field, previous_position).xyz;
 }
 
