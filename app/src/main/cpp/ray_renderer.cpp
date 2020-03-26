@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>

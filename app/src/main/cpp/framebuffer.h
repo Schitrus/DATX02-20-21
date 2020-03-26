@@ -6,7 +6,7 @@
 #define DATX02_20_21_FRAMEBUFFER_H
 
 #include <jni.h>
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 
 class Framebuffer {
     int width, height;

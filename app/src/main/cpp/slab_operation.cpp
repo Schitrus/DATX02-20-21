@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>
@@ -268,7 +268,7 @@ void SlabOperator::swapData(GLuint& d1, GLuint& d2){
 void SlabOperator::update() {
     // Setup GPU
     FBO->use();
-
+    ALOGE("Opengl es verison: %s", glGetString(GL_VERSION));
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
