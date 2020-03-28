@@ -359,7 +359,7 @@ void SlabOperator::densityStep(float dt){
     // addForce
     constadd(densityData, densitySource, densityResult,dt);
     constadd(temperatureData, temperatureSource, temperatureResult, dt);
-    //dissipate(densityData, densityResult, dt);
+    dissipate(densityData, densityResult, dt);
     // Advect
     fulladvection(densityData, densityResult, dt);
     temperature(dt);
@@ -505,7 +505,7 @@ void SlabOperator::dissipate(GLuint& data, GLuint& result, float dt){
 
         glUniform1i(glGetUniformLocation(dissipateShader.program(), "depth"), depth);
         glUniform1f(glGetUniformLocation(dissipateShader.program(), "dt"), dt);
-        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), 0.0015f);
+        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), 0.9f);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, data);
