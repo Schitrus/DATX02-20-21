@@ -140,7 +140,7 @@ void create3DTexture(GLuint *id, int width, int height, int depth, float* data){
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void create3DTextureV(GLuint *id, int width, int height, int depth, float *data){
+void create3DTexture(GLuint *id, int width, int height, int depth, vec3* data){
 
     glGenTextures(1, id);
     glBindTexture(GL_TEXTURE_3D, *id);

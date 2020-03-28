@@ -76,14 +76,9 @@ void RayRenderer::setData(GLuint pressure, GLuint temperature, int width, int he
     texture_width = width;
     texture_height = height;
     texture_depth = depth;
-    boundingScale = vec3(1.0f);
-}
-
-void RayRenderer::getData(GLuint& data, int& width, int& height, int& depth){
-    data = pressureTexID;
-    width = texture_width;
-    height = texture_height;
-    depth = texture_depth;
+    float m = max(max(texture_width, texture_height), texture_depth);
+    vec3 tex = vec3(texture_width, texture_height, texture_depth)/m;
+    boundingScale = tex;
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
@@ -170,7 +165,7 @@ void RayRenderer::step() {
 
     // back
     FBO->use();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -180,7 +175,7 @@ void RayRenderer::step() {
 
     // front
     FBO->null();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -208,10 +203,9 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     float fovy = radians(60.0f);
     float aspectRatio = (float)window_width / window_height;
 
-    vec3 modelPos(0, 0, -2.5);
+    vec3 modelPos(0, 0, -1.0);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
-                     * rotate(mat4(1.0f), rot, vec3(0, 1, 0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 

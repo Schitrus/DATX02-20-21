@@ -52,7 +52,6 @@ public:
     void step();
 
     void setData(GLuint pressure, GLuint temperature, int width, int height, int depth);
-    void getData(GLuint& data, int& width, int& height, int& depth);
 
 private:
 

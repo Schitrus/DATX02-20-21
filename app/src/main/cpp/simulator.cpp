@@ -18,11 +18,7 @@ void Simulator::update(){
     slab.update();
 }
 
-void Simulator::setData(GLuint data, int width, int height, int depth) {
-    slab.setData(data, width, height, depth);
-}
-
-void Simulator::getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth){
-    slab.getData(pressure, temperature, width, height, depth);
+void Simulator::getData(GLuint& density, GLuint& temperature, int& width, int& height, int& depth){
+    slab.getData(density, temperature, width, height, depth);
 }
 

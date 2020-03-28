@@ -49,7 +49,3 @@ void Renderer::touch(double dx, double dy){
 void Renderer::setData(GLuint pressure, GLuint temperature, int width, int height, int depth){
     rayRenderer.setData(pressure, temperature, width, height, depth);
 }
-
-void Renderer::getData(GLuint& data, int& width, int& height, int& depth){
-    rayRenderer.getData(data, width, height, depth);
-}

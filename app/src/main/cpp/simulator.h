@@ -17,9 +17,6 @@ public:
     void resize(int width, int height, int depth);
     void update();
 
-    void swapData();
-
-    void setData(GLuint data, int width, int height, int depth);
     void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
 };

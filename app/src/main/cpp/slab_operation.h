@@ -7,9 +7,13 @@
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <chrono>
 
 #include "shader.h"
 #include "framebuffer.h"
+
+using std::chrono::time_point;
+using std::chrono::system_clock;
 
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
@@ -32,13 +36,20 @@ class SlabOperator{
     // front and back face
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
+    Shader boundaryShader;
 
-    GLuint dataMatrix, velocityMatrix, densityMatrix, pressureMatrix, temperatureMatrix, tempSourceMatrix, velSourceMatrix;
-    GLuint resultMatrix, resultVMatrix, resultDMatrix, resultPMatrix, resultTMatrix, divMatrix, sourcePMatrix;
-    GLuint resultvec3Matrix;
+    GLuint densityData, temperatureData, velocityData, divergenceData;
+    GLuint densitySource, temperatureSource, velocitySource;
+    GLuint densityResult, temperatureResult, velocityResult, divergenceResult;
+    GLuint gradientData, gradientResult;
+
     Shader temperatureShader;
-    Shader buoyancyShader, jacobiShader, projectionShader;
-    Shader additionShader, divergenceShader, advectionShader, boundaryShader, dissipateShader;
+    Shader divergenceShader, jacobiShader, gradientShader;
+    Shader additionShader, buoyancyShader, advectionShader;
+    Shader diffuseShader, dissipateShader;
+
+    // Time
+    time_point<system_clock> start_time, last_time;
 
 public:
     void init();
@@ -47,26 +58,14 @@ public:
 
     void update();
 
-    void setData(GLuint data, int width, int height, int depth);
     void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
     void swapData(GLuint& d1, GLuint& d2);
 private:
     void initData();
-    void initVelocity(int size);
-
-    void initPressure();
-
-    void initDensity(float* data);
-
-    void initTemperature(float* data);
-
-    void initSources();
 
     void initLine();
-
     void initQuad();
-
     void initShaders();
 
     void buoyancy(float dt);
@@ -74,13 +73,23 @@ private:
 
     void divergence();
     void jacobi();
-    void proj();
+    void gradient();
+
+    void temperature(float dt);
 
     void addition(GLuint& data, GLuint& result, GLuint& source, float dt);
 
     void dissipate(GLuint& data, GLuint& result, float dt);
 
+    void diffuse(GLuint& data, GLuint& result, float dt);
+
+    void project();
+
     void setBoundary(GLuint& data, GLuint& result, int scale);
+
+    void velocityStep(float dt);
+
+    void densityStep(float dt);
 
 };
 

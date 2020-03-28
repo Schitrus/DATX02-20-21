@@ -7,7 +7,6 @@ layout(binding = 0) uniform sampler3D velocity_field;
 layout(binding = 1) uniform sampler3D data_field;
 
 uniform float dt;
-uniform float dh;
 uniform int depth;
 uniform vec3 gridSize;
 
@@ -17,17 +16,11 @@ void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    vec3 previous_position = vec3(position) - dt * velocity;
-    previous_position += vec3(0.5);
-    previous_position /= gridSize;
+    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity;
 
-
-    //previous_position /= (dh * (gridSize - 1.0f));
-
-    //outData = texture(data_field, vec3(position)).xyz;
-    outData = texture(data_field, previous_position).xyz;
+    // Note: Linear interpolation due to linear texture
+    outData = texture(data_field, previous_position / gridSize).xyz;
 }
 

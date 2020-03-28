@@ -20,5 +20,5 @@ void main() {
     float y = texelFetch(velocity_field, position + dy, 0).y - texelFetch(velocity_field, position - dy, 0).y;
     float z = texelFetch(velocity_field, position + dz, 0).z - texelFetch(velocity_field, position - dz, 0).z;
 
-    outDivergence = 0.5f * (x + y + z);
+    outDivergence = -0.5f * (x + y + z);
 }

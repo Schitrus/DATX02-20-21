@@ -7,7 +7,6 @@ layout(binding = 0) uniform sampler3D temperature_field;
 layout(binding = 1) uniform sampler3D velocity_field;
 
 uniform float dt;
-uniform float scale;
 uniform int depth;
 
 out vec3 outVelocity;
@@ -22,7 +21,7 @@ void main() {
 
     vec3 vertical_direction = vec3(0.0f, 1.0f, 0.0f);
 
-    vec3 buoyancy = scale * (temperature - ambient_temperature) * vertical_direction;
+    vec3 buoyancy = (temperature - ambient_temperature) * vertical_direction;
 
-    outVelocity = velocity +  buoyancy * dt;
+    outVelocity = velocity +  0.15 * buoyancy * dt;
 }
