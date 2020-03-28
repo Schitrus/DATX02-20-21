@@ -46,7 +46,7 @@ class SlabOperator{
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader additionShader, buoyancyShader, advectionShader;
-    Shader diffuseShader, dissipateShader;
+    Shader diffuseShader, dissipateShader, constShader;
 
     // Time
     time_point<system_clock> start_time, last_time;
@@ -70,6 +70,7 @@ private:
 
     void buoyancy(float dt);
     void advection(GLuint& data, GLuint& result, float dt);
+    void fulladvection(GLuint& data, GLuint& result, float dt);
 
     void divergence();
     void jacobi();
@@ -78,6 +79,7 @@ private:
     void temperature(float dt);
 
     void addition(GLuint& data, GLuint& result, GLuint& source, float dt);
+    void constadd(GLuint& data, GLuint& result, GLuint& source, float dt);
 
     void dissipate(GLuint& data, GLuint& result, float dt);
 
