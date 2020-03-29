@@ -254,71 +254,40 @@ void SlabOperator::swapData(GLuint& d1, GLuint& d2){
     d2 = tmp;
 }
 
-void SlabOperator::setBoundary(GLuint& data, GLuint& result, int scale){
+void SlabOperator::setBoundary(GLuint& data, GLuint& result, int scale) {
+    // Input data used in all steps
+    bind3DTexture0(data);
+
     boundaryShader.use();
     boundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     boundaryShader.uniform1f("scale", scale);
-    bind3DTexture0(data);
 
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
 
-        glViewport(0, 0, grid_width, grid_height);
-        glBindVertexArray(boundaryVAO);
-        glLineWidth(1.99f);
-        glUniform1i(glGetUniformLocation(boundaryShader.program(), "depth"), depth);
-
-        glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+        drawBoundaryToTexture(boundaryShader, depth);
     }
     // Front
-    FABBoundaryShader.use();
-    glUniform3f(glGetUniformLocation(FABBoundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
-    glUniform1f(glGetUniformLocation(FABBoundaryShader.program(), "scale"), scale);
-    bind3DTexture0(data);
-
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, 0);
 
-    glViewport(0, 0, grid_width, grid_height);
-    glBindVertexArray(boundaryVAO);
-    glUniform1i(glGetUniformLocation(FABBoundaryShader.program(), "depth"), 0);
-
-    glLineWidth(1.99f);
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+    FABBoundaryShader.use();
+    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    FABBoundaryShader.uniform1f("scale", scale);
+    drawBoundaryToTexture(FABBoundaryShader, 0);
 
     FABInteriorShader.use();
-    bind3DTexture0(data);
-
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
-    glBindVertexArray(interiorVAO);
-    glLineWidth(1.99f);
-    glUniform1i(glGetUniformLocation(FABInteriorShader.program(), "depth"), 0);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    drawInteriorToTexture(FABInteriorShader, 0);
 
     //Back
-    FABBoundaryShader.use();
-    glUniform3f(glGetUniformLocation(FABBoundaryShader.program(), "gridSize"), grid_width, grid_height, grid_depth);
-    glUniform1f(glGetUniformLocation(FABBoundaryShader.program(), "scale"), scale);
-    bind3DTexture0(data);
-
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, grid_depth - 1);
 
-    glViewport(0, 0, grid_width, grid_height);
-    glBindVertexArray(boundaryVAO);
-    glUniform1i(glGetUniformLocation(FABBoundaryShader.program(), "depth"), grid_depth - 1);
-
-    glLineWidth(1.99f);
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+    FABBoundaryShader.use();
+    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    FABBoundaryShader.uniform1f("scale", scale);
+    drawBoundaryToTexture(FABBoundaryShader, grid_depth - 1);
 
     FABInteriorShader.use();
-    bind3DTexture0(data);
-
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
-    glBindVertexArray(interiorVAO);
-    glUniform1i(glGetUniformLocation(FABInteriorShader.program(), "depth"), 0);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+    drawInteriorToTexture(FABInteriorShader, grid_depth - 1);
 }
 
 void SlabOperator::setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth){
@@ -395,12 +364,7 @@ void SlabOperator::temperature(float dt){
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(0, 0, grid_width, grid_height);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(temperatureShader.program(), "depth"), depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawAllToTexture(temperatureShader, depth);
     }
   //  setBoundary(temperatureData, temperatureResult, 0);
     swapData(temperatureData, temperatureResult);
@@ -417,12 +381,7 @@ void SlabOperator::addition(GLuint& data, GLuint& source, GLuint& result, float 
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(additionShader.program(), "depth"), depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(additionShader, depth);
     }
     setBoundary(data, result, 0);
     swapData(data, result);
@@ -439,13 +398,7 @@ void SlabOperator::constadd(GLuint& data, GLuint& source, GLuint& result, float 
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(0, 0, grid_width, grid_height);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(constShader.program(), "depth"), depth);
-
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawAllToTexture(constShader, depth);
     }
    // setBoundary(data, result, 0);
     swapData(data, result);
@@ -462,13 +415,7 @@ void SlabOperator::buoyancy(float dt){
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(buoyancyShader.program(), "depth"), depth);
-
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(buoyancyShader, depth);
     }
     setBoundary(velocityData, velocityResult, 1);
     swapData(velocityData, velocityResult);
@@ -487,12 +434,7 @@ void SlabOperator::diffuse(GLuint& data, GLuint& result, float dt){
             //glClear(GL_COLOR_BUFFER_BIT);
 
             // Interior
-            glViewport(1, 1, grid_width - 2, grid_height - 2);
-            glBindVertexArray(interiorVAO);
-
-            glUniform1i(glGetUniformLocation(diffuseShader.program(), "depth"), depth);
-
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            drawInteriorToTexture(diffuseShader, depth);
         }
         setBoundary(data, result, 0);
     }
@@ -511,13 +453,7 @@ void SlabOperator::dissipate(GLuint& data, GLuint& result, float dissipationRate
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(dissipateShader.program(), "depth"), depth);
-
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(dissipateShader, depth);
     }
     setBoundary(data, result, 0);
     swapData(data, result);
@@ -535,13 +471,7 @@ void SlabOperator::advection(GLuint& data, GLuint& result, float dt) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(advectionShader.program(), "depth"), depth);
-
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(advectionShader, depth);
     }
 
     setBoundary(data, result, 0);
@@ -559,12 +489,7 @@ void SlabOperator::fulladvection(GLuint& data, GLuint& result, float dt) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(0, 0, grid_width, grid_height);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(advectionShader.program(), "depth"), depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawAllToTexture(advectionShader, depth);
     }
     swapData(data, result);
 }
@@ -583,12 +508,7 @@ void SlabOperator::divergence(){
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(divergenceShader.program(), "depth"), depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(divergenceShader, depth);
     }
 
     setBoundary(divergenceData, divergenceResult, 0);
@@ -613,12 +533,7 @@ void SlabOperator::jacobi(){
             glClear(GL_COLOR_BUFFER_BIT);
 
             // Interior
-            glViewport(1, 1, grid_width - 2, grid_height - 2);
-            glBindVertexArray(interiorVAO);
-
-            glUniform1i(glGetUniformLocation(jacobiShader.program(), "depth"), depth);
-
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            drawInteriorToTexture(jacobiShader, depth);
         }
 
         setBoundary(gradientData, gradientResult, 0);
@@ -637,13 +552,7 @@ void SlabOperator::gradient(){
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(gradientShader.program(), "depth"), depth);
-
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        drawInteriorToTexture(gradientShader, depth);
     }
   //  setBoundary(velocityData, velocityResult, 0);
     swapData(velocityData, velocityResult);
@@ -699,6 +608,15 @@ void SlabOperator::prepareResult(GLuint result, int depth) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void SlabOperator::drawAllToTexture(Shader shader, int depth) {
+    glViewport(0, 0, grid_width, grid_height);
+    glBindVertexArray(interiorVAO);
+
+    shader.uniform1i("depth", depth);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 void SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
@@ -711,7 +629,7 @@ void SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
 void SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
     glViewport(0, 0, grid_width, grid_height);
     glBindVertexArray(boundaryVAO);
-    glLineWidth(10000.0f);
+    glLineWidth(1.99f);
 
     shader.uniform1i("depth", depth);
 

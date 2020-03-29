@@ -137,6 +137,10 @@ private:
     // Intended to be called before drawInteriorToTexture() or drawBoundaryToTexture()
     void prepareResult(GLuint result, int depth);
 
+    // Sets the depth uniform on the shader and then draws both the interior and boundary
+    // Should be called after the relevant call to prepareResult()
+    void drawAllToTexture(Shader shader, int depth);
+
     // Sets the depth uniform on the shader and then draws the interior
     // Should be called after the relevant call to prepareResult()
     void drawInteriorToTexture(Shader shader, int depth);
