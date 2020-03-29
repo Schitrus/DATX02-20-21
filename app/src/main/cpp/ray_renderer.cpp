@@ -46,7 +46,8 @@ void RayRenderer::init(AAssetManager* assetManager) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     FBO = nullptr;
-    volumeTexID = UINT32_MAX;
+    pressureTexID = UINT32_MAX;
+    temperatureTexID = UINT32_MAX;
 
     //load3DTexture("BostonTeapot.raw");
     initCube(VAO, VBO, EBO);
@@ -69,19 +70,15 @@ void RayRenderer::resize(int width, int height) {
 
 }
 
-void RayRenderer::setData(GLuint data, int width, int height, int depth){
-    volumeTexID = data;
+void RayRenderer::setData(GLuint pressure, GLuint temperature, int width, int height, int depth){
+    pressureTexID = pressure;
+    temperatureTexID = temperature;
     texture_width = width;
     texture_height = height;
     texture_depth = depth;
-    boundingScale = vec3(1.0f);
-}
-
-void RayRenderer::getData(GLuint& data, int& width, int& height, int& depth){
-    data = volumeTexID;
-    width = texture_width;
-    height = texture_height;
-    depth = texture_depth;
+    float m = max(max(texture_width, texture_height), texture_depth);
+    vec3 tex = vec3(texture_width, texture_height, texture_depth)/m;
+    boundingScale = tex;
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
@@ -90,7 +87,7 @@ void RayRenderer::load3DTexture(const char *fileName) {
     texture_width = 32;
     texture_height = 32;
     texture_depth = 32;
-    generate3DTexture(&volumeTexID, texture_width, texture_height, texture_depth);
+    generate3DTexture(&pressureTexID, texture_width, texture_height, texture_depth);
     boundingScale = vec3(1.0f);
 }
 
@@ -168,7 +165,7 @@ void RayRenderer::step() {
 
     // back
     FBO->use();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -178,7 +175,7 @@ void RayRenderer::step() {
 
     // front
     FBO->null();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -186,8 +183,10 @@ void RayRenderer::step() {
     loadMVP(frontFaceShader, current_time);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, FBO->texture());
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_3D, pressureTexID);
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_3D, volumeTexID);
+    glBindTexture(GL_TEXTURE_3D, temperatureTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
@@ -204,11 +203,9 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     float fovy = radians(60.0f);
     float aspectRatio = (float)window_width / window_height;
 
-    vec3 modelPos(0, 0, -2.5);
+    vec3 modelPos(0, 0, -1.0);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
-                     * rotate(mat4(1.0f), rot, vec3(0, 1, 0))
-                     * rotate(mat4(1.0f), PI, vec3(1, 0, 0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 

@@ -7,9 +7,13 @@
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <chrono>
 
 #include "shader.h"
 #include "framebuffer.h"
+
+using std::chrono::time_point;
+using std::chrono::system_clock;
 
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
@@ -32,18 +36,21 @@ class SlabOperator{
     // front and back face
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
+    Shader boundaryShader;
 
-    GLuint velocityMatrix, densityMatrix, temperatureMatrix;
+    GLuint densityData, temperatureData, velocityData, divergenceData;
     //Textures for sources
-    GLuint tempSourceMatrix, velSourceMatrix;
-    // Result textures. They are only used temporarily during simulation steps to store the result, and only exist here for reuse-ability
-    GLuint scalarResultMatrix, vectorResultMatrix;
-    // Textures used temporarily during projection
-    GLuint divMatrix, jacobiMatrix;
+    GLuint densitySource, temperatureSource, velocitySource;
+    GLuint densityResult, temperatureResult, velocityResult, divergenceResult;
+    GLuint gradientData, gradientResult;
 
     Shader temperatureShader;
-    Shader buoyancyShader, jacobiShader, projectionShader;
-    Shader additionShader, divergenceShader, advectionShader, boundaryShader, dissipateShader;
+    Shader divergenceShader, jacobiShader, gradientShader;
+    Shader additionShader, buoyancyShader, advectionShader;
+    Shader diffuseShader, dissipateShader, constShader;
+
+    // Time
+    time_point<system_clock> start_time, last_time;
 
 public:
     void init();
@@ -52,33 +59,21 @@ public:
 
     void update();
 
-    void getData(GLuint& data, int& width, int& height, int& depth);
+    void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
     void swapData(GLuint& d1, GLuint& d2);
 private:
     void initData();
 
-    void initVelocity(int size);
-
-    void initJacobiMatrix(float* data);
-
-    void initDensity(float* data);
-
-    void initTemperature(float* data);
-
-    void initSources();
-
     void initLine();
-
     void initQuad();
-
     void initShaders();
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(float dt);
-
     // Performs advection on the given data
-    void advection(GLuint &data, bool isVectorField, float dh, float dt);
+    void advection(GLuint& data, GLuint& result, float dt);
+    void fulladvection(GLuint& data, GLuint& result, float dt);
 
     // Projects the given *vector* field texture
     void projection(GLuint &target);
@@ -93,17 +88,26 @@ private:
     // Subtracts the gradient of the given scalar field from the target vector field
     void subtractGradient(GLuint &target, GLuint scalarField);
 
-    // Adds the given source field multiplied by dt to the target field
-    void addition(GLuint &target, GLuint &source, bool isVectorField, float dt);
+    void temperature(float dt);
 
-    // Dissipates the given target field at the given dissipation rate
-    // Note that it will still execute the operation even if the dissipation rate is 0
-    void dissipate(GLuint &target, float dissipationRate, float dt);
+    // Adds the given source field multiplied by dt to the target field
+    void addition(GLuint& data, GLuint& result, GLuint& source, float dt);
+    void constadd(GLuint& data, GLuint& result, GLuint& source, float dt);
+
+    void dissipate(GLuint& data, GLuint& result, float dissipationRate, float dt);
+
+    void diffuse(GLuint& data, GLuint& result, float dt);
+
+    void project();
+
+    void setBoundary(GLuint& data, GLuint& result, int scale);
 
     // Performs one simulation step for velocity
     void velocityStep(float dh, float dt);
 
     void temperatureStep(float dh, float dt);
+
+    void densityStep(float dt);
 
     // Performs the usual steps for moving substances using the fluid velocity field
     // It will not perform the "add force" step, as that depends entirely on the individual substance
@@ -120,8 +124,6 @@ private:
     // Binds the given 3d texture to slot 1
     // Note that the active texture is left at slot 1 after this!
     void bind3DTexture1(GLuint texture);
-
-    void setBoundary(GLuint data, GLuint result, int scale);
 
     void setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth);
 

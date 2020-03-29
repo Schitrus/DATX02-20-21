@@ -3,19 +3,19 @@
 precision highp float;
 precision highp sampler3D;
 
-layout(binding = 0) uniform sampler3D pressure_field;
+layout(binding = 0) uniform sampler3D data_field;
 
 uniform float dt;
 uniform float dissipation_rate;
 uniform int depth;
 
-out float outPressure;
+out vec3 outData;
 
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    float pressure = texelFetch(pressure_field, position, 0).x;
+    vec3 data = texelFetch(data_field, position, 0).xyz;
 
-    outPressure = pressure / (1.0f + (dt * dissipation_rate)) ;
+    outData = data / (1.0f + (dt * dissipation_rate)) ;
 }

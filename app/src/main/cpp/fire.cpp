@@ -27,10 +27,10 @@ void Fire::resize(int width, int height){
 
 void Fire::update(){
     simulator.update();
-    GLuint data;
+    GLuint density, temperature;
     int width, height, depth;
-    simulator.getData(data, width, height, depth);
-    renderer.setData(data, width, height, depth);
+    simulator.getData(density, temperature, width, height, depth);
+    renderer.setData(density, temperature, width, height, depth);
     renderer.update();
 }
 

@@ -34,7 +34,8 @@ class RayRenderer{
     vec3 boundingScale;
 
     // 3D texture
-    GLuint volumeTexID;
+    GLuint temperatureTexID;
+    GLuint pressureTexID;
 
     // Shaders
     Shader frontFaceShader, backFaceShader;
@@ -50,8 +51,7 @@ public:
 
     void step();
 
-    void setData(GLuint data, int width, int height, int depth);
-    void getData(GLuint& data, int& width, int& height, int& depth);
+    void setData(GLuint pressure, GLuint temperature, int width, int height, int depth);
 
 private:
 

@@ -31,5 +31,5 @@ void main() {
     pressure += texelFetch(pressure_field, position - dz, 0).x;
     pressure += texelFetch(pressure_field, position + dz, 0).x;
 
-    outPressure = (pressure - divergence) / 6.0f;
+    outPressure = (divergence + pressure) / 6.0f;
 }
