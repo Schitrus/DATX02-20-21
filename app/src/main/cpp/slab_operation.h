@@ -135,7 +135,7 @@ private:
     // Note that the active texture is left at slot 1 after this!
     void bind3DTexture1(GLuint texture);
 
-    void setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth);
+    void drawFrontOrBackBoundary(GLuint result, int scale, int depth);
 
     // Prepares the given texture and layer to be rendered to
     // Intended to be called before drawInteriorToTexture() or drawBoundaryToTexture()

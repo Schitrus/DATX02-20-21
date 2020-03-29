@@ -268,32 +268,14 @@ void SlabOperator::setBoundary(GLuint& data, GLuint& result, int scale) {
         drawBoundaryToTexture(boundaryShader, depth);
     }
     // Front
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, 0);
-
-    FABBoundaryShader.use();
-    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
-    FABBoundaryShader.uniform1f("scale", scale);
-    drawBoundaryToTexture(FABBoundaryShader, 0);
-
-    FABInteriorShader.use();
-    drawInteriorToTexture(FABInteriorShader, 0);
+    drawFrontOrBackBoundary(result, scale, 0);
 
     //Back
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, grid_depth - 1);
-
-    FABBoundaryShader.use();
-    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
-    FABBoundaryShader.uniform1f("scale", scale);
-    drawBoundaryToTexture(FABBoundaryShader, grid_depth - 1);
-
-    FABInteriorShader.use();
-    drawInteriorToTexture(FABInteriorShader, grid_depth - 1);
+    drawFrontOrBackBoundary(result, scale, grid_depth - 1);
 }
 
-void SlabOperator::setFrontOrBackBoundary(GLuint data, GLuint result, int scale, int depth){
-    bind3DTexture0(data);
-
-    prepareResult(result, depth);
+void SlabOperator::drawFrontOrBackBoundary(GLuint result, int scale, int depth){
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
 
     FABBoundaryShader.use();
     FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
