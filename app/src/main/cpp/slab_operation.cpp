@@ -373,7 +373,7 @@ void SlabOperator::densityStep(float dt){
     // addForce
     constadd(densityData, densitySource, densityResult,dt);
     constadd(temperatureData, temperatureSource, temperatureResult, dt);
-    dissipate(densityData, densityResult, dt);
+    dissipate(densityData, densityResult, 0.9f, dt);
     // Advect
     fulladvection(densityData, densityResult, dt);
     temperature(dt);
@@ -507,7 +507,7 @@ void SlabOperator::diffuse(GLuint& data, GLuint& result, float dt){
     swapData(data, result);
 }
 
-void SlabOperator::dissipate(GLuint& data, GLuint& result, float dt){
+void SlabOperator::dissipate(GLuint& data, GLuint& result, float dissipationRate, float dt){
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -519,57 +519,7 @@ void SlabOperator::dissipate(GLuint& data, GLuint& result, float dt){
 
         glUniform1i(glGetUniformLocation(dissipateShader.program(), "depth"), depth);
         glUniform1f(glGetUniformLocation(dissipateShader.program(), "dt"), dt);
-        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), 0.9f);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, data);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    setBoundary(data, result, 0);
-    swapData(data, result);
-}
-
-void SlabOperator::diffuse(GLuint& data, GLuint& result, float dt){
-    for(int i = 0; i < 20; i++){
-        for(int depth = 1; depth < grid_depth - 1; depth++){
-            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-            //glClear(GL_COLOR_BUFFER_BIT);
-
-            // Interior
-            glViewport(1, 1, grid_width - 2, grid_height - 2);
-            diffuseShader.use();
-            glBindVertexArray(interiorVAO);
-
-            glUniform1f(glGetUniformLocation(diffuseShader.program(), "dt"), dt);
-            glUniform1i(glGetUniformLocation(diffuseShader.program(), "depth"), depth);
-            glUniform1f(glGetUniformLocation(diffuseShader.program(), "diffusion_constant"), 1.0);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_3D, data);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_3D, result);
-
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        }
-        setBoundary(data, result, 0);
-    }
-    swapData(data, result);
-}
-
-void SlabOperator::dissipate(GLuint& data, GLuint& result, float dt){
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Interior
-        glViewport(1, 1, grid_width - 2, grid_height - 2);
-        dissipateShader.use();
-        glBindVertexArray(interiorVAO);
-
-        glUniform1i(glGetUniformLocation(dissipateShader.program(), "depth"), depth);
-        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dt"), dt);
-        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), 0.9f);
+        glUniform1f(glGetUniformLocation(dissipateShader.program(), "dissipation_rate"), dissipationRate);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, data);
@@ -712,23 +662,24 @@ void SlabOperator::gradient(){
   //  setBoundary(velocityData, velocityResult, 0);
     swapData(velocityData, velocityResult);
 }
+/*
+void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float dissipationRate, float dh, float dt){
 
-void SlabOperator::substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt){
-
-    advection(target, false, dh, dt);
+    advection(target, result, dt);
 
     // Usually there is also a diffusion step for fluid simulation here.
     // However we assume that all fluids we simulate has a diffusion term of zero,
     // removing the need of this simulation step
 
     if(dissipationRate != 0)
-        dissipate(target, dissipationRate, dt);
+        dissipate(target, result, dissipationRate, dt);
 }
+*/
 
 void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
 
     // Get a result texture of the right type that is safe to overwrite
-    GLuint &result = isVectorField ? vectorResultMatrix : scalarResultMatrix;
+    GLuint &result = target;// = isVectorField ? vectorResultMatrix : scalarResultMatrix;
 
     // Perform the operation onto result
     for(int depth = 1; depth < grid_depth - 1; depth++){
@@ -745,6 +696,16 @@ void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVector
 
     // Set target to the result we got from boundary
     swapData(target, result);
+}
+
+void SlabOperator::bind3DTexture0(GLuint texture) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, texture);
+}
+
+void SlabOperator::bind3DTexture1(GLuint texture) {
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_3D, texture);
 }
 
 void SlabOperator::prepareResult(GLuint result, int depth) {

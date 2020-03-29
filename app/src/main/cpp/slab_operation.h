@@ -100,12 +100,18 @@ private:
 
     void project();
 
+    void jacobi();
+
+    void divergence();
+
+    void gradient();
+
     void setBoundary(GLuint& data, GLuint& result, int scale);
 
     // Performs one simulation step for velocity
-    void velocityStep(float dh, float dt);
+    void velocityStep(float dt);
 
-    void temperatureStep(float dh, float dt);
+    void temperatureStep( float dt);
 
     void densityStep(float dt);
 
