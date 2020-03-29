@@ -287,6 +287,7 @@ void SlabOperator::drawFrontOrBackBoundary(GLuint result, int scale, int depth){
 }
 
 void SlabOperator::update() {
+    // todo maybe put a cap on the delta time to not get too big time steps during lag?
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
     last_time = NOW;
@@ -304,7 +305,9 @@ void SlabOperator::update() {
 
    densityStep(delta_time);
 
-    FBO->null();
+   temperatureStep(delta_time);
+
+   FBO->null();
 }
 
 void SlabOperator::velocityStep(float dt){
@@ -327,11 +330,15 @@ void SlabOperator::densityStep(float dt){
     dissipate(densityData, densityResult, 0.9f, dt);
     // Advect
     fulladvection(densityData, densityResult, dt);
-    temperature(dt);
 
     // Diffuse
     //diffuse(densityData, densityResult, dt);
 
+}
+
+void SlabOperator::temperatureStep(float dt) {
+
+    temperature(dt);
 }
 
 void SlabOperator::temperature(float dt){
@@ -388,12 +395,12 @@ void SlabOperator::buoyancy(float dt){
     swapData(velocityData, velocityResult);
 }
 
-void SlabOperator::diffuse(GLuint& data, GLuint& result, float dt){
+void SlabOperator::diffuse(GLuint& data, GLuint& result, int iterationCount, float diffusionConstant, float dt) {
     diffuseShader.use();
     diffuseShader.uniform1f("dt", dt);
-    diffuseShader.uniform1f("diffusion_constant", 1.0);
+    diffuseShader.uniform1f("diffusion_constant", diffusionConstant);
 
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < iterationCount; i++) {
         bind3DTexture0(data);
         bind3DTexture1(result); // todo fix bad data. Should not use a texture as both input and output
         interiorOperation(diffuseShader, result);
@@ -443,7 +450,7 @@ void SlabOperator::fulladvection(GLuint& data, GLuint& result, float dt) {
 }
 void SlabOperator::project(){
     divergence();
-    jacobi();
+    jacobi(20);
     gradient();
 }
 
@@ -459,7 +466,7 @@ void SlabOperator::divergence(){
 
 }
 
-void SlabOperator::jacobi(){
+void SlabOperator::jacobi(int iterationCount) {
 
     for(int depth = 0; depth < grid_depth; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradientData, 0, depth);
@@ -469,7 +476,7 @@ void SlabOperator::jacobi(){
     jacobiShader.use();
     bind3DTexture1(divergenceData);
 
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < iterationCount; i++){
         bind3DTexture0(gradientData);
         interiorOperation(jacobiShader, gradientResult);
         swapData(gradientData, gradientResult);

@@ -96,11 +96,13 @@ private:
 
     void dissipate(GLuint& data, GLuint& result, float dissipationRate, float dt);
 
-    void diffuse(GLuint& data, GLuint& result, float dt);
+    //example values: iterationCount = 20, diffusionConstant = 1.0
+    void diffuse(GLuint& data, GLuint& result, int iterationCount, float diffusionConstant, float dt);
 
     void project();
 
-    void jacobi();
+    //example value: iterationCount = 20
+    void jacobi(int iterationCount);
 
     void divergence();
 
