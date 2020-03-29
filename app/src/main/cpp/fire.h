@@ -6,7 +6,7 @@
 #define DATX02_20_21_FIRE_H
 
 #include <jni.h>
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 

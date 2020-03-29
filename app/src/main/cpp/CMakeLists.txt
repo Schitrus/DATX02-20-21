@@ -11,6 +11,12 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 
+if (${ANDROID_PLATFORM_LEVEL} LESS 24)
+    message(FATAL_ERROR "OpenGL es 3.2 is not supported before API level 24 \
+                      (currently using ${ANDROID_PLATFORM_LEVEL}).")
+    return()
+endif (${ANDROID_PLATFORM_LEVEL} LESS 24)
+
 # Import the CMakeLists.txt for the glm library
 add_subdirectory(glm)
 

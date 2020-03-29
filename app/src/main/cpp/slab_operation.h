@@ -6,7 +6,7 @@
 #define DATX02_20_21_SLAB_OPERATION_H
 
 #include <jni.h>
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 #include <chrono>
 
 #include "shader.h"

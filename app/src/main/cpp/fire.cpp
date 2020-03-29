@@ -7,7 +7,7 @@
 #include <android/asset_manager_jni.h>
 
 #include <jni.h>
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 #include <android/log.h>
 
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)

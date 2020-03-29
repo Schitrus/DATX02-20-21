@@ -4,7 +4,7 @@
 #include "simulator.h"
 
 #include <jni.h>
-#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
 
 void Simulator::init(){
     slab.init();

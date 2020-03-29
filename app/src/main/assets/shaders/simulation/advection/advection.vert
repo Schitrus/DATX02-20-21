@@ -1,4 +1,4 @@
-#version 310 es
+#version 320 es
 layout(location = 0) in vec3 pos;
 
 //The bare minimum vertex shader, used together with the advection fragmentation shader
