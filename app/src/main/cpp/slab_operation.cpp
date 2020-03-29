@@ -359,13 +359,8 @@ void SlabOperator::temperature(float dt){
     bind3DTexture0(velocityData);
     bind3DTexture1(temperatureData);
 
-    for(int depth = 0; depth < grid_depth ; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, temperatureResult, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
+    fullOperation(temperatureShader, temperatureResult);
 
-        // Interior
-        drawAllToTexture(temperatureShader, depth);
-    }
   //  setBoundary(temperatureData, temperatureResult, 0);
     swapData(temperatureData, temperatureResult);
 }
@@ -376,13 +371,8 @@ void SlabOperator::addition(GLuint& data, GLuint& source, GLuint& result, float 
     bind3DTexture0(data);
     bind3DTexture1(source);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
+    interiorOperation(additionShader, result);
 
-        // Interior
-        drawInteriorToTexture(additionShader, depth);
-    }
     setBoundary(data, result, 0);
     swapData(data, result);
 }
@@ -393,13 +383,7 @@ void SlabOperator::constadd(GLuint& data, GLuint& source, GLuint& result, float 
     bind3DTexture0(data);
     bind3DTexture1(source);
 
-    for(int depth = 0; depth < grid_depth; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Interior
-        drawAllToTexture(constShader, depth);
-    }
+    fullOperation(constShader, result);
    // setBoundary(data, result, 0);
     swapData(data, result);
 }
@@ -410,13 +394,8 @@ void SlabOperator::buoyancy(float dt){
     bind3DTexture0(temperatureData);
     bind3DTexture1(velocityData);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, velocityResult, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
+    interiorOperation(buoyancyShader, velocityResult);
 
-        // Interior
-        drawInteriorToTexture(buoyancyShader, depth);
-    }
     setBoundary(velocityData, velocityResult, 1);
     swapData(velocityData, velocityResult);
 }
@@ -429,13 +408,8 @@ void SlabOperator::diffuse(GLuint& data, GLuint& result, float dt){
     bind3DTexture1(result);
 
     for(int i = 0; i < 20; i++){
-        for(int depth = 1; depth < grid_depth - 1; depth++){
-            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-            //glClear(GL_COLOR_BUFFER_BIT);
-
-            // Interior
-            drawInteriorToTexture(diffuseShader, depth);
-        }
+        interiorOperation(diffuseShader, result);
+        // todo
         setBoundary(data, result, 0);
     }
     swapData(data, result);
@@ -448,13 +422,8 @@ void SlabOperator::dissipate(GLuint& data, GLuint& result, float dissipationRate
     dissipateShader.uniform1f("dissipation_rate", dissipationRate);
     bind3DTexture0(data);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
+    interiorOperation(dissipateShader, result);
 
-        // Interior
-        drawInteriorToTexture(dissipateShader, depth);
-    }
     setBoundary(data, result, 0);
     swapData(data, result);
 }
@@ -466,13 +435,7 @@ void SlabOperator::advection(GLuint& data, GLuint& result, float dt) {
     bind3DTexture0(velocityData);
     bind3DTexture1(data);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Interior
-        drawInteriorToTexture(advectionShader, depth);
-    }
+    interiorOperation(advectionShader, result);
 
     setBoundary(data, result, 0);
     swapData(data, result);
@@ -484,13 +447,8 @@ void SlabOperator::fulladvection(GLuint& data, GLuint& result, float dt) {
     bind3DTexture0(velocityData);
     bind3DTexture1(data);
 
-    for(int depth = 0; depth < grid_depth ; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
+    fullOperation(advectionShader, result);
 
-        // Interior
-        drawAllToTexture(advectionShader, depth);
-    }
     swapData(data, result);
 }
 void SlabOperator::project(){
@@ -503,13 +461,7 @@ void SlabOperator::divergence(){
     divergenceShader.use();
     bind3DTexture0(velocityData);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, divergenceResult, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Interior
-        drawInteriorToTexture(divergenceShader, depth);
-    }
+    interiorOperation(divergenceShader, divergenceResult);
 
     setBoundary(divergenceData, divergenceResult, 0);
     swapData(divergenceData, divergenceResult);
@@ -528,13 +480,8 @@ void SlabOperator::jacobi(){
     bind3DTexture1(divergenceData);
 
     for(int i = 0; i < 20; i++){
-        for(int depth = 1; depth < grid_depth - 1; depth++){
-            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradientResult, 0, depth);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            // Interior
-            drawInteriorToTexture(jacobiShader, depth);
-        }
+        //
+        interiorOperation(jacobiShader, gradientResult);
 
         setBoundary(gradientData, gradientResult, 0);
 
@@ -547,13 +494,7 @@ void SlabOperator::gradient(){
     bind3DTexture0(gradientData);
     bind3DTexture1(velocityData);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, velocityResult, 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Interior
-        drawInteriorToTexture(gradientShader, depth);
-    }
+    interiorOperation(gradientShader, velocityResult);
   //  setBoundary(velocityData, velocityResult, 0);
     swapData(velocityData, velocityResult);
 }
@@ -571,27 +512,27 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 }
 */
 
-void SlabOperator::performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale) {
 
-    // Get a result texture of the right type that is safe to overwrite
-    GLuint &result = target;// = isVectorField ? vectorResultMatrix : scalarResultMatrix;
-
-    // Perform the operation onto result
+void SlabOperator::interiorOperation(Shader shader, GLuint result) {
     for(int depth = 1; depth < grid_depth - 1; depth++){
-        prepareResult(result, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Interior
         drawInteriorToTexture(shader, depth);
     }
-
-    // Swap so that we perform boundary operations on the previous result
-    // and write it to the now safe-to-overwrite texture in target
-    swapData(target, result);
-
-    // Force boundaries
-    setBoundary(target, result, boundaryScale);
-
-    // Set target to the result we got from boundary
-    swapData(target, result);
 }
+
+void SlabOperator::fullOperation(Shader shader, GLuint result) {
+    for(int depth = 0; depth < grid_depth; depth++){
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Interior
+        drawAllToTexture(shader, depth);
+    }
+}
+
 
 void SlabOperator::bind3DTexture0(GLuint texture) {
     glActiveTexture(GL_TEXTURE0);

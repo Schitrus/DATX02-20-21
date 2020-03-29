@@ -119,9 +119,13 @@ private:
     // It will not perform the "add force" step, as that depends entirely on the individual substance
     void substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt);
 
+    // Performs the operation with the set shader over the interior of the given data.
+    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
+    void interiorOperation(Shader shader, GLuint result);
+
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void performOperation(Shader shader, GLuint &target, bool isVectorField, int boundaryScale);
+    void fullOperation(Shader shader, GLuint result);
 
     // Binds the given 3d texture to slot 0
     // Note that the active texture is left at slot 0 after this!
