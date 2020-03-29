@@ -46,8 +46,8 @@ class SlabOperator{
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
-    Shader additionShader, buoyancyShader, advectionShader;
-    Shader diffuseShader, dissipateShader, constShader;
+    Shader addSourceShader, buoyancyShader, advectionShader;
+    Shader diffuseShader, dissipateShader, setSourceShader;
 
     // Time
     time_point<system_clock> start_time, last_time;
@@ -91,8 +91,8 @@ private:
     void temperature(float dt);
 
     // Adds the given source field multiplied by dt to the target field
-    void addition(GLuint& data, GLuint& result, GLuint& source, float dt);
-    void constadd(GLuint& data, GLuint& result, GLuint& source, float dt);
+    void addSource(GLuint& data, GLuint& source, GLuint& result, float dt);
+    void setSource(GLuint& data, GLuint& source, GLuint& result, float dt);
 
     void dissipate(GLuint& data, GLuint& result, float dissipationRate, float dt);
 
@@ -136,10 +136,6 @@ private:
     void bind3DTexture1(GLuint texture);
 
     void drawFrontOrBackBoundary(GLuint result, int scale, int depth);
-
-    // Prepares the given texture and layer to be rendered to
-    // Intended to be called before drawInteriorToTexture() or drawBoundaryToTexture()
-    void prepareResult(GLuint result, int depth);
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
     // Should be called after the relevant call to prepareResult()

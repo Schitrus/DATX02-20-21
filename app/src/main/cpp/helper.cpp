@@ -143,7 +143,7 @@ void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* 
 void createVector3DTexture(GLuint *id, int width, int height, int depth, vec3* data){
 
     glGenTextures(1, id);
-    glBindTexture(GL_TEXTURE_3D, *id);
+    glBindTexture(GL_TEXTURE_3D, *id);  // todo RGB16F is not considered color-renderable in the gles 3.2 specification. Consider switching to RGBA16F
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, width, height, depth, 0, GL_RGB, GL_FLOAT, data);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

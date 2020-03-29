@@ -14,6 +14,7 @@ out float outValue;
 void main() {
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
+    // todo vec3 support
     float target = texelFetch(target_field, position, 0).x;
     float source = texelFetch(source_field, position, 0).x;
 

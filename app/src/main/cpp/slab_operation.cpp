@@ -229,8 +229,8 @@ void SlabOperator::initShaders() {
     diffuseShader.load(  "shaders/simulation/slab.vert", "shaders/simulation/diffuse/diffuse.frag");
     dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
     // Force Shaders
-    additionShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/addition.frag");
-    constShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/const.frag");
+    addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
+    setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
     buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     // Projection Shaders
     divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
@@ -310,7 +310,7 @@ void SlabOperator::update() {
 void SlabOperator::velocityStep(float dt){
     // Source
     buoyancy(dt);
-   // addition(velocityData, velocitySource, velocityResult, dt);
+   // addSource(velocityData, velocitySource, velocityResult, dt);
     // Advect
     advection(velocityData, velocityResult, dt);
     // Project
@@ -322,8 +322,8 @@ void SlabOperator::velocityStep(float dt){
 
 void SlabOperator::densityStep(float dt){
     // addForce
-    constadd(densityData, densitySource, densityResult,dt);
-    constadd(temperatureData, temperatureSource, temperatureResult, dt);
+    setSource(densityData, densitySource, densityResult, dt);
+    setSource(temperatureData, temperatureSource, temperatureResult, dt);
     dissipate(densityData, densityResult, 0.9f, dt);
     // Advect
     fulladvection(densityData, densityResult, dt);
@@ -348,26 +348,27 @@ void SlabOperator::temperature(float dt){
     //swapData(temperatureData, temperatureResult);
 }
 
-void SlabOperator::addition(GLuint& data, GLuint& source, GLuint& result, float dt){
-    additionShader.use();
-    additionShader.uniform1f("dt", dt);
+// todo how (if in any way) should the two source functions apply border restrictions
+void SlabOperator::addSource(GLuint& data, GLuint& source, GLuint& result, float dt) {
+    addSourceShader.use();
+    addSourceShader.uniform1f("dt", dt);
     bind3DTexture0(data);
     bind3DTexture1(source);
 
-    interiorOperation(additionShader, result);
+    interiorOperation(addSourceShader, result);
     swapData(data, result);
 
-    setBoundary(data, result, 0);
-    swapData(data, result);
+    //setBoundary(data, result, 0);
+    //swapData(data, result);
 }
 
-void SlabOperator::constadd(GLuint& data, GLuint& source, GLuint& result, float dt){
-    constShader.use();
-    constShader.uniform1f("dt", dt);
+void SlabOperator::setSource(GLuint& data, GLuint& source, GLuint& result, float dt) {
+    setSourceShader.use();
+    setSourceShader.uniform1f("dt", dt);
     bind3DTexture0(data);
     bind3DTexture1(source);
 
-    fullOperation(constShader, result);
+    fullOperation(setSourceShader, result);
     swapData(data, result);
 
     //setBoundary(data, result, 0);
@@ -523,7 +524,6 @@ void SlabOperator::fullOperation(Shader shader, GLuint result) {
     }
 }
 
-
 void SlabOperator::bind3DTexture0(GLuint texture) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, texture);
@@ -532,11 +532,6 @@ void SlabOperator::bind3DTexture0(GLuint texture) {
 void SlabOperator::bind3DTexture1(GLuint texture) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_3D, texture);
-}
-
-void SlabOperator::prepareResult(GLuint result, int depth) {
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, result, 0, depth);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SlabOperator::drawAllToTexture(Shader shader, int depth) {
