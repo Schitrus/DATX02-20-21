@@ -95,7 +95,7 @@ void SlabOperator::initData() {
             for (int xx = x; xx < x + 2; xx++) {
                 int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
-                temperature_source[index] = 1300.0f;
+                temperature_source[index] = 1500.0f;
                 velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
@@ -349,10 +349,9 @@ void SlabOperator::velocityStep(float dt){
     // Advect
     advection(velocityData, velocityResult, dt);
     // Project
-    diffuse(velocityData, velocityResult, dt);
+    //diffuse(velocityData, velocityResult, dt);
     dissipate(velocityData, velocityResult, dt);
     project();
-
 }
 
 void SlabOperator::densityStep(float dt){
@@ -366,7 +365,7 @@ void SlabOperator::densityStep(float dt){
     temperature(dt);
 
     // Diffuse
-    diffuse(densityData, densityResult, dt);
+    //diffuse(densityData, densityResult, dt);
 
 }
 
