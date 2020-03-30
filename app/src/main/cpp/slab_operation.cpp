@@ -265,7 +265,7 @@ void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperat
 
     interiorOperation(buoyancyShader, velocity);
 
-    setBoundary(velocity, 1);
+    //setBoundary(velocity, 1);
 }
 
 void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt) {
@@ -278,7 +278,7 @@ void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diff
         bind3DTexture1(result); // todo fix bad data. Should not use a texture as both input and output*/
         interiorOperation(diffuseShader, data);
 
-        setBoundary(data, 0);
+        //setBoundary(data, 0);
     }
 }
 
@@ -291,7 +291,7 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
 
     interiorOperation(dissipateShader, data);
 
-    setBoundary(data, 0);
+    //setBoundary(data, 0);
 }
 
 void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
@@ -303,7 +303,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 
     interiorOperation(advectionShader, data);
 
-    setBoundary(data, 0);
+    //setBoundary(data, 0);
 }
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
@@ -326,7 +326,7 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
 
     interiorOperation(divergenceShader, divergence);
 
-    setBoundary(divergence, 0);
+    //setBoundary(divergence, 0);
 }
 
 void SlabOperator::jacobi(int iterationCount) {
@@ -343,7 +343,7 @@ void SlabOperator::jacobi(int iterationCount) {
         gradient->bindData(GL_TEXTURE0);
         interiorOperation(jacobiShader, gradient);
 
-        setBoundary(gradient, 0);
+        //setBoundary(gradient, 0);
     }
 }
 
