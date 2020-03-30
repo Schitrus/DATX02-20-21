@@ -165,7 +165,7 @@ void RayRenderer::step() {
 
     // back
     FBO->use();
-    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -175,7 +175,7 @@ void RayRenderer::step() {
 
     // front
     FBO->null();
-    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -206,6 +206,7 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     vec3 modelPos(0, 0, -1.0);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
+                     * rotate(mat4(1.0f), rot, vec3(0,1,0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 

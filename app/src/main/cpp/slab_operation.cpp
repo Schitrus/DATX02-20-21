@@ -90,12 +90,12 @@ void SlabOperator::initData() {
 
     int z = grid_depth/2-2, y = 2, x = grid_width/2-2;
 
-    for(int zz = z; zz < z + 4; zz++) {
-        for (int yy = y; yy < y + 4; yy++) {
-            for (int xx = x; xx < x + 4; xx++) {
+    for(int zz = z; zz < z + 2; zz++) {
+        for (int yy = y; yy < y + 2; yy++) {
+            for (int xx = x; xx < x + 2; xx++) {
                 int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
-                temperature_source[index] = 1500.0f;
+                temperature_source[index] = 1300.0f;
                 velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
@@ -344,13 +344,13 @@ void SlabOperator::update() {
 
 void SlabOperator::velocityStep(float dt){
     // Source
-    buoyancy(dt);
-   // addition(velocityData, velocitySource, velocityResult, dt);
+    buoyancy(dt, 1.0f);
+    addition(velocityData, velocitySource, velocityResult, dt);
     // Advect
     advection(velocityData, velocityResult, dt);
     // Project
-    //diffuse(velocityData, velocityResult, dt);
-    //dissipate(velocityData, velocityResult, dt);
+    diffuse(velocityData, velocityResult, dt);
+    dissipate(velocityData, velocityResult, dt);
     project();
 
 }
@@ -359,13 +359,14 @@ void SlabOperator::densityStep(float dt){
     // addForce
     constadd(densityData, densitySource, densityResult,dt);
     constadd(temperatureData, temperatureSource, temperatureResult, dt);
+    buoyancy(dt, 0.15);
     dissipate(densityData, densityResult, dt);
     // Advect
     fulladvection(densityData, densityResult, dt);
     temperature(dt);
 
     // Diffuse
-    //diffuse(densityData, densityResult, dt);
+    diffuse(densityData, densityResult, dt);
 
 }
 
@@ -442,7 +443,7 @@ void SlabOperator::constadd(GLuint& data, GLuint& source, GLuint& result, float 
     swapData(data, result);
 }
 
-void SlabOperator::buoyancy(float dt){
+void SlabOperator::buoyancy(float dt, float scale){
     for(int depth = 1; depth < grid_depth - 1; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, velocityResult, 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -454,6 +455,7 @@ void SlabOperator::buoyancy(float dt){
 
         glUniform1i(glGetUniformLocation(buoyancyShader.program(), "depth"), depth);
         glUniform1f(glGetUniformLocation(buoyancyShader.program(), "dt"), dt);
+        glUniform1f(glGetUniformLocation(buoyancyShader.program(), "scale"), scale);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, temperatureData);

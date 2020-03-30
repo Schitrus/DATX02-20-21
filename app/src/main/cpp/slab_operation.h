@@ -68,7 +68,7 @@ private:
     void initQuad();
     void initShaders();
 
-    void buoyancy(float dt);
+    void buoyancy(float dt, float scale);
     void advection(GLuint& data, GLuint& result, float dt);
     void fulladvection(GLuint& data, GLuint& result, float dt);
 
