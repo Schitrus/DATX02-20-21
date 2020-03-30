@@ -7,14 +7,10 @@
 
 #include <jni.h>
 #include <GLES3/gl32.h>
-#include <chrono>
 
 #include "shader.h"
 #include "framebuffer.h"
 #include "data_texture_pair.h"
-
-using std::chrono::time_point;
-using std::chrono::system_clock;
 
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
@@ -39,30 +35,24 @@ class SlabOperator{
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
-    DataTexturePair* density;
-    DataTexturePair* temperature;
-    DataTexturePair* velocity;
     DataTexturePair* divergence;
     DataTexturePair* gradient;
-    //Textures for sources
-    GLuint densitySource, temperatureSource, velocitySource;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
     Shader diffuseShader, dissipateShader, setSourceShader;
 
-    // Time
-    time_point<system_clock> start_time, last_time;
-
 public:
     void init();
 
     void resize(int width, int height, int depth);
 
-    void update();
+    // Called at the beginning of a series of operations to prepare opengl
+    void prepare();
 
-    void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
+    // Called at the end of a series of operations to unbind the framebuffer
+    void finish();
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
@@ -103,17 +93,6 @@ private:
     void subtractGradient(DataTexturePair* velocity);
 
     void setBoundary(DataTexturePair* data, int scale);
-
-    // Performs one simulation step for velocity
-    void velocityStep(float dt);
-
-    void temperatureStep( float dt);
-
-    void densityStep(float dt);
-
-    // Performs the usual steps for moving substances using the fluid velocity field
-    // It will not perform the "add force" step, as that depends entirely on the individual substance
-    void substanceMovementStep(GLuint &target, float dissipationRate, float dh, float dt);
 
     // Performs the operation with the set shader over the interior of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.

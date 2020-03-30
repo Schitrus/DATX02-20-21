@@ -6,7 +6,6 @@
 #include <jni.h>
 #include <time.h>
 #include <math.h>
-#include <chrono>
 #include <string>
 
 #include <GLES3/gl32.h>
@@ -24,17 +23,11 @@
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-#define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
-#define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
-
 using namespace glm;
 
 #define PI 3.14159265359f
 
 void SlabOperator::init() {
-
-    start_time = NOW;
-    last_time = start_time;
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -57,65 +50,9 @@ void SlabOperator::resize(int width, int height, int depth){
 }
 
 void SlabOperator::initData() {
-    int size = grid_width * grid_height * grid_depth;
-
-    float* density_field = new float[size];
-    float* density_source = new float[size];
-    float* temperature_field = new float[size];
-    float* temperature_source = new float[size];
-    vec3* velocity_field = new vec3[size];
-    vec3* velocity_source = new vec3[size];
-
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
-                density_field[index]      = 0.0f;
-                density_source[index]     = 0.0f;
-                temperature_field[index]  = 0.0f;
-                temperature_source[index] = 0.0f;
-                velocity_field[index]     = vec3(0, 0, 0);
-                velocity_source[index]    = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-
-    for (int z = 1; z < grid_depth - 1; z++) {
-        for (int y = 1; y < grid_height - 1; y++) {
-            for (int x = 1; x < grid_width - 1; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-
-    int z = grid_depth/2-2, y = 2, x = grid_width/2-2;
-
-    for(int zz = z; zz < z + 2; zz++) {
-        for (int yy = y; yy < y + 2; yy++) {
-            for (int xx = x; xx < x + 2; xx++) {
-                int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
-                density_source[index] = 1.0f;
-                temperature_source[index] = 800.0f;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-
-    density = createScalarDataPair(grid_width, grid_height, grid_depth, density_field);
-    createScalar3DTexture(&densitySource, grid_width, grid_height, grid_depth, density_source);
-
-    temperature = createScalarDataPair(grid_width, grid_height, grid_depth, temperature_field);
-    createScalar3DTexture(&temperatureSource, grid_width, grid_height, grid_depth, temperature_source);
-
-    velocity = createVectorDataPair(grid_width, grid_height, grid_depth, velocity_field);
-    createVector3DTexture(&velocitySource, grid_width, grid_height, grid_depth, velocity_source);
-
     divergence = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
 
     gradient = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
-
-    delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
 
 void SlabOperator::initLine() {
@@ -236,14 +173,6 @@ void SlabOperator::initShaders() {
     temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
 }
 
-void SlabOperator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth) {
-    temperatureData = temperature->getDataTexture();
-    densityData = density->getDataTexture();
-    width = grid_width;
-    height = grid_height;
-    depth = grid_depth;
-}
-
 void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     // Input data used in all steps
     data->bindData(GL_TEXTURE0);
@@ -278,11 +207,7 @@ void SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int
     drawInteriorToTexture(FABInteriorShader, depth);
 }
 
-void SlabOperator::update() {
-    // todo maybe put a cap on the delta time to not get too big time steps during lag?
-    float current_time = DURATION(NOW, start_time);
-    float delta_time = DURATION(NOW, last_time);
-    last_time = NOW;
+void SlabOperator::prepare() {
 
     // Setup GPU
     FBO->bind();
@@ -290,48 +215,10 @@ void SlabOperator::update() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
+}
 
-    float dt = 1.0f/6.0f;
-
-   velocityStep(delta_time);
-
-   densityStep(delta_time);
-
-   temperatureStep(delta_time);
-
+void SlabOperator::finish() {
     FBO->unbind();
-}
-
-void SlabOperator::velocityStep(float dt){
-    // Source
-    buoyancy(velocity, temperature, dt, 1.0f);
-   // addSource(velocityData, velocitySource, velocityResult, dt);
-    // Advect
-    advection(velocity, velocity, dt);
-    //diffuse(velocity, 20, 1.0, dt);
-    dissipate(velocity, 0.9f, dt);
-    // Project
-    projection(velocity);
-}
-
-void SlabOperator::densityStep(float dt){
-    // addForce
-    setSource(density, densitySource, dt);
-    //buoyancy(dt, 0.15); Dont update velocity during density step
-    dissipate(density, 0.9f, dt);
-    // Advect
-    fulladvection(velocity, density, dt);
-
-    // Diffuse
-    //diffuse(density, 20, 1.0, dt);
-
-}
-
-void SlabOperator::temperatureStep(float dt) {
-
-    setSource(temperature, temperatureSource, dt);
-
-    temperatureOperation(temperature, velocity, dt);
 }
 
 void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
