@@ -17,10 +17,10 @@ void Framebuffer::create(int width, int height, bool simple) {
     // framebuffer configuration
     // -------------------------
     glGenFramebuffers(1, &FBO);
-    use();
+    bind();
 
     if(simple){
-        null();
+        unbind();
         return;
     }
 
@@ -47,7 +47,7 @@ void Framebuffer::create(int width, int height, bool simple) {
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         ALOGE("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-    null();
+    unbind();
 
 }
 
@@ -56,7 +56,7 @@ void Framebuffer::resize(int width, int height){
     this->height = height;
     if(simple)
         return;
-    use();
+    bind();
     // Allocate a texture
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -64,17 +64,17 @@ void Framebuffer::resize(int width, int height){
     // Allocate for renderBuffer
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    null();
+    unbind();
 }
 
 GLuint Framebuffer::texture(){
     return colorTextureTarget;
 }
 
-void Framebuffer::use() {
+void Framebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
 
-void Framebuffer::null() {
+void Framebuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

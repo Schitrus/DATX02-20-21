@@ -20,9 +20,9 @@ public:
 
     GLuint texture();
 
-    void use();
+    void bind();
 
-    void null();
+    void unbind();
 private:
 };
 

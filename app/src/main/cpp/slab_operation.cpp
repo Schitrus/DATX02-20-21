@@ -291,7 +291,7 @@ void SlabOperator::update() {
     last_time = NOW;
 
     // Setup GPU
-    FBO->use();
+    FBO->bind();
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -305,7 +305,7 @@ void SlabOperator::update() {
 
    temperatureStep(delta_time);
 
-   FBO->null();
+    FBO->unbind();
 }
 
 void SlabOperator::velocityStep(float dt){
