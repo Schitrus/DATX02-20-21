@@ -30,8 +30,10 @@ void DataTexturePair::bindData(GLenum textureSlot) {
 void DataTexturePair::bindToFramebuffer(int depth) {
     // attach result texture to framebuffer
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultTexture, 0, depth);
+    /* okay, maybe not considering border rendering
     // since we are essentially overwriting the result texture, we should probably clear it (or does it actually matter?)
     glClear(GL_COLOR_BUFFER_BIT);
+     */
 }
 
 void DataTexturePair::operationFinished() {

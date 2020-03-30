@@ -94,13 +94,13 @@ private:
     void temperatureOperation(float dt);
 
     // Adds the given source field multiplied by dt to the target field
-    void addSource(GLuint& data, GLuint& source, GLuint& result, float dt);
+    void addSource(DataTexturePair* data, GLuint& source, float dt);
     void setSource(DataTexturePair* data, GLuint& source, float dt);
 
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(GLuint& data, GLuint& result, int iterationCount, float diffusionConstant, float dt);
+    void diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt);
 
     void project();
 
@@ -111,7 +111,7 @@ private:
 
     void createGradient();
 
-    void setBoundary(GLuint data, GLuint result, int scale);
+    void setBoundary(DataTexturePair* data, int scale);
 
     // Performs one simulation step for velocity
     void velocityStep(float dt);
@@ -126,11 +126,11 @@ private:
 
     // Performs the operation with the set shader over the interior of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void interiorOperation(Shader shader, GLuint result);
+    void interiorOperation(Shader shader, DataTexturePair* data);
 
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void fullOperation(Shader shader, GLuint result);
+    void fullOperation(Shader shader, DataTexturePair* data);
 
     // Binds the given 3d texture to slot 0
     // Note that the active texture is left at slot 0 after this!
@@ -140,7 +140,7 @@ private:
     // Note that the active texture is left at slot 1 after this!
     void bind3DTexture1(GLuint texture);
 
-    void drawFrontOrBackBoundary(GLuint result, int scale, int depth);
+    void drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
     // Should be called after the relevant call to prepareResult()
