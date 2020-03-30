@@ -314,9 +314,9 @@ void SlabOperator::velocityStep(float dt){
    // addSource(velocityData, velocitySource, velocityResult, dt);
     // Advect
     advection(velocity, dt);
+    //diffuse(velocity, 20, 1.0, dt);
+    dissipate(velocity, 0.9f, dt);
     // Project
-    //diffuse(velocityData, velocityResult, dt);
-    dissipate(velocityData, velocityResult, dt);
     project();
 }
 
@@ -378,7 +378,7 @@ void SlabOperator::setSource(DataTexturePair* data, GLuint& source, float dt) {
 void SlabOperator::buoyancy(float dt, float scale){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
-    buoyancyShader.uniform1f("scale", scale)
+    buoyancyShader.uniform1f("scale", scale);
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
