@@ -73,7 +73,7 @@ private:
     void initShaders();
 
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(float dt);
+    void buoyancy(float dt, float scale);
     // Performs advection on the given data
     void advection(DataTexturePair* data, float dt);
     void fulladvection(DataTexturePair* data, float dt);

@@ -59,7 +59,6 @@ void SlabOperator::resize(int width, int height, int depth){
 void SlabOperator::initData() {
     int size = grid_width * grid_height * grid_depth;
 
-
     float* density_field = new float[size];
     float* density_source = new float[size];
     float* temperature_field = new float[size];
@@ -92,12 +91,12 @@ void SlabOperator::initData() {
 
     int z = grid_depth/2-2, y = 2, x = grid_width/2-2;
 
-    for(int zz = z; zz < z + 4; zz++) {
-        for (int yy = y; yy < y + 4; yy++) {
-            for (int xx = x; xx < x + 4; xx++) {
+    for(int zz = z; zz < z + 2; zz++) {
+        for (int yy = y; yy < y + 2; yy++) {
+            for (int xx = x; xx < x + 2; xx++) {
                 int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
-                temperature_source[index] = 1500.0f;
+                temperature_source[index] = 800.0f;
                 velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
@@ -311,20 +310,20 @@ void SlabOperator::update() {
 
 void SlabOperator::velocityStep(float dt){
     // Source
-    buoyancy(dt);
+    buoyancy(dt, 1.0f);
    // addSource(velocityData, velocitySource, velocityResult, dt);
     // Advect
     advection(velocity, dt);
     // Project
     //diffuse(velocityData, velocityResult, dt);
-    //dissipate(velocityData, velocityResult, dt);
+    dissipate(velocityData, velocityResult, dt);
     project();
-
 }
 
 void SlabOperator::densityStep(float dt){
     // addForce
     setSource(density, densitySource, dt);
+    //buoyancy(dt, 0.15); Dont update velocity during density step
     dissipate(density, 0.9f, dt);
     // Advect
     fulladvection(density, dt);
@@ -376,9 +375,10 @@ void SlabOperator::setSource(DataTexturePair* data, GLuint& source, float dt) {
     //setBoundary(data, 0);
 }
 
-void SlabOperator::buoyancy(float dt){
+void SlabOperator::buoyancy(float dt, float scale){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
+    buoyancyShader.uniform1f("scale", scale)
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 

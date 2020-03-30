@@ -8,6 +8,7 @@ layout(binding = 1) uniform sampler3D velocity_field;
 
 uniform float dt;
 uniform int depth;
+uniform float scale;
 
 out vec3 outVelocity;
 
@@ -25,5 +26,5 @@ void main() {
     // Buoyancy force
     vec3 buoyancy = (temperature - ambient_temperature) * vertical_direction;
 
-    outVelocity = velocity +  0.15 * buoyancy * dt;
+    outVelocity = velocity + scale * buoyancy * dt;
 }

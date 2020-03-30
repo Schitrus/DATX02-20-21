@@ -27,13 +27,14 @@ void main() {
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
            float samp = clamp(texture(pressure, tr).x, 0.0, 1.0);
-           float lum = clamp((texture(temperature, tr).x-20.0)/50.0, 0.0, 1.0);
-           float rad = clamp((texture(temperature, tr).x-70.0)/130.0, 0.0, 1.0);
-           float hot = clamp((texture(temperature, tr).x-200.0)/100.0, 0.0, 1.0);
+           float lum = clamp((texture(temperature, tr).x-50.0)/200.0, 0.0, 1.0);
+           float rad = clamp((texture(temperature, tr).x-200.0)/400.0, 0.0, 1.0);
+           float hot = clamp((texture(temperature, tr).x-400.0)/800.0, 0.0, 1.0);
            //calculate Alpha
+
            //accumulating collor and alpha using under operator
-           vec3 baseColor = mix(mix(mix(vec3(0.0,0.0,0.0),
-                                        vec3(1.0,0.0,0.0), lum),
+           vec3 baseColor = mix(mix(mix(vec3(0.1,0.1,0.1),
+                                        vec3(1.0,0.4,0.2), lum),
                                         vec3(1.0,1.0,0.5), rad),
                                         vec3(0.25,0.5,1.0), hot);
            float alpha = pow(samp,2.0);
