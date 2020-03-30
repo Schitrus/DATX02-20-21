@@ -12,7 +12,7 @@
 using namespace glm;
 
 class data_texture_pair {
-    GLuint data, result;
+    GLuint dataTexture, resultTexture;
 
 public:
     // initiates the textures as scalar fields with the given data
