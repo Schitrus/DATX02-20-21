@@ -25,6 +25,7 @@ public:
     void initVectorData(int width, int height, int depth, vec3* data);
 
     // binds the data to the provided slot
+    // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
     // if operationFinished() is called and this data is expected to be used again, bindData() must be called again
     // (for example during iterative operations where the result of last iteration is used as data for the next iteration)
     void bindData(GLenum textureSlot);

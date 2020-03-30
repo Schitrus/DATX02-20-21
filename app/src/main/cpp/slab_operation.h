@@ -132,13 +132,10 @@ private:
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
 
-    // Binds the given 3d texture to slot 0
-    // Note that the active texture is left at slot 0 after this!
-    void bind3DTexture0(GLuint texture);
-
-    // Binds the given 3d texture to slot 1
-    // Note that the active texture is left at slot 1 after this!
-    void bind3DTexture1(GLuint texture);
+    // Binds the given data texture to the given slot
+    // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
+    // Note that the active texture is left at the given slot after this!
+    void bindData(GLuint dataTexture, GLenum textureSlot);
 
     void drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 

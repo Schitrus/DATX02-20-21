@@ -269,6 +269,8 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
 
     //Back
     drawFrontOrBackBoundary(data, scale, grid_depth - 1);
+
+    data->operationFinished();
 }
 
 void SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
@@ -347,10 +349,8 @@ void SlabOperator::temperatureOperation(float dt){
     temperature->bindData(GL_TEXTURE1);
 
     fullOperation(temperatureShader, temperature);
-    temperature->operationFinished();
 
     //setBoundary(temperature, 0);
-    //temperature->operationFinished();
 }
 
 // todo how (if in any way) should the two source functions apply border restrictions
@@ -358,26 +358,22 @@ void SlabOperator::addSource(DataTexturePair* data, GLuint& source, float dt) {
     addSourceShader.use();
     addSourceShader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
-    bind3DTexture1(source);
+    bindData(source, GL_TEXTURE1);
 
     interiorOperation(addSourceShader, data);
-    data->operationFinished();
 
-    //setBoundary(data, result, 0);
-    //swapData(data, result);
+    //setBoundary(data, 0);
 }
 
 void SlabOperator::setSource(DataTexturePair* data, GLuint& source, float dt) {
     setSourceShader.use();
     setSourceShader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
-    bind3DTexture1(source);
+    bindData(source, GL_TEXTURE1);
 
     fullOperation(setSourceShader, data);
-    data->operationFinished();
 
-    //setBoundary(data, result, 0);
-    //swapData(data, result);
+    //setBoundary(data, 0);
 }
 
 void SlabOperator::buoyancy(float dt){
@@ -387,10 +383,8 @@ void SlabOperator::buoyancy(float dt){
     velocity->bindData(GL_TEXTURE1);
 
     interiorOperation(buoyancyShader, velocity);
-    velocity->operationFinished();
 
     setBoundary(velocity, 1);
-    velocity->operationFinished();
 }
 
 void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt) {
@@ -402,10 +396,8 @@ void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diff
         /*bind3DTexture0(data);
         bind3DTexture1(result); // todo fix bad data. Should not use a texture as both input and output*/
         interiorOperation(diffuseShader, data);
-        data->operationFinished();
 
         setBoundary(data, 0);
-        data->operationFinished();
     }
 }
 
@@ -417,10 +409,8 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
     data->bindData(GL_TEXTURE0);
 
     interiorOperation(dissipateShader, data);
-    data->operationFinished();
 
     setBoundary(data, 0);
-    data->operationFinished();
 }
 
 void SlabOperator::advection(DataTexturePair* data, float dt) {
@@ -431,10 +421,8 @@ void SlabOperator::advection(DataTexturePair* data, float dt) {
     data->bindData(GL_TEXTURE1);
 
     interiorOperation(advectionShader, data);
-    data->operationFinished();
 
     setBoundary(data, 0);
-    data->operationFinished();
 }
 void SlabOperator::fulladvection(DataTexturePair* data, float dt) {
     advectionShader.use();
@@ -444,7 +432,6 @@ void SlabOperator::fulladvection(DataTexturePair* data, float dt) {
     data->bindData(GL_TEXTURE1);
 
     fullOperation(advectionShader, data);
-    data->operationFinished();
 }
 void SlabOperator::project(){
     createDivergence();
@@ -457,11 +444,8 @@ void SlabOperator::createDivergence(){
     velocity->bindData(GL_TEXTURE0);
 
     interiorOperation(divergenceShader, divergence);
-    divergence->operationFinished();
 
     setBoundary(divergence, 0);
-    divergence->operationFinished();
-
 }
 
 void SlabOperator::jacobi(int iterationCount) {
@@ -477,10 +461,8 @@ void SlabOperator::jacobi(int iterationCount) {
     for(int i = 0; i < iterationCount; i++) {
         gradient->bindData(GL_TEXTURE0);
         interiorOperation(jacobiShader, gradient);
-        gradient->operationFinished();
 
         setBoundary(gradient, 0);
-        gradient->operationFinished();
     }
 }
 
@@ -490,10 +472,8 @@ void SlabOperator::createGradient(){
     velocity->bindData(GL_TEXTURE1);
 
     interiorOperation(gradientShader, velocity);
-    velocity->operationFinished();
 
   //  setBoundary(velocity, 0);
-    //velocity->operationFinished();
 }
 /*
 void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float dissipationRate, float dh, float dt){
@@ -517,6 +497,7 @@ void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
         // Interior
         drawInteriorToTexture(shader, depth);
     }
+    data->operationFinished();
 }
 
 void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
@@ -526,17 +507,14 @@ void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
         // Interior
         drawAllToTexture(shader, depth);
     }
+    data->operationFinished();
 }
 
-void SlabOperator::bind3DTexture0(GLuint texture) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, texture);
+void SlabOperator::bindData(GLuint dataTexture, GLenum textureSlot) {
+    glActiveTexture(textureSlot);
+    glBindTexture(GL_TEXTURE_3D, dataTexture);
 }
 
-void SlabOperator::bind3DTexture1(GLuint texture) {
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_3D, texture);
-}
 
 void SlabOperator::drawAllToTexture(Shader shader, int depth) {
     glViewport(0, 0, grid_width, grid_height);
