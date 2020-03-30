@@ -11,6 +11,7 @@
 
 #include "shader.h"
 #include "framebuffer.h"
+#include "data_texture_pair.h"
 
 using std::chrono::time_point;
 using std::chrono::system_clock;
@@ -38,11 +39,13 @@ class SlabOperator{
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
-    GLuint densityData, temperatureData, velocityData, divergenceData;
+    DataTexturePair* density;
+    DataTexturePair* temperature;
+    DataTexturePair* velocity;
+    DataTexturePair* divergence;
+    DataTexturePair* gradient;
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
-    GLuint densityResult, temperatureResult, velocityResult, divergenceResult;
-    GLuint gradientData, gradientResult;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
@@ -72,14 +75,14 @@ private:
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(float dt);
     // Performs advection on the given data
-    void advection(GLuint& data, GLuint& result, float dt);
-    void fulladvection(GLuint& data, GLuint& result, float dt);
+    void advection(DataTexturePair* data, float dt);
+    void fulladvection(DataTexturePair* data, float dt);
 
     // Projects the given *vector* field texture
     void projection(GLuint &target);
 
     // Calculates the divergence of the vector field "target" and stores it in result
-    void divergence(GLuint target, GLuint &result);
+    void createDivergence(GLuint target, GLuint &result);
 
     // Performs a number of jacobi iterations of the scalar "divergence" into jacobi
     // Beware that the it will use the jacobi field passed as the starting value for the iterations
@@ -88,13 +91,13 @@ private:
     // Subtracts the gradient of the given scalar field from the target vector field
     void subtractGradient(GLuint &target, GLuint scalarField);
 
-    void temperature(float dt);
+    void temperatureOperation(float dt);
 
     // Adds the given source field multiplied by dt to the target field
     void addSource(GLuint& data, GLuint& source, GLuint& result, float dt);
-    void setSource(GLuint& data, GLuint& source, GLuint& result, float dt);
+    void setSource(DataTexturePair* data, GLuint& source, float dt);
 
-    void dissipate(GLuint& data, GLuint& result, float dissipationRate, float dt);
+    void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     //example values: iterationCount = 20, diffusionConstant = 1.0
     void diffuse(GLuint& data, GLuint& result, int iterationCount, float diffusionConstant, float dt);
@@ -104,11 +107,11 @@ private:
     //example value: iterationCount = 20
     void jacobi(int iterationCount);
 
-    void divergence();
+    void createDivergence();
 
-    void gradient();
+    void createGradient();
 
-    void setBoundary(GLuint& data, GLuint& result, int scale);
+    void setBoundary(GLuint data, GLuint result, int scale);
 
     // Performs one simulation step for velocity
     void velocityStep(float dt);

@@ -11,10 +11,11 @@
 
 using namespace glm;
 
-class data_texture_pair {
+class DataTexturePair {
     GLuint dataTexture, resultTexture;
 
 public:
+
     // initiates the textures as scalar fields with the given data
     // it ignores any previous textures, so only call init once per pair!
     void initScalarData(int width, int height, int depth, float* data);
@@ -41,5 +42,10 @@ public:
     GLuint getResultTexture();
 };
 
+// creates a scalar data pair with the given data
+DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data);
+
+// create a vector data pair with the given data
+DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H

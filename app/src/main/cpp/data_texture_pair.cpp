@@ -12,38 +12,50 @@
 
 using namespace glm;
 
-void data_texture_pair::initScalarData(int width, int height, int depth, float* data) {
+void DataTexturePair::initScalarData(int width, int height, int depth, float* data) {
     createScalar3DTexture(&dataTexture, width, height, depth, data);
-    createScalar3DTexture(&resultTexture, width, height, depth, NULL);
+    createScalar3DTexture(&resultTexture, width, height, depth, (float*)nullptr);
 }
 
-void data_texture_pair::initVectorData(int width, int height, int depth, vec3* data) {
+void DataTexturePair::initVectorData(int width, int height, int depth, vec3* data) {
     createVector3DTexture(&dataTexture, width, height, depth, data);
-    createVector3DTexture(&resultTexture, width, height, depth, NULL);
+    createVector3DTexture(&resultTexture, width, height, depth, (vec3*)nullptr);
 }
 
-void data_texture_pair::bindData(GLenum textureSlot) {
+void DataTexturePair::bindData(GLenum textureSlot) {
     glActiveTexture(textureSlot);
     glBindTexture(GL_TEXTURE_3D, dataTexture);
 }
 
-void data_texture_pair::bindToFramebuffer(int depth) {
+void DataTexturePair::bindToFramebuffer(int depth) {
     // attach result texture to framebuffer
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultTexture, 0, depth);
     // since we are essentially overwriting the result texture, we should probably clear it (or does it actually matter?)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void data_texture_pair::operationFinished() {
+void DataTexturePair::operationFinished() {
     GLuint tmp = dataTexture;
     dataTexture = resultTexture;
     resultTexture = tmp;
 }
 
-GLuint data_texture_pair::getDataTexture() {
+GLuint DataTexturePair::getDataTexture() {
     return dataTexture;
 }
 
-GLuint data_texture_pair::getResultTexture() {
+GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
+}
+
+DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data) {
+    DataTexturePair* texturePair = new DataTexturePair();
+    texturePair->initScalarData(width, height, depth, data);
+    return texturePair;
+}
+
+DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data) {
+    DataTexturePair* texturePair = new DataTexturePair();
+    texturePair->initVectorData(width, height, depth, data);
+    return texturePair;
 }
