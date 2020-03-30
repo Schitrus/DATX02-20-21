@@ -115,7 +115,7 @@ void SlabOperator::initData() {
 
     gradient = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
 
-    delete[] density_field, density_source, temperature_field, temperature_source, velocity_field, velocity_source;
+    delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
 
 void SlabOperator::initLine() {
