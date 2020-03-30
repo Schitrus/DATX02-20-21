@@ -64,34 +64,14 @@ public:
 
     void getData(GLuint& pressure, GLuint& temperature, int& width, int& height, int& depth);
 
-    void swapData(GLuint& d1, GLuint& d2);
-private:
-    void initData();
-
-    void initLine();
-    void initQuad();
-    void initShaders();
-
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(float dt, float scale);
+    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
     // Performs advection on the given data
-    void advection(DataTexturePair* data, float dt);
-    void fulladvection(DataTexturePair* data, float dt);
+    void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
-    // Projects the given *vector* field texture
-    void projection(GLuint &target);
+    void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
-    // Calculates the divergence of the vector field "target" and stores it in result
-    void createDivergence(GLuint target, GLuint &result);
-
-    // Performs a number of jacobi iterations of the scalar "divergence" into jacobi
-    // Beware that the it will use the jacobi field passed as the starting value for the iterations
-    void jacobi(GLuint divergence, GLuint &jacobi);
-
-    // Subtracts the gradient of the given scalar field from the target vector field
-    void subtractGradient(GLuint &target, GLuint scalarField);
-
-    void temperatureOperation(float dt);
+    void temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt);
 
     // Adds the given source field multiplied by dt to the target field
     void addSource(DataTexturePair* data, GLuint& source, float dt);
@@ -102,14 +82,25 @@ private:
     //example values: iterationCount = 20, diffusionConstant = 1.0
     void diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt);
 
-    void project();
+    // Projects the given *vector* field
+    void projection(DataTexturePair* velocity);
 
+private:
+    void initData();
+
+    void initLine();
+    void initQuad();
+    void initShaders();
+
+    // Performs a number of jacobi iterations of the divergence field into jacobi
     //example value: iterationCount = 20
     void jacobi(int iterationCount);
 
-    void createDivergence();
+    // Calculates the divergence of the vector field
+    void createDivergence(DataTexturePair* vectorData);
 
-    void createGradient();
+    // Subtracts the gradient of the given scalar field from the target vector field
+    void subtractGradient(DataTexturePair* velocity);
 
     void setBoundary(DataTexturePair* data, int scale);
 
