@@ -47,6 +47,7 @@ void SlabOperator::init() {
     initShaders();
 }
 
+// todo resize is not really supported right now because we would need to resize textures too
 void SlabOperator::resize(int width, int height, int depth){
     grid_width = width + 2;
     grid_height = height + 2;
@@ -332,7 +333,7 @@ void SlabOperator::densityStep(float dt){
     fulladvection(densityData, densityResult, dt);
 
     // Diffuse
-    //diffuse(densityData, densityResult, dt);
+    //diffuse(densityData, densityResult, 20, 1.0, dt);
 
 }
 
