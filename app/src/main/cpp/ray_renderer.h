@@ -35,7 +35,7 @@ class RayRenderer{
 
     // 3D texture
     GLuint temperatureTexID;
-    GLuint pressureTexID;
+    GLuint densityTexID;
 
     // Shaders
     Shader frontFaceShader, backFaceShader;
@@ -51,7 +51,7 @@ public:
 
     void step();
 
-    void setData(GLuint pressure, GLuint temperature, int width, int height, int depth);
+    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
 
 private:
 

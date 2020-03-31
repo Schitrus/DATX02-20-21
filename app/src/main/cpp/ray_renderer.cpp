@@ -46,7 +46,7 @@ void RayRenderer::init(AAssetManager* assetManager) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     FBO = nullptr;
-    pressureTexID = UINT32_MAX;
+    densityTexID = UINT32_MAX;
     temperatureTexID = UINT32_MAX;
 
     //load3DTexture("BostonTeapot.raw");
@@ -70,8 +70,8 @@ void RayRenderer::resize(int width, int height) {
 
 }
 
-void RayRenderer::setData(GLuint pressure, GLuint temperature, int width, int height, int depth){
-    pressureTexID = pressure;
+void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth){
+    densityTexID = density;
     temperatureTexID = temperature;
     texture_width = width;
     texture_height = height;
@@ -87,7 +87,7 @@ void RayRenderer::load3DTexture(const char *fileName) {
     texture_width = 32;
     texture_height = 32;
     texture_depth = 32;
-    generate3DTexture(&pressureTexID, texture_width, texture_height, texture_depth);
+    generate3DTexture(&densityTexID, texture_width, texture_height, texture_depth);
     boundingScale = vec3(1.0f);
 }
 
@@ -184,7 +184,7 @@ void RayRenderer::step() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, FBO->texture());
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_3D, pressureTexID);
+    glBindTexture(GL_TEXTURE_3D, densityTexID);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_3D, temperatureTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

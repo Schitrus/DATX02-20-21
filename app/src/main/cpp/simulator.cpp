@@ -14,7 +14,7 @@
 
 void Simulator::init(){
     slab.init();
-
+    resize(12, 48, 12);
     initData();
 
     start_time = NOW;
