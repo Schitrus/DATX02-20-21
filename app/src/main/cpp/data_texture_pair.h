@@ -5,7 +5,7 @@
 #ifndef DATX02_20_21_DATA_TEXTURE_PAIR_H
 #define DATX02_20_21_DATA_TEXTURE_PAIR_H
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 #include <glm/glm.hpp>
 

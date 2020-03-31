@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>
@@ -33,7 +33,7 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-void RayRenderer::init(AAssetManager* assetManager) {
+int RayRenderer::init(AAssetManager* assetManager) {
 
     start_time = NOW;
     last_time = start_time;
@@ -51,7 +51,11 @@ void RayRenderer::init(AAssetManager* assetManager) {
 
     //load3DTexture("BostonTeapot.raw");
     initCube(VAO, VBO, EBO);
-    initProgram();
+    if(!initProgram()){
+        ALOGE("Failed to compile ray_renderer shaders");
+        return 0;
+    }
+    return 1;
 }
 
 void RayRenderer::resize(int width, int height) {
@@ -142,9 +146,11 @@ void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
     glBindVertexArray(0);
 }
 
-void RayRenderer::initProgram() {
-    backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
-    frontFaceShader.load("shaders/render/ray.vert", "shaders/render/front_face.frag");
+int RayRenderer::initProgram() {
+    bool success = true;
+    success &= backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
+    success &= frontFaceShader.load("shaders/render/ray.vert", "shaders/render/front_face.frag");
+    return success;
 }
 
 void RayRenderer::step() {

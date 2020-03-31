@@ -10,11 +10,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class FireRenderer implements GLSurfaceView.Renderer {
 
-    // Used to load the 'fire-lib' library on application startup.
-    static {
-        System.loadLibrary("fire-lib");
-    }
-
     private Context context;
 
     public FireRenderer(Context context){
@@ -23,28 +18,32 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        AssetManager mgr = context.getResources().getAssets();
-        init(mgr);
+        String extensions = gl.glGetString(gl.GL_EXTENSIONS);
+        boolean has_float_buffer = (extensions.contains("EXT_color_buffer_float"));
+        if (!has_float_buffer) {
+            Log.e("FIRE", "EXT_color_buffer_float not supported, terminating program. . .");
+            System.exit(-1);
+        }
+        if(init() == 0){
+            Log.e("FIRE", "Failed to initialize the fire. . .");
+            System.exit(-1);
+        }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         resize(width, height);
-        //resize(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         update();
-        //step();
         FPSCounter.logFrame();
     }
 
     public native void update();
     public native void resize(int width, int height);
-    private native void init(AssetManager mgr);
-    //private native void step();
-    //private native void resize(int width, int height);
+    private native int init();
 
 }
 

@@ -6,7 +6,7 @@
 #define DATX02_20_21_RAY_RENDERER_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <glm/glm.hpp>
 #include <chrono>
 
@@ -45,7 +45,7 @@ class RayRenderer{
 
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
-    void init(AAssetManager* assetManager);
+    int init(AAssetManager* assetManager);
 
     void resize(int width, int height);
 
@@ -59,7 +59,7 @@ private:
 
     void initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO);
 
-    void initProgram();
+    int initProgram();
 
     void loadMVP(Shader shader, float current_time);
 

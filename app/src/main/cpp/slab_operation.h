@@ -6,7 +6,7 @@
 #define DATX02_20_21_SLAB_OPERATION_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 #include "shader.h"
 #include "framebuffer.h"
@@ -44,7 +44,7 @@ class SlabOperator{
     Shader diffuseShader, dissipateShader, setSourceShader;
 
 public:
-    void init();
+    int init();
 
     void resize(int width, int height, int depth);
 
@@ -80,7 +80,7 @@ private:
 
     void initLine();
     void initQuad();
-    void initShaders();
+    int initShaders();
 
     // Performs a number of jacobi iterations of the divergence field into jacobi
     //example value: iterationCount = 20

@@ -4,7 +4,7 @@
 
 #include "data_texture_pair.h"
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 #include <glm/glm.hpp>
 

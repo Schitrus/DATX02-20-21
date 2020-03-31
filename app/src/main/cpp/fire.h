@@ -6,7 +6,7 @@
 #define DATX02_20_21_FIRE_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
@@ -43,7 +43,7 @@ public:
 
     Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height);
 
-    void init();
+    int init();
     void resize(int width, int height);
     void update();
 
@@ -63,7 +63,7 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager);
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject, jobject mgr, jint width, jint height);
 JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
 // FireRenderer
-JC(void) Java_com_pbf_FireRenderer_init(JCT);
+JC(jint) Java_com_pbf_FireRenderer_init(JCT);
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height);
 JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener

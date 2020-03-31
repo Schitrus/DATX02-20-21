@@ -6,7 +6,7 @@
 #define DATX02_20_21_SIMULATOR_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <chrono>
 
 #include "slab_operation.h"
@@ -28,7 +28,7 @@ class Simulator{
     time_point<system_clock> start_time, last_time;
 
 public:
-    void init();
+    int init();
 
     void resize(int width, int height, int depth);
 

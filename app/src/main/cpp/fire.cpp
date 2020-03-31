@@ -7,7 +7,7 @@
 #include <android/asset_manager_jni.h>
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <android/log.h>
 
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
@@ -16,9 +16,8 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
     initFileLoader(assetManager);
 }
 
-void Fire::init(){
-    renderer.init(assetManager);
-    simulator.init();
+int Fire::init(){
+    return renderer.init(assetManager) && simulator.init();
 }
 
 void Fire::resize(int width, int height){
@@ -54,7 +53,6 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
 }
 
 
-
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject , jobject mgr, jint width, jint height){
 
@@ -62,8 +60,8 @@ JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject , jobject mgr, jint
 }
 
 // FireRenderer
-JC(void) Java_com_pbf_FireRenderer_init(JCT){
-    fire->init();
+JC(jint) Java_com_pbf_FireRenderer_init(JCT){
+    return fire->init();
 }
 
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height){

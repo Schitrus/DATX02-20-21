@@ -5,7 +5,7 @@
 #include "shader.h"
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <android/log.h>
@@ -18,8 +18,9 @@
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-void Shader::load(const char* vertex_path, const char* fragment_path){
+int Shader::load(const char* vertex_path, const char* fragment_path){
     shader_program = createProgram(vertex_path, fragment_path);
+    return shader_program != 0;
 }
 
 void Shader::use(){
@@ -55,7 +56,6 @@ GLuint Shader::createShader(GLenum type, const char *src) {
                 free(infoLog);
             }
         }
-        glDeleteShader(shader);
         return 0;
     }
 
@@ -79,22 +79,30 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
 
     LOGE("Creating Vertex shader: %s", vertex_path);
     vertex_shader = createShader(GL_VERTEX_SHADER, vertexSrc);
-    if (!vertex_shader)
-        goto exit;
+    if (!vertex_shader){
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+        return 0;
+    }
 
     fragment = loadFileFromAssets(fragment_path);
     fragmentSrc = fragment.c_str();
 
     LOGE("Creating Fragment shader: %s", fragment_path);
     fragment_shader = createShader(GL_FRAGMENT_SHADER, fragmentSrc);
-    if (!fragment_shader)
-        goto exit;
+    if (!fragment_shader) {
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+        return 0;
+    }
 
     LOGE("Creating Program: %s, %s", vertex_path, fragment_path);
     shader_program = glCreateProgram();
     if (!shader_program) {
         checkGlError("glCreateProgram");
-        goto exit;
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+        return 0;
     }
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
@@ -114,10 +122,11 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
             }
         }
         glDeleteProgram(shader_program);
-        shader_program = 0;
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+        return 0;
     }
 
-    exit:
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
     return shader_program;

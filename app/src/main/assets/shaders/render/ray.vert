@@ -1,4 +1,4 @@
-#version 320 es
+#version 310 es
 layout(location = 0) in vec3 pos;
 uniform mat4 mvp;
 out vec3 hit;

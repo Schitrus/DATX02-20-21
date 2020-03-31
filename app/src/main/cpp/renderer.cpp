@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <utility>
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 /*
@@ -26,8 +26,8 @@
  But I believe Aang can save the world.
 */
 
-void Renderer::init(AAssetManager* assetManager){
-    rayRenderer.init(assetManager);
+int Renderer::init(AAssetManager* assetManager){
+    return rayRenderer.init(assetManager);
 }
 
 void Renderer::resize(int width, int height){

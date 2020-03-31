@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>
@@ -27,7 +27,7 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
-void SlabOperator::init() {
+int SlabOperator::init() {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -37,7 +37,13 @@ void SlabOperator::init() {
 
     initQuad();
     initLine();
-    initShaders();
+
+    if(!initShaders()) {
+        ALOGE("Failed to compile slab_operation shaders");
+        return 0;
+    }
+    return 1;
+
 }
 
 // todo resize is not really supported right now because we would need to resize textures too
@@ -151,26 +157,28 @@ void SlabOperator::initQuad() {
 
 }
 
-void SlabOperator::initShaders() {
+int SlabOperator::initShaders() {
+    bool success = true;
     // Boundaries
-    boundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/boundary.frag");
-    FABInteriorShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_interior.frag");
-    FABBoundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_boundary.frag");
+    success &= boundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/boundary.frag");
+    success &= FABInteriorShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_interior.frag");
+    success &= FABBoundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_boundary.frag");
     // Advection Shaders
-    advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
+    success &= advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
     // Dissipate Shaders
-    diffuseShader.load(  "shaders/simulation/slab.vert", "shaders/simulation/diffuse/diffuse.frag");
-    dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
+    success &= diffuseShader.load(  "shaders/simulation/slab.vert", "shaders/simulation/diffuse/diffuse.frag");
+    success &= dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
     // Force Shaders
-    addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
-    setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
-    buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
+    success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
+    success &= setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
+    success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     // Projection Shaders
-    divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
-    jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
-    gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
+    success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
+    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
+    success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
-    temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
+    success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
+    return success;
 }
 
 void SlabOperator::setBoundary(DataTexturePair* data, int scale) {

@@ -6,12 +6,12 @@
 #define DATX02_20_21_SHADER_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 class Shader {
     GLuint shader_program;
 public:
-    void load(const char* vertex_path, const char* fragment_path);
+    int load(const char* vertex_path, const char* fragment_path);
 
     void use();
 

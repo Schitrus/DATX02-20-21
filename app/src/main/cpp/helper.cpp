@@ -4,7 +4,7 @@
 
 #include "helper.h"
 
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 #include <GLES3/gl3ext.h>
 #include <stdlib.h>
 #include <stdio.h>

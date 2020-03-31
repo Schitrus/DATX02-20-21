@@ -5,20 +5,22 @@
 #include "helper.h"
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 #include <chrono>
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
-void Simulator::init(){
-    slab.init();
+int Simulator::init(){
+    if (!slab.init())
+        return 0;
     resize(12, 48, 12);
     initData();
 
     start_time = NOW;
     last_time = start_time;
+    return 1;
 }
 
 void Simulator::resize(int width, int height, int depth) {

@@ -6,7 +6,7 @@
 #define DATX02_20_21_RENDERER_H
 
 #include <jni.h>
-#include <GLES3/gl32.h>
+#include <gles3/gl31.h>
 
 #include <android/asset_manager.h>
 
@@ -16,7 +16,7 @@ class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
 public:
-    void init(AAssetManager* assetManager);
+    int init(AAssetManager* assetManager);
     void resize(int width, int height);
     void update();
 
