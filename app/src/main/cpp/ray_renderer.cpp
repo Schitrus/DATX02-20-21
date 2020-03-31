@@ -86,13 +86,8 @@ void RayRenderer::setData(GLuint density, GLuint temperature, int width, int hei
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
-    //::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
-    //boundingScale = vec3(1, 1, 0.7);
-    texture_width = 32;
-    texture_height = 32;
-    texture_depth = 32;
-    generate3DTexture(&densityTexID, texture_width, texture_height, texture_depth);
-    boundingScale = vec3(1.0f);
+    ::load3DTexture(assetManager, fileName, 256, 256, 178, &densityTexID);
+    boundingScale = vec3(1, 1, 0.7);
 }
 
 void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
