@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.datx02_20_21">
 
-    <uses-feature android:glEsVersion="0x00030000"/>
+    <uses-feature android:glEsVersion="0x00030001"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

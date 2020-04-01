@@ -13,16 +13,16 @@
 
 static FileLoader *fileLoader;
 
-void initFileLoader(JNIEnv *env, jobject obj, jobject assetManager){
-    fileLoader = new FileLoader(env, obj, assetManager);
+void initFileLoader(AAssetManager* assetManager){
+    fileLoader = new FileLoader(assetManager);
 }
 
 std::string loadFileFromAssets(const char *path){
     return fileLoader->loadFile(path);
 }
 
-FileLoader::FileLoader(JNIEnv *env, jobject obj, jobject assetManager) {
-    this->assetManager = AAssetManager_fromJava(env, assetManager);
+FileLoader::FileLoader(AAssetManager* assetManager) {
+    this->assetManager = assetManager;
 }
 
 // Return string instead of char pointer to avoid potential memory leaks

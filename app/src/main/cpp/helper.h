@@ -5,22 +5,27 @@
 #ifndef DATX02_20_21_HELPER_H
 #define DATX02_20_21_HELPER_H
 
-#include <GLES3/gl31.h>
+#include <gles3/gl31.h>
 #include <android/asset_manager.h>
+
+#include <glm/glm.hpp>
+
+using namespace glm;
 
 bool checkGlError(const char *funcName);
 
-GLuint createShader(GLenum shaderType, const char *src);
+double fade(double x);
 
-GLuint createProgram(const char *vtxSrc, const char *fragSrc);
+double lerp(double a, double b, double t);
 
-void createMatrixFBO(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget);
+double perlin(double x, double y, double z);
 
-void createFbo(int width, int height, GLuint *framebufferId, GLuint *colorTextureTarget, GLuint *rbo);
+vec4 noise(double x, double y, double z);
 
-void resizeFBO(int w, int h, GLuint *colorTextureTarget, GLuint *rbo);
+void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei depth);
 
-void create3DTexture(GLuint *id, int width, int height, int depth, float *data);
+void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* data);
+void createVector3DTexture(GLuint *id, int width, int height, int depth, vec3* data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);
