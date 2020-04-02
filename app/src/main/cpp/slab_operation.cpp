@@ -277,13 +277,21 @@ void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperat
 }
 
 void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt) {
+    float dx = 1.0f;
+    float alpha = (dx*dx) / (diffusionConstant*dt);
+    float beta = 6.0f + alpha; // For 3D grids
+
     diffuseShader.use();
     diffuseShader.uniform1f("dt", dt);
     diffuseShader.uniform1f("diffusion_constant", diffusionConstant);
+    diffuseShader.uniform1f("alpha", alpha);
+    diffuseShader.uniform1f("beta", beta);
+    diffuseShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
 
     for(int i = 0; i < iterationCount; i++) {
         /*bind3DTexture0(data);
         bind3DTexture1(result); // todo fix bad data. Should not use a texture as both input and output*/
+        data->bindData(GL_TEXTURE0);
         interiorOperation(diffuseShader, data);
 
         //setBoundary(data, 0);
