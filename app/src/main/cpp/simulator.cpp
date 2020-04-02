@@ -95,7 +95,7 @@ void Simulator::initData() {
             for (int xx = x; xx < x + 2; xx++) {
                 int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
-                temperature_source[index] = 800.0f;
+                temperature_source[index] = 1500.0f;
                 velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
