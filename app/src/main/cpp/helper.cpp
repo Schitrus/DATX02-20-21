@@ -215,3 +215,49 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
     // Free the memoery you allocated earlier
     delete[] fileContent;
 }
+
+void clearGLErrors(const char* tag) {
+    int count = 0;
+    GLenum error = glGetError();
+    while(error != GL_NO_ERROR)
+    {
+        count++;
+        error = glGetError();
+    }
+    if(count != 0)
+        LOG_INFO("Cleared out %d unchecked gl errors in preparation for %s", count, tag);
+}
+
+bool checkGLError(const char* tag) {
+    GLenum error = glGetError();
+    if(error == GL_NO_ERROR)
+        return true;
+    else if(error == GL_INVALID_ENUM)
+        LOG_ERROR("Used an incorrect gl enum during %s", tag);
+    else if(error == GL_INVALID_VALUE)
+        LOG_ERROR("Used an incorrect value for a gl operation during %s", tag);
+    else if(error == GL_INVALID_OPERATION)
+        LOG_ERROR("Tried to use a gl operation at an invalid time during %s", tag);
+    else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
+        LOG_ERROR("Tried to use an incomplete gl framebuffer during %s", tag);
+    else if(error == GL_OUT_OF_MEMORY)
+        LOG_ERROR("GL ran out of memory during %s. This is not good!", tag);
+    else LOG_ERROR("Got unknown gl error %d during %s", error, tag);
+    return false;
+}
+
+bool checkFramebufferStatus(GLenum target, const char* tag) {
+    GLenum status = glCheckFramebufferStatus(target);
+    if(status == 0)
+        LOG_ERROR("%s used an invalid framebuffer type: %d", tag, target);
+    else if(status == GL_FRAMEBUFFER_COMPLETE)
+        return true;
+    else if(status == GL_FRAMEBUFFER_UNDEFINED)
+        LOG_ERROR("%s is using the default framebuffer, but the default framebuffer does not exist", tag);
+    else if(status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+        LOG_ERROR("Framebuffer used by %s has one or more incomplete attachments", tag);
+    else if(status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+        LOG_ERROR("Framebuffer used by %s is missing image attachments", tag);
+    else LOG_ERROR("Framebuffer used by %s has incomplete status %d", tag, status);
+    return false;
+}
