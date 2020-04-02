@@ -39,8 +39,60 @@ double lerp(double a, double b, double t){
     return (a + t * (b - a));
 }
 
+int WaveletTurbulence::init(vec3 lowerResolution, vec3 higherResolution) {
+    if(!initShaders())
+        return 0;
+
+    this->lowerResolution = lowerResolution;
+    this->higherResolution = higherResolution;
+
+    noise = createScalarDataPair(higherResolution.x, higherResolution.y, higherResolution.z, nullptr);
+
+    band_min = log2(min(min(lowerResolution.x, lowerResolution.y), lowerResolution.z));
+    band_max = log2(max(max(higherResolution.x, higherResolution.y), higherResolution.z)/2);
+
+    return 1;
+}
+
+int WaveletTurbulence::initShaders() {
+    bool success = true;
+    success &= turbulenceShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/turbulence.frag");
+    success &= synthesisShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/fluid_synthesis.frag");
+    return success;
+}
+
+void WaveletTurbulence::fluidSynthesis(){
+    synthesisShader.use();
+    glViewport(0, 0, higherResolution.x, higherResolution.y);
+}
+
+void WaveletTurbulence::turbulence() {
+    turbulenceShader.use();
+    glViewport(0, 0, higherResolution.x, higherResolution.y);
+    for(int depth = 0; depth < higherResolution.z; depth++){
+        noise->bindToFramebuffer(depth);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    }
+    for(int band = band_min; band <= band_max; band++){
+
+        turbulenceShader.uniform3f("gridSize", higherResolution.x, higherResolution.y, higherResolution.z);
+        turbulenceShader.uniform1f("band", band);
+        turbulenceShader.uniform1f("min_band", band_min);
+
+        for(int depth = 0; depth < higherResolution.z; depth++){
+            noise->bindToFramebuffer(depth);
+            glBindVertexArray(VAO);
+
+            turbulenceShader.uniform1i("depth", depth);
+
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        }
+    }
+    noise->operationFinished();
+}
+
 double WaveletTurbulence::perlin(vec3 position){
-    vec3 internal_position = position - floor(position);
+    vec3 internal_position = fract(position);
     vec3 external_position = floor(position);
     double dots[8] = {0};
     for (int c = 0; c < 8; c++){
@@ -59,3 +111,4 @@ double WaveletTurbulence::perlin(vec3 position){
                             fade(internal_position.y)),
                     fade(internal_position.z));
 }
+
