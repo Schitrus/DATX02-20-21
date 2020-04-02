@@ -28,15 +28,6 @@
 
 using namespace glm;
 
-bool checkGlError(const char *funcName) {
-    GLint err = glGetError();
-    if (err != GL_NO_ERROR) {
-        LOG_ERROR("GL error after %s(): 0x%08x\n", funcName, err);
-        return true;
-    }
-    return false;
-}
-
 char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
 
     // Open your file
@@ -225,24 +216,24 @@ void clearGLErrors(const char* tag) {
         error = glGetError();
     }
     if(count != 0)
-        LOG_INFO("Cleared out %d unchecked gl errors in preparation for %s", count, tag);
+        LOG_INFO("Cleared out %d unchecked gl errors in preparation for %s\n", count, tag);
 }
 
-bool checkGLError(const char* tag) {
+bool checkGLError(const char* function) {
     GLenum error = glGetError();
     if(error == GL_NO_ERROR)
         return true;
     else if(error == GL_INVALID_ENUM)
-        LOG_ERROR("Used an incorrect gl enum during %s", tag);
+        LOG_ERROR("GL error during %s(): Used an invalid gl enum\n", function);
     else if(error == GL_INVALID_VALUE)
-        LOG_ERROR("Used an incorrect value for a gl operation during %s", tag);
+        LOG_ERROR("GL error during %s(): Used an invalid value for a gl operation\n", function);
     else if(error == GL_INVALID_OPERATION)
-        LOG_ERROR("Tried to use a gl operation at an invalid time during %s", tag);
+        LOG_ERROR("GL error during %s(): Tried to use a gl operation at an invalid time\n", function);
     else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
-        LOG_ERROR("Tried to use an incomplete gl framebuffer during %s", tag);
+        LOG_ERROR("GL error during %s(): Tried to use an incomplete framebuffer\n", function);
     else if(error == GL_OUT_OF_MEMORY)
-        LOG_ERROR("GL ran out of memory during %s. This is not good!", tag);
-    else LOG_ERROR("Got unknown gl error %d during %s", error, tag);
+        LOG_ERROR("GL error during %s(): GL ran out of memory. This is not good!\n", function);
+    else LOG_ERROR("Unknown GL error during %s(): 0x%08x\n", function, error);
     return false;
 }
 

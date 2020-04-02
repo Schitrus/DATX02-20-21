@@ -34,9 +34,10 @@ GLuint Shader::program(){
 }
 
 GLuint Shader::createShader(GLenum type, const char *src) {
+    clearGLErrors("shader creation");
     GLuint shader = glCreateShader(type);
     if (!shader) {
-        checkGlError("glCreateShader");
+        checkGLError("shader creation");
         return 0;
     }
 
@@ -99,9 +100,10 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
     }
 
     LOG_INFO("Creating Program: %s, %s", vertex_path, fragment_path);
+    clearGLErrors("shader program creation");
     shader_program = glCreateProgram();
     if (!shader_program) {
-        checkGlError("glCreateProgram");
+        checkGLError("shader program creation");
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
         return 0;

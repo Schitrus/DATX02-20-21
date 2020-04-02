@@ -12,8 +12,6 @@
 
 using namespace glm;
 
-bool checkGlError(const char *funcName);
-
 double fade(double x);
 
 double lerp(double a, double b, double t);
@@ -38,7 +36,7 @@ void clearGLErrors(const char* tag);
 // Checks one gl error and logs a message if there is an error
 // Returns true if no error was found, and false otherwise
 // The tag is a name to attribute potential logging to
-bool checkGLError(const char* tag);
+bool checkGLError(const char* function);
 
 // Checks the framebuffer status and logs a message if it is incomplete
 // Returns true if the framebuffer is complete

@@ -107,19 +107,19 @@ private:
     // Note that the active texture is left at the given slot after this!
     void bindData(GLuint dataTexture, GLenum textureSlot);
 
-    void drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
+    bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawAllToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawAllToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the interior
-    // Should be called after the relevant call to prepareResult()
-    void drawInteriorToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawInteriorToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawBoundaryToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawBoundaryToTexture(Shader shader, int depth);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

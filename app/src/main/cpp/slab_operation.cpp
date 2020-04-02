@@ -192,27 +192,31 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     for(int depth = 1; depth < grid_depth - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        drawBoundaryToTexture(boundaryShader, depth);
+        if(!drawBoundaryToTexture(boundaryShader, depth))
+            return;
     }
     // Front
-    drawFrontOrBackBoundary(data, scale, 0);
+    if(!drawFrontOrBackBoundary(data, scale, 0))
+        return;
 
     //Back
-    drawFrontOrBackBoundary(data, scale, grid_depth - 1);
+    if(!drawFrontOrBackBoundary(data, scale, grid_depth - 1))
+        return;
 
     data->operationFinished();
 }
 
-void SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
+bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
     data->bindToFramebuffer(depth);
 
     FABBoundaryShader.use();
     FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     FABBoundaryShader.uniform1f("scale", scale);
-    drawBoundaryToTexture(FABBoundaryShader,  depth);
+    if(!drawBoundaryToTexture(FABBoundaryShader,  depth))
+        return false;
 
     FABInteriorShader.use();
-    drawInteriorToTexture(FABInteriorShader, depth);
+    return drawInteriorToTexture(FABInteriorShader, depth);
 }
 
 void SlabOperator::prepare() {
@@ -380,21 +384,21 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 
 
 void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 1; depth < grid_depth - 1; depth++){
-        data->bindToFramebuffer(depth);
+    for(int depth = 1; depth < grid_depth - 1; depth++) {
 
-        // Interior
-        drawInteriorToTexture(shader, depth);
+        data->bindToFramebuffer(depth);
+        if(!drawInteriorToTexture(shader, depth))
+            return;
     }
     data->operationFinished();
 }
 
 void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 0; depth < grid_depth; depth++){
-        data->bindToFramebuffer(depth);
+    for(int depth = 0; depth < grid_depth; depth++) {
 
-        // Interior
-        drawAllToTexture(shader, depth);
+        data->bindToFramebuffer(depth);
+        if(!drawAllToTexture(shader, depth))
+            return;
     }
     data->operationFinished();
 }
@@ -405,25 +409,36 @@ void SlabOperator::bindData(GLuint dataTexture, GLenum textureSlot) {
 }
 
 
-void SlabOperator::drawAllToTexture(Shader shader, int depth) {
+bool SlabOperator::drawAllToTexture(Shader shader, int depth) {
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+        return false;
+    clearGLErrors("slab operation");
     glViewport(0, 0, grid_width, grid_height);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    return checkGLError("slab operation");
 }
 
-void SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
+bool SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+        return false;
+    clearGLErrors("slab operation");
     glViewport(1, 1, grid_width - 2, grid_height - 2);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    return checkGLError("slab operation");
 }
 
-void SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
+bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+        return false;
+    clearGLErrors("slab operation");
     glViewport(0, 0, grid_width, grid_height);
     glBindVertexArray(boundaryVAO);
     glLineWidth(1.99f);
@@ -431,4 +446,5 @@ void SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
     shader.uniform1i("depth", depth);
 
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, 0);
+    return checkGLError("slab operation");
 }
