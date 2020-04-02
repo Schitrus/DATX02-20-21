@@ -6,8 +6,8 @@
 #include "framebuffer.h"
 
 #define LOG_TAG "framebuffer"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 void Framebuffer::create(int width, int height, bool simple) {
     this->simple = simple;
@@ -46,7 +46,7 @@ void Framebuffer::create(int width, int height, bool simple) {
 
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        ALOGE("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+        LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
     unbind();
 
 }

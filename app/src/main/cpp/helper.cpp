@@ -22,8 +22,8 @@
 #include "file_loader.h"
 
 #define LOG_TAG "helper"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
 using namespace glm;
@@ -31,7 +31,7 @@ using namespace glm;
 bool checkGlError(const char *funcName) {
     GLint err = glGetError();
     if (err != GL_NO_ERROR) {
-        ALOGE("GL error after %s(): 0x%08x\n", funcName, err);
+        LOG_ERROR("GL error after %s(): 0x%08x\n", funcName, err);
         return true;
     }
     return false;
@@ -52,7 +52,7 @@ char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
 
     if (error < fileLength || error == 0) {
         std::cout << "Failed to load image: " << filename << ".\n";
-        ALOGE("Failed to load image: ");
+        LOG_ERROR("Failed to load image: ");
     }
 
     return fileContent;
@@ -158,7 +158,7 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
 
     vec4* data = new vec4[width * height * depth];
 
-    LOGE("Generating 3D texture");
+    LOG_INFO("Generating 3D texture");
 
     for(int z = 0; z < depth; z++) {
         for (int y = 0; y < height; y++) {
@@ -170,7 +170,7 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
             }
         }
     }
-    LOGE("GENERATION DONE");
+    LOG_INFO("GENERATION DONE");
 
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, width, height, depth, 0, GL_RGBA, GL_FLOAT, data);
 

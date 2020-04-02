@@ -21,7 +21,7 @@
 #include "helper.h"
 
 #define LOG_TAG "Renderer"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 using namespace glm;
 
@@ -39,7 +39,7 @@ int SlabOperator::init() {
     initLine();
 
     if(!initShaders()) {
-        ALOGE("Failed to compile slab_operation shaders");
+        LOG_ERROR("Failed to compile slab_operation shaders");
         return 0;
     }
     return 1;
