@@ -32,7 +32,9 @@ int SlabOperator::init() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(12, 48, 12);
+    FBO = new SimpleFramebuffer();
+    FBO->init();
+
     initData();
 
     initQuad();
@@ -46,19 +48,16 @@ int SlabOperator::init() {
 
 }
 
-// todo resize is not really supported right now because we would need to resize textures too
-void SlabOperator::resize(int width, int height, int depth){
+void SlabOperator::initSize(int width, int height, int depth){
     grid_width = width + 2;
     grid_height = height + 2;
     grid_depth = depth + 2;
-    FBO = new Framebuffer();
-    FBO->create(grid_width, grid_height, true);
 }
 
 void SlabOperator::initData() {
     divergence = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
 
-    gradient = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
+    jacobi = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
 }
 
 void SlabOperator::initLine() {
@@ -328,7 +327,7 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
 }
 void SlabOperator::projection(DataTexturePair* velocity){
     createDivergence(velocity);
-    jacobi(20);
+    jacobiIteration(20);
     subtractGradient(velocity);
 }
 
@@ -341,10 +340,10 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
     //setBoundary(divergence, 0);
 }
 
-void SlabOperator::jacobi(int iterationCount) {
+void SlabOperator::jacobiIteration(int iterationCount) {
 
     for(int depth = 0; depth < grid_depth; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, jacobi->getDataTexture(), 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
@@ -352,8 +351,8 @@ void SlabOperator::jacobi(int iterationCount) {
     divergence->bindData(GL_TEXTURE1);
 
     for(int i = 0; i < iterationCount; i++) {
-        gradient->bindData(GL_TEXTURE0);
-        interiorOperation(jacobiShader, gradient);
+        jacobi->bindData(GL_TEXTURE0);
+        interiorOperation(jacobiShader, jacobi);
 
         //setBoundary(gradient, 0);
     }
@@ -361,7 +360,7 @@ void SlabOperator::jacobi(int iterationCount) {
 
 void SlabOperator::subtractGradient(DataTexturePair* velocity){
     gradientShader.use();
-    gradient->bindData(GL_TEXTURE0);
+    jacobi->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
     interiorOperation(gradientShader, velocity);

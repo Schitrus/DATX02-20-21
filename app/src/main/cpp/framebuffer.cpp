@@ -9,20 +9,14 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-void Framebuffer::create(int width, int height, bool simple) {
-    this->simple = simple;
+void Framebuffer::create(int width, int height) {
     this->width = width;
     this->height = height;
 
     // framebuffer configuration
     // -------------------------
-    glGenFramebuffers(1, &FBO);
-    bind();
-
-    if(simple){
-        unbind();
-        return;
-    }
+    FBO.init();
+    FBO.bind();
 
     // create a color attachment texture
     glGenTextures(1, &colorTextureTarget);
@@ -51,11 +45,17 @@ void Framebuffer::create(int width, int height, bool simple) {
 
 }
 
+void Framebuffer::clear() {
+    FBO.clear();
+    glDeleteTextures(1, &colorTextureTarget);
+    colorTextureTarget = 0;
+    glDeleteRenderbuffers(1, &RBO);
+    RBO = 0;
+}
+
 void Framebuffer::resize(int width, int height){
     this->width = width;
     this->height = height;
-    if(simple)
-        return;
     bind();
     // Allocate a texture
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
@@ -72,9 +72,9 @@ GLuint Framebuffer::texture(){
 }
 
 void Framebuffer::bind() {
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    FBO.bind();
 }
 
 void Framebuffer::unbind() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    FBO.unbind();
 }
