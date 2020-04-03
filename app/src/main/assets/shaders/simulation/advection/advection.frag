@@ -23,7 +23,7 @@ void main() {
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;    //velocity in meters/second
 
     // Location of the previous position, back in time
-    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meter_to_pixels;  //position in pixels
+    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToPixels;  //position in pixels
 
     // Set result to velocity at previous position
     // Note: Linear interpolation due to linear texture

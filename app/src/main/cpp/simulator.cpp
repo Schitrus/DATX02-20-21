@@ -13,7 +13,7 @@
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
 int Simulator::init(){
-    initSize(12, 48, 12, 12f);
+    initSize(12, 48, 12, 12.0f);
     if (!slab.init())
         return 0;
     initData();
