@@ -16,6 +16,8 @@ using std::chrono::system_clock;
 
 class Simulator{
     int grid_width, grid_height, grid_depth;
+    float meter_to_pixels;
+
     SlabOperator slab;
     DataTexturePair* density;
     DataTexturePair* temperature;
@@ -36,7 +38,7 @@ public:
 
 private:
 
-    void initSize(int width, int height, int depth);
+    void initSize(int width, int height, int depth, float simulationWidth);
 
     void initData();
 

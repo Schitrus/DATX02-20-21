@@ -48,16 +48,17 @@ int SlabOperator::init() {
 
 }
 
-void SlabOperator::initSize(int width, int height, int depth){
-    grid_width = width + 2;
-    grid_height = height + 2;
-    grid_depth = depth + 2;
+void SlabOperator::initSize(int width, int height, int depth, float meterToPixels){
+    pixel_width = width + 2;
+    pixel_height = height + 2;
+    pixel_depth = depth + 2;
+    meter_to_pixels = meterToPixels;
 }
 
 void SlabOperator::initData() {
-    divergence = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
+    divergence = createScalarDataPair(pixel_width, pixel_height, pixel_depth, (float*)nullptr);
 
-    jacobi = createScalarDataPair(grid_width, grid_height, grid_depth, (float*)nullptr);
+    jacobi = createScalarDataPair(pixel_width, pixel_height, pixel_depth, (float*)nullptr);
 }
 
 void SlabOperator::initLine() {
@@ -185,10 +186,10 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     data->bindData(GL_TEXTURE0);
 
     boundaryShader.use();
-    boundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    boundaryShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     boundaryShader.uniform1f("scale", scale);
 
-    for(int depth = 1; depth < grid_depth - 1; depth++){
+    for(int depth = 1; depth < pixel_depth - 1; depth++){
         data->bindToFramebuffer(depth);
 
         if(!drawBoundaryToTexture(boundaryShader, depth))
@@ -199,7 +200,7 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
         return;
 
     //Back
-    if(!drawFrontOrBackBoundary(data, scale, grid_depth - 1))
+    if(!drawFrontOrBackBoundary(data, scale, pixel_depth - 1))
         return;
 
     data->operationFinished();
@@ -209,7 +210,7 @@ bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int
     data->bindToFramebuffer(depth);
 
     FABBoundaryShader.use();
-    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    FABBoundaryShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     FABBoundaryShader.uniform1f("scale", scale);
     if(!drawBoundaryToTexture(FABBoundaryShader,  depth))
         return false;
@@ -235,7 +236,7 @@ void SlabOperator::finish() {
 void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
-    temperatureShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    temperatureShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     temperature->bindData(GL_TEXTURE1);
 
@@ -308,7 +309,7 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
 void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    advectionShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
@@ -319,7 +320,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    advectionShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
@@ -342,7 +343,7 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
 
 void SlabOperator::jacobiIteration(int iterationCount) {
 
-    for(int depth = 0; depth < grid_depth; depth++){
+    for(int depth = 0; depth < pixel_depth; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, jacobi->getDataTexture(), 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
     }
@@ -383,7 +384,7 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 
 
 void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 1; depth < grid_depth - 1; depth++) {
+    for(int depth = 1; depth < pixel_depth - 1; depth++) {
 
         data->bindToFramebuffer(depth);
         if(!drawInteriorToTexture(shader, depth))
@@ -393,7 +394,7 @@ void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
 }
 
 void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 0; depth < grid_depth; depth++) {
+    for(int depth = 0; depth < pixel_depth; depth++) {
 
         data->bindToFramebuffer(depth);
         if(!drawAllToTexture(shader, depth))
@@ -412,7 +413,7 @@ bool SlabOperator::drawAllToTexture(Shader shader, int depth) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(0, 0, grid_width, grid_height);
+    glViewport(0, 0, pixel_width, pixel_height);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -425,7 +426,7 @@ bool SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
+    glViewport(1, 1, pixel_width - 2, pixel_height - 2);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -438,7 +439,7 @@ bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(0, 0, grid_width, grid_height);
+    glViewport(0, 0, pixel_width, pixel_height);
     glBindVertexArray(boundaryVAO);
     glLineWidth(1.99f);
 

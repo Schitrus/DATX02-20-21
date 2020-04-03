@@ -12,8 +12,9 @@
 #include "simple_framebuffer.h"
 #include "data_texture_pair.h"
 
-class SlabOperator{
-    int grid_width, grid_height, grid_depth;
+class SlabOperator {
+    int pixel_width, pixel_height, pixel_depth;
+    float meter_to_pixels;
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -46,7 +47,7 @@ class SlabOperator{
 public:
     int init();
 
-    void initSize(int width, int height, int depth);
+    void initSize(int width, int height, int depth, float simulationWidth);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();

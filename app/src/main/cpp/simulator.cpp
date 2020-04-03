@@ -13,7 +13,7 @@
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
 int Simulator::init(){
-    initSize(12, 48, 12);
+    initSize(12, 48, 12, 12f);
     if (!slab.init())
         return 0;
     initData();
@@ -23,11 +23,12 @@ int Simulator::init(){
     return 1;
 }
 
-void Simulator::initSize(int width, int height, int depth) {
+void Simulator::initSize(int width, int height, int depth, float simulationWidth) {
     grid_width = width + 2;
     grid_height = height + 2;
     grid_depth = depth + 2;
-    slab.initSize(width, height, depth);
+    meter_to_pixels = width/simulationWidth;
+    slab.initSize(width, height, depth, meter_to_pixels);
 }
 
 void Simulator::update(){
