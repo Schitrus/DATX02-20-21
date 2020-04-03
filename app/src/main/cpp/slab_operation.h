@@ -9,14 +9,14 @@
 #include <gles3/gl31.h>
 
 #include "shader.h"
-#include "framebuffer.h"
+#include "simple_framebuffer.h"
 #include "data_texture_pair.h"
 
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
 
     // Framebuffer
-    Framebuffer* FBO;
+    SimpleFramebuffer* FBO;
 
     // result // todo remove
     GLuint texcoordsBuffer;
@@ -46,7 +46,7 @@ class SlabOperator{
 public:
     int init();
 
-    void resize(int width, int height, int depth);
+    void initSize(int width, int height, int depth);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();

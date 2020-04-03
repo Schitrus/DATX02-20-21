@@ -30,13 +30,13 @@ class Simulator{
 public:
     int init();
 
-    void resize(int width, int height, int depth);
-
     void update();
 
     void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
 
 private:
+
+    void initSize(int width, int height, int depth);
 
     void initData();
 

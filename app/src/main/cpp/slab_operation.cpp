@@ -32,7 +32,9 @@ int SlabOperator::init() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(12, 48, 12);
+    FBO = new SimpleFramebuffer();
+    FBO->init();
+
     initData();
 
     initQuad();
@@ -46,13 +48,10 @@ int SlabOperator::init() {
 
 }
 
-// todo resize is not really supported right now because we would need to resize textures too
-void SlabOperator::resize(int width, int height, int depth){
+void SlabOperator::initSize(int width, int height, int depth){
     grid_width = width + 2;
     grid_height = height + 2;
     grid_depth = depth + 2;
-    FBO = new Framebuffer();
-    FBO->create(grid_width, grid_height, true);
 }
 
 void SlabOperator::initData() {

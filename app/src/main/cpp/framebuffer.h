@@ -8,13 +8,18 @@
 #include <jni.h>
 #include <gles3/gl31.h>
 
+#include "simple_framebuffer.h"
+
 class Framebuffer {
     int width, height;
-    GLuint FBO, RBO;
+
+    SimpleFramebuffer FBO;
+    GLuint RBO;
     GLuint colorTextureTarget;
-    bool simple;
 public:
-    void create(int width, int height, bool simple=false);
+    void create(int width, int height);
+
+    void clear();
 
     void resize(int width, int height);
 
