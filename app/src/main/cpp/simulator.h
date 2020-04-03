@@ -53,6 +53,21 @@ private:
     // It will not perform the "add force" step, as that depends entirely on the individual substance
     void substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt);
 
+    void clearField(float* field, float value);
+
+    void clearField(vec3* field, vec3 value);
+
+    // density is in unit/m^3
+    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos);
+
+    // value is in unit
+    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos);
+
+    bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
+
+    // might return negative values if there is no overlap
+    float getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
+
 };
 
 #endif //DATX02_20_21_SIMULATOR_H

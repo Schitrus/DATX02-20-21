@@ -66,41 +66,21 @@ void Simulator::initData() {
     vec3* velocity_field = new vec3[size];
     vec3* velocity_source = new vec3[size];
 
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
-                density_field[index]      = 0.0f;
-                density_source[index]     = 0.0f;
-                temperature_field[index]  = 0.0f;
-                temperature_source[index] = 0.0f;
-                velocity_field[index]     = vec3(0, 0, 0);
-                velocity_source[index]    = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
+    clearField(density_field, 0.0f);
+    clearField(density_source, 0.0f);
+    clearField(temperature_field, 0.0f);
+    clearField(temperature_source, 0.0f);
+    clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f));
+    clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f));
 
-    for (int z = 1; z < grid_depth - 1; z++) {
-        for (int y = 1; y < grid_height - 1; y++) {
-            for (int x = 1; x < grid_width - 1; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
+    float radius = 1;
+    float middleW = grid_width/meter_to_pixels/2;
+    float middleD = grid_depth/meter_to_pixels/2;
+    vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
+    vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    int z = grid_depth/2-2, y = 2, x = grid_width/2-2;
-
-    for(int zz = z; zz < z + 2; zz++) {
-        for (int yy = y; yy < y + 2; yy++) {
-            for (int xx = x; xx < x + 2; xx++) {
-                int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
-                density_source[index] = 1.0f;
-                temperature_source[index] = 800.0f;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
+    fillIntensive(density_source, 1.0f, start, end);
+    fillIntensive(temperature_source, 800.0f, start, end);
 
     density = createScalarDataPair(grid_width, grid_height, grid_depth, density_field);
     createScalar3DTexture(&densitySource, grid_width, grid_height, grid_depth, density_source);
@@ -147,4 +127,78 @@ void Simulator::densityStep(float dt){
 
 void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {
     //todo use this for temperature and density when advection has been seperated from the heat dissipation part in the temperature shader
+}
+
+void Simulator::clearField(float* field, float value) {
+    for (int z = 0; z < grid_depth; z++) {
+        for (int y = 0; y < grid_height; y++) {
+            for (int x = 0; x < grid_width; x++) {
+                int index = grid_width * (grid_height * z + y) + x;
+                field[index] = value;
+            }
+        }
+    }
+}
+
+void Simulator::clearField(vec3* field, vec3 value) {
+    for (int z = 0; z < grid_depth; z++) {
+        for (int y = 0; y < grid_height; y++) {
+            for (int x = 0; x < grid_width; x++) {
+                int index = grid_width * (grid_height * z + y) + x;
+                field[index] = value;
+            }
+        }
+    }
+}
+
+void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos) {
+    for (int z = 0; z < grid_depth; z++) {
+        for (int y = 0; y < grid_height; y++) {
+            for (int x = 0; x < grid_width; x++) {
+                //Lower corner of cell in meters
+                vec3 pos = vec3(x, y, z)/meter_to_pixels;
+                //Upper corner of cell in meters
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1)/meter_to_pixels;
+                //Does this cell overlap with the fill area?
+                if(hasOverlap(pos, pos1, minPos, maxPos)) {
+                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+
+                    int index = grid_width * (grid_height * z + y) + x;
+                    field[index] = density*overlappedArea;
+                }
+            }
+        }
+    }
+}
+
+void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos) {
+    float cellArea = (1 / meter_to_pixels) * (1 / meter_to_pixels);
+    for (int z = 0; z < grid_depth; z++) {
+        for (int y = 0; y < grid_height; y++) {
+            for (int x = 0; x < grid_width; x++) {
+                //Lower corner of cell in meters
+                vec3 pos = vec3(x, y, z)/meter_to_pixels;
+                //Upper corner of cell in meters
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1)/meter_to_pixels;
+                //Does this cell overlap with the fill area?
+                if(hasOverlap(pos, pos1, minPos, maxPos)) {
+                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+
+                    int index = grid_width * (grid_height * z + y) + x;
+                    field[index] = value*(overlappedArea/cellArea);
+                }
+            }
+        }
+    }
+}
+
+bool Simulator::hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
+    return max1.x > min2.x && max1.y > min2.y && max1.z > min2.z
+           && min1.x < max2.x && min1.y < max2.y && min1.z < max2.z;
+}
+
+float Simulator::getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
+    vec3 overlapMin = max(min1, min2);
+    vec3 overlapMax = min(max1, max2);
+    return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
 }
