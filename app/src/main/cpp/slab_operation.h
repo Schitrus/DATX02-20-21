@@ -36,7 +36,7 @@ class SlabOperator{
     Shader boundaryShader;
 
     DataTexturePair* divergence;
-    DataTexturePair* gradient;
+    DataTexturePair* jacobi;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
@@ -84,7 +84,7 @@ private:
 
     // Performs a number of jacobi iterations of the divergence field into jacobi
     //example value: iterationCount = 20
-    void jacobi(int iterationCount);
+    void jacobiIteration(int iterationCount);
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData);
