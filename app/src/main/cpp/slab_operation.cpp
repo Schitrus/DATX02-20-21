@@ -236,6 +236,7 @@ void SlabOperator::finish() {
 void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToPixels", meter_to_pixels);
     temperatureShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     temperature->bindData(GL_TEXTURE1);
@@ -309,6 +310,7 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
 void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToPixels", meter_to_pixels);
     advectionShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
@@ -320,6 +322,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToPixels", meter_to_pixels);
     advectionShader.uniform3f("gridSize", pixel_width, pixel_height, pixel_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);

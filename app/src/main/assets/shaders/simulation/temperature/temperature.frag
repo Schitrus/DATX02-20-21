@@ -7,6 +7,7 @@ layout(binding = 0) uniform sampler3D velocity_field;
 layout(binding = 1) uniform sampler3D temperature_field;
 
 uniform float dt;
+uniform float meterToPixels;  //conversion factor from meter to pixels
 uniform int depth;
 uniform vec3 gridSize;
 
@@ -21,7 +22,7 @@ void main() {
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity;
+    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToPixels;
 
     float temperature = texture(temperature_field, previous_position / gridSize).x;
 
