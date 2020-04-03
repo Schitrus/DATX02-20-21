@@ -6,7 +6,6 @@ precision highp sampler3D;
 layout(binding = 0) uniform sampler3D data_field;
 
 uniform float dt;
-uniform float diffusion_constant;
 uniform float alpha;
 uniform float beta;
 uniform int depth;

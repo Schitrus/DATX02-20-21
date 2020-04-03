@@ -70,7 +70,7 @@ public:
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt);
+    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity);
