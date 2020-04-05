@@ -27,7 +27,8 @@
 
 // Debugging variable to enable or disable OpenGL error and status checking
 // Apparently the checks are very costly for performance, disabling should increase FPS
-static bool ENABLE_OPENGL_ERROR_CHECKING = false;
+// Enable/disable by commenting/uncommenting the line below
+//#define ENABLE_OPENGL_ERROR_CHECKING
 
 
 using namespace glm;
@@ -212,9 +213,9 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 }
 
 void clearGLErrors(const char* tag) {
-    if(!ENABLE_OPENGL_ERROR_CHECKING){
-        return;
-    }
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return;
+#endif
 
     int count = 0;
     GLenum error = glGetError();
@@ -228,9 +229,9 @@ void clearGLErrors(const char* tag) {
 }
 
 bool checkGLError(const char* function) {
-    if(!ENABLE_OPENGL_ERROR_CHECKING){
-        return true;
-    }
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return true;
+#endif
 
     GLenum error = glGetError();
     if(error == GL_NO_ERROR)
@@ -250,9 +251,9 @@ bool checkGLError(const char* function) {
 }
 
 bool checkFramebufferStatus(GLenum target, const char* tag) {
-    if(!ENABLE_OPENGL_ERROR_CHECKING){
-        return true;
-    }
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return true;
+#endif
 
     GLenum status = glCheckFramebufferStatus(target);
     if(status == 0)
