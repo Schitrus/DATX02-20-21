@@ -45,9 +45,9 @@ void Fire::scale(float scaleFactor, double scaleX, double scaleY){
 AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
     if (mgr == NULL) {
-        ALOGE("error loading asset manger");
+        LOG_ERROR("error loading asset manger");
     } else {
-        LOGE("loaded asset manager");
+        LOG_INFO("loaded asset manager");
     }
     return mgr;
 }

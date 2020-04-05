@@ -22,20 +22,11 @@
 #include "file_loader.h"
 
 #define LOG_TAG "helper"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
 using namespace glm;
-
-bool checkGlError(const char *funcName) {
-    GLint err = glGetError();
-    if (err != GL_NO_ERROR) {
-        ALOGE("GL error after %s(): 0x%08x\n", funcName, err);
-        return true;
-    }
-    return false;
-}
 
 char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
 
@@ -52,7 +43,7 @@ char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
 
     if (error < fileLength || error == 0) {
         std::cout << "Failed to load image: " << filename << ".\n";
-        ALOGE("Failed to load image: ");
+        LOG_ERROR("Failed to load image: ");
     }
 
     return fileContent;
@@ -158,7 +149,7 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
 
     vec4* data = new vec4[width * height * depth];
 
-    LOGE("Generating 3D texture");
+    LOG_INFO("Generating 3D texture");
 
     for(int z = 0; z < depth; z++) {
         for (int y = 0; y < height; y++) {
@@ -170,7 +161,7 @@ void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei
             }
         }
     }
-    LOGE("GENERATION DONE");
+    LOG_INFO("GENERATION DONE");
 
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, width, height, depth, 0, GL_RGBA, GL_FLOAT, data);
 
@@ -214,4 +205,50 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 
     // Free the memoery you allocated earlier
     delete[] fileContent;
+}
+
+void clearGLErrors(const char* tag) {
+    int count = 0;
+    GLenum error = glGetError();
+    while(error != GL_NO_ERROR)
+    {
+        count++;
+        error = glGetError();
+    }
+    if(count != 0)
+        LOG_INFO("Cleared out %d unchecked gl errors in preparation for %s\n", count, tag);
+}
+
+bool checkGLError(const char* function) {
+    GLenum error = glGetError();
+    if(error == GL_NO_ERROR)
+        return true;
+    else if(error == GL_INVALID_ENUM)
+        LOG_ERROR("GL error during %s(): Used an invalid gl enum\n", function);
+    else if(error == GL_INVALID_VALUE)
+        LOG_ERROR("GL error during %s(): Used an invalid value for a gl operation\n", function);
+    else if(error == GL_INVALID_OPERATION)
+        LOG_ERROR("GL error during %s(): Tried to use a gl operation at an invalid time\n", function);
+    else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
+        LOG_ERROR("GL error during %s(): Tried to use an incomplete framebuffer\n", function);
+    else if(error == GL_OUT_OF_MEMORY)
+        LOG_ERROR("GL error during %s(): GL ran out of memory. This is not good!\n", function);
+    else LOG_ERROR("Unknown GL error during %s(): 0x%08x\n", function, error);
+    return false;
+}
+
+bool checkFramebufferStatus(GLenum target, const char* tag) {
+    GLenum status = glCheckFramebufferStatus(target);
+    if(status == 0)
+        LOG_ERROR("%s used an invalid framebuffer type: %d", tag, target);
+    else if(status == GL_FRAMEBUFFER_COMPLETE)
+        return true;
+    else if(status == GL_FRAMEBUFFER_UNDEFINED)
+        LOG_ERROR("%s is using the default framebuffer, but the default framebuffer does not exist", tag);
+    else if(status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+        LOG_ERROR("Framebuffer used by %s has one or more incomplete attachments", tag);
+    else if(status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+        LOG_ERROR("Framebuffer used by %s is missing image attachments", tag);
+    else LOG_ERROR("Framebuffer used by %s has incomplete status %d", tag, status);
+    return false;
 }

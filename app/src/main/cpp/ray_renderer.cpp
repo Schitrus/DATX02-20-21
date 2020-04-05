@@ -21,7 +21,7 @@
 #include "helper.h"
 
 #define LOG_TAG "Renderer"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
@@ -52,7 +52,7 @@ int RayRenderer::init(AAssetManager* assetManager) {
     //load3DTexture("BostonTeapot.raw");
     initCube(VAO, VBO, EBO);
     if(!initProgram()){
-        ALOGE("Failed to compile ray_renderer shaders");
+        LOG_ERROR("Failed to compile ray_renderer shaders");
         return 0;
     }
     return 1;

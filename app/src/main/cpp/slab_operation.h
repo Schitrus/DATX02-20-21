@@ -9,14 +9,14 @@
 #include <gles3/gl31.h>
 
 #include "shader.h"
-#include "framebuffer.h"
+#include "simple_framebuffer.h"
 #include "data_texture_pair.h"
 
 class SlabOperator{
     int grid_width, grid_height, grid_depth;
 
     // Framebuffer
-    Framebuffer* FBO;
+    SimpleFramebuffer* FBO;
 
     // result // todo remove
     GLuint texcoordsBuffer;
@@ -36,7 +36,7 @@ class SlabOperator{
     Shader boundaryShader;
 
     DataTexturePair* divergence;
-    DataTexturePair* gradient;
+    DataTexturePair* jacobi;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
@@ -46,7 +46,7 @@ class SlabOperator{
 public:
     int init();
 
-    void resize(int width, int height, int depth);
+    void initSize(int width, int height, int depth);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();
@@ -107,19 +107,19 @@ private:
     // Note that the active texture is left at the given slot after this!
     void bindData(GLuint dataTexture, GLenum textureSlot);
 
-    void drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
+    bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawAllToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawAllToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the interior
-    // Should be called after the relevant call to prepareResult()
-    void drawInteriorToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawInteriorToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawBoundaryToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawBoundaryToTexture(Shader shader, int depth);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

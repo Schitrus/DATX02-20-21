@@ -35,6 +35,7 @@ add_library( # Sets the name of the library.
         helper.cpp
         file_loader.cpp
         shader.cpp
+        simple_framebuffer.cpp
         framebuffer.cpp
         data_texture_pair.cpp
         )
