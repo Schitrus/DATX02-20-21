@@ -35,6 +35,7 @@ class SlabOperator{
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
+    GLuint diffusionBTexture;
     DataTexturePair* divergence;
     DataTexturePair* jacobi;
 
@@ -42,6 +43,7 @@ class SlabOperator{
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
     Shader diffuseShader, dissipateShader, setSourceShader;
+    Shader copyShader;
 
 public:
     int init();
@@ -83,7 +85,7 @@ private:
     int initShaders();
 
     // Performs a number of jacobi iterations with two field inputs
-    void jacobiIteration(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
+    void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
                 int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field
@@ -101,6 +103,8 @@ private:
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
+
+    void copy(DataTexturePair* source, GLuint target);
 
     // Binds the given data texture to the given slot
     // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
