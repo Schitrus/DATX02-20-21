@@ -83,7 +83,7 @@ private:
     int initShaders();
 
     // Performs a number of jacobi iterations with two field inputs
-    void jacobi(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
+    void jacobiIteration(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
                 int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field

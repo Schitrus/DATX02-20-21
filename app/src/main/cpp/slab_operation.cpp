@@ -284,7 +284,7 @@ void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float 
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    jacobi(velocity, velocity, iterationCount, alpha, beta);
+    jacobiIteration(velocity, velocity, iterationCount, alpha, beta);
 }
 
 void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float dt){
@@ -326,12 +326,12 @@ void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
 
     // Clear gradient texture, unsure if needed?
     for(int depth = 0; depth < grid_depth; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, jacobi->getDataTexture(), 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
     createDivergence(velocity);
-    jacobi(gradient, divergence, iterationCount, alpha, beta);
+    jacobiIteration(jacobi, divergence, iterationCount, alpha, beta);
     subtractGradient(velocity);
 }
 
@@ -344,7 +344,7 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
     //setBoundary(divergence, 0);
 }
 
-void SlabOperator::jacobi(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
+void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
                             int iterationCount, float alpha, float beta){
 
     jacobiShader.use();
