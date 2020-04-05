@@ -73,7 +73,7 @@ public:
     void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
-    void projection(DataTexturePair* velocity);
+    void projection(DataTexturePair* velocity, int iterationCount);
 
 private:
     void initData();
@@ -82,9 +82,9 @@ private:
     void initQuad();
     int initShaders();
 
-    // Performs a number of jacobi iterations of the divergence field into jacobi
-    //example value: iterationCount = 20
-    void jacobi(int iterationCount);
+    // Performs a number of jacobi iterations with two field inputs
+    void jacobi(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
+                int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData);

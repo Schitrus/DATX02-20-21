@@ -122,7 +122,7 @@ void Simulator::velocityStep(float dt){
     slab.diffuse(velocity, 20, 18e-6f, dt);
     //slab.dissipate(velocity, 0.9f, dt);
     // Project
-    slab.projection(velocity);
+    slab.projection(velocity, 20);
 }
 
 void Simulator::temperatureStep(float dt) {

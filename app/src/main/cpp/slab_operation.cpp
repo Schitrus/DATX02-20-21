@@ -276,23 +276,12 @@ void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperat
     //setBoundary(velocity, 1);
 }
 
-void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt) {
+void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
     float dx = 1.0f;
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    diffuseShader.use();
-    diffuseShader.uniform1f("dt", dt);
-    diffuseShader.uniform1f("alpha", alpha);
-    diffuseShader.uniform1f("beta", beta);
-    diffuseShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
-
-    for(int i = 0; i < iterationCount; i++) {
-        data->bindData(GL_TEXTURE0);
-        interiorOperation(diffuseShader, data);
-
-        //setBoundary(data, 0);
-    }
+    jacobi(velocity, velocity, iterationCount, alpha, beta);
 }
 
 void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float dt){
@@ -327,9 +316,19 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
 
     fullOperation(advectionShader, data);
 }
-void SlabOperator::projection(DataTexturePair* velocity){
+void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
+    float dx = 1.0f;
+    float alpha = -(dx*dx);
+    float beta = 6.0f;
+
+    // Clear gradient texture
+    /*for(int depth = 0; depth < grid_depth; depth++){
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }*/
+
     createDivergence(velocity);
-    jacobi(20);
+    jacobi(gradient, divergence, iterationCount, alpha, beta);
     subtractGradient(velocity);
 }
 
@@ -342,22 +341,19 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
     //setBoundary(divergence, 0);
 }
 
-void SlabOperator::jacobi(int iterationCount) {
-
-    for(int depth = 0; depth < grid_depth; depth++){
-        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
+void SlabOperator::jacobi(DataTexturePair *xTexturePair, DataTexturePair *bTexturePair,
+                            int iterationCount, float alpha, float beta){
 
     jacobiShader.use();
-    divergence->bindData(GL_TEXTURE1);
+    jacobiShader.uniform1f("alpha", alpha);
+    jacobiShader.uniform1f("beta", beta);
 
-    for(int i = 0; i < iterationCount; i++) {
-        gradient->bindData(GL_TEXTURE0);
-        interiorOperation(jacobiShader, gradient);
-
-        //setBoundary(gradient, 0);
+    for(int i = 0; i < iterationCount; i++){
+        xTexturePair->bindData(GL_TEXTURE0);
+        bTexturePair->bindData(GL_TEXTURE1);
+        interiorOperation(jacobiShader, xTexturePair);
     }
+
 }
 
 void SlabOperator::subtractGradient(DataTexturePair* velocity){
