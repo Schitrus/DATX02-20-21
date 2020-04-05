@@ -321,11 +321,11 @@ void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
     float alpha = -(dx*dx);
     float beta = 6.0f;
 
-    // Clear gradient texture
-    /*for(int depth = 0; depth < grid_depth; depth++){
+    // Clear gradient texture, unsure if needed?
+    for(int depth = 0; depth < grid_depth; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
-    }*/
+    }
 
     createDivergence(velocity);
     jacobi(gradient, divergence, iterationCount, alpha, beta);
