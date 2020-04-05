@@ -22,6 +22,7 @@
 
 #define LOG_TAG "Renderer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 using namespace glm;
 
@@ -356,7 +357,7 @@ void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTextur
     jacobiShader.use();
     jacobiShader.uniform1f("alpha", alpha);
     jacobiShader.uniform1f("beta", beta);
-    bindData(GL_TEXTURE1, bTexture);
+    bindData(bTexture, GL_TEXTURE1);
 
     for(int i = 0; i < iterationCount; i++){
         xTexturePair->bindData(GL_TEXTURE0);
@@ -414,8 +415,8 @@ void SlabOperator::copy(DataTexturePair *source, GLuint target) {
     for(int depth = 0; depth < grid_depth; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, 0, depth);
 
-        // Interior
-        drawAllToTexture(copyShader, depth);
+        if(!drawAllToTexture(copyShader, depth))
+            return;
     }
 }
 
