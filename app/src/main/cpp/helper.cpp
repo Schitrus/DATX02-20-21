@@ -25,6 +25,10 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+// Debugging variable to enable or disable OpenGL error and status checking
+// Apparently the checks are very costly for performance, disabling should increase FPS
+static bool ENABLE_OPENGL_ERROR_CHECKING = false;
+
 
 using namespace glm;
 
@@ -208,6 +212,10 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 }
 
 void clearGLErrors(const char* tag) {
+    if(!ENABLE_OPENGL_ERROR_CHECKING){
+        return;
+    }
+
     int count = 0;
     GLenum error = glGetError();
     while(error != GL_NO_ERROR)
@@ -220,6 +228,10 @@ void clearGLErrors(const char* tag) {
 }
 
 bool checkGLError(const char* function) {
+    if(!ENABLE_OPENGL_ERROR_CHECKING){
+        return true;
+    }
+
     GLenum error = glGetError();
     if(error == GL_NO_ERROR)
         return true;
@@ -238,6 +250,10 @@ bool checkGLError(const char* function) {
 }
 
 bool checkFramebufferStatus(GLenum target, const char* tag) {
+    if(!ENABLE_OPENGL_ERROR_CHECKING){
+        return true;
+    }
+
     GLenum status = glCheckFramebufferStatus(target);
     if(status == 0)
         LOG_ERROR("%s used an invalid framebuffer type: %d", tag, target);
