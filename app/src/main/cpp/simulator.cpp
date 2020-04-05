@@ -119,10 +119,10 @@ void Simulator::velocityStep(float dt){
     slab.addSource(velocity, velocitySource, dt);
     // Advect
     slab.advection(velocity, velocity, dt);
-    //slab.diffuse(velocity, 20, 1.0, dt);
-    slab.dissipate(velocity, 0.9f, dt);
+    slab.diffuse(velocity, 20, 18e-6f, dt);
+    //slab.dissipate(velocity, 0.9f, dt);
     // Project
-    slab.projection(velocity);
+    slab.projection(velocity, 20);
 }
 
 void Simulator::temperatureStep(float dt) {
