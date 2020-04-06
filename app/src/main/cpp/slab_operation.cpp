@@ -168,7 +168,6 @@ int SlabOperator::initShaders() {
     // Advection Shaders
     success &= advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
     // Dissipate Shaders
-    success &= diffuseShader.load(  "shaders/simulation/slab.vert", "shaders/simulation/diffuse/diffuse.frag");
     success &= dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
     // Force Shaders
     success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");

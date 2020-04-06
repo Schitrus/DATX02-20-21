@@ -42,7 +42,7 @@ class SlabOperator{
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader diffuseShader, dissipateShader, setSourceShader;
+    Shader dissipateShader, setSourceShader;
     Shader copyShader;
 
 public:
