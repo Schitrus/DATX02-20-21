@@ -44,6 +44,7 @@ class SlabOperator{
     Shader addSourceShader, buoyancyShader, advectionShader;
     Shader dissipateShader, setSourceShader;
     Shader copyShader;
+    Shader vorticityShader;
 
 public:
     int init();
@@ -76,6 +77,9 @@ public:
 
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
+
+    // Apply rotational flows
+    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
 
 private:
     void initData();
