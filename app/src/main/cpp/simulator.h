@@ -63,6 +63,11 @@ private:
     // value is in unit
     void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos);
 
+    // fills the field with vectors pointing outward from the center,
+    // and that scale with the distance from the center
+    // scale is unit/meter from center
+    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos);
+
     bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 
     // might return negative values if there is no overlap

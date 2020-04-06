@@ -81,6 +81,7 @@ void Simulator::initData() {
 
     fillIntensive(density_source, 1.0f, start, end);
     fillIntensive(temperature_source, 800.0f, start, end);
+    //fillOutgoingVector(velocity_source, 1.0f, start, end);
 
     density = createScalarDataPair(grid_width, grid_height, grid_depth, density_field);
     createScalar3DTexture(&densitySource, grid_width, grid_height, grid_depth, density_source);
@@ -186,6 +187,29 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
 
                     int index = grid_width * (grid_height * z + y) + x;
                     field[index] = value*(overlappedArea/cellArea);
+                }
+            }
+        }
+    }
+}
+
+void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos) {
+    vec3 center = (minPos + maxPos)/2.0f;
+    float cellArea = (1 / meter_to_pixels) * (1 / meter_to_pixels);
+    for (int z = 0; z < grid_depth; z++) {
+        for (int y = 0; y < grid_height; y++) {
+            for (int x = 0; x < grid_width; x++) {
+                //Lower corner of cell in meters
+                vec3 pos = vec3(x, y, z)/meter_to_pixels;
+                //Upper corner of cell in meters
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1)/meter_to_pixels;
+                //Does this cell overlap with the fill area?
+                if(hasOverlap(pos, pos1, minPos, maxPos)) {
+                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+
+                    vec3 vector = pos - center;
+                    int index = grid_width * (grid_height * z + y) + x;
+                    field[index] = vector*(scale*overlappedArea/cellArea);
                 }
             }
         }
