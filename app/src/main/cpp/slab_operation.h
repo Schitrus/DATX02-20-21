@@ -36,13 +36,15 @@ class SlabOperator {
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
+    GLuint diffusionBTexture;
     DataTexturePair* divergence;
     DataTexturePair* jacobi;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader diffuseShader, dissipateShader, setSourceShader;
+    Shader dissipateShader, setSourceShader;
+    Shader copyShader;
 
 public:
     int init();
@@ -71,10 +73,10 @@ public:
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt);
+    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
-    void projection(DataTexturePair* velocity);
+    void projection(DataTexturePair* velocity, int iterationCount);
 
 private:
     void initData();
@@ -83,9 +85,9 @@ private:
     void initQuad();
     int initShaders();
 
-    // Performs a number of jacobi iterations of the divergence field into jacobi
-    //example value: iterationCount = 20
-    void jacobiIteration(int iterationCount);
+    // Performs a number of jacobi iterations with two field inputs
+    void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
+                int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData);
@@ -102,6 +104,8 @@ private:
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
+
+    void copy(DataTexturePair* source, GLuint target);
 
     // Binds the given data texture to the given slot
     // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture

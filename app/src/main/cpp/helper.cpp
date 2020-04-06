@@ -25,6 +25,11 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+// Debugging variable to enable or disable OpenGL error and status checking
+// Apparently the checks are very costly for performance, disabling should increase FPS
+// Enable/disable by commenting/uncommenting the line below
+//#define ENABLE_OPENGL_ERROR_CHECKING
+
 
 using namespace glm;
 
@@ -123,7 +128,7 @@ void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* 
 
     glGenTextures(1, id);
     glBindTexture(GL_TEXTURE_3D, *id);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, width, height, depth, 0, GL_RED, GL_FLOAT, data);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R16F, width, height, depth, 0, GL_RED, GL_FLOAT, data);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -208,6 +213,10 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 }
 
 void clearGLErrors(const char* tag) {
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return;
+#endif
+
     int count = 0;
     GLenum error = glGetError();
     while(error != GL_NO_ERROR)
@@ -220,6 +229,10 @@ void clearGLErrors(const char* tag) {
 }
 
 bool checkGLError(const char* function) {
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return true;
+#endif
+
     GLenum error = glGetError();
     if(error == GL_NO_ERROR)
         return true;
@@ -238,6 +251,10 @@ bool checkGLError(const char* function) {
 }
 
 bool checkFramebufferStatus(GLenum target, const char* tag) {
+#ifndef ENABLE_OPENGL_ERROR_CHECKING
+    return true;
+#endif
+
     GLenum status = glCheckFramebufferStatus(target);
     if(status == 0)
         LOG_ERROR("%s used an invalid framebuffer type: %d", tag, target);
