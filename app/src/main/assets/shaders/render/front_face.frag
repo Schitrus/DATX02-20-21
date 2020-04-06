@@ -30,7 +30,6 @@ const mat3 RGB = mat3(
 -0.9689f, 1.8758f, 0.0415,
 0.0557f, -0.2040f, 1.0570f);
 
-//todo RGB * inversM
 
 /*
 float xFit_1964(float lambda){
@@ -96,6 +95,10 @@ vec3 radiance_to_XYZ(float RadList[LambdaSamples]){
         XYZ.z += rad * zFit_1931(w);
 
     }
+  //  XYZ*= pow(10.0,-9.0);
+
+    XYZ /= (XYZ.x + XYZ.y + XYZ.z); //todo fix
+
     return XYZ;
 }
 
@@ -149,7 +152,7 @@ vec3 maxLMS(float maxTemp){ // todo move
 
     vec3 XYZ = radiance_to_XYZ(L);
 
-    XYZ /= (XYZ.x + XYZ.y + XYZ.z);
+  //  XYZ /= (XYZ.x + XYZ.y + XYZ.z); //todo fix
     return XYZ * M;
 }
 
@@ -168,6 +171,7 @@ void main() {
 
     float RadList[LambdaSamples];
     vec3 maxLMS = maxLMS(1500.0f); // todo ta in maxtemp
+    float ignition = 365.0f;
 
 
     for (float t = 0.0; t<=D; t+=h){
@@ -196,6 +200,7 @@ void main() {
     }
 
     outColor = color;
-   // outColor = vec4((maxLMS*inversM)*RGB,color.a);
-   // outColor = vec4(1.0f,1.0f,1.0f,color.a);
+    //outColor = vec4((maxLMS*inversM)*RGB,color.a);
+    // outColor = vec4(1.0f,1.0f,1.0f,color.a);
+    // outColor = vec4(color.r,1.0f,color.b,color.a);
 }

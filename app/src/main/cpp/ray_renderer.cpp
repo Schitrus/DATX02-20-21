@@ -171,7 +171,7 @@ void RayRenderer::step() {
 
     // back
     FBO->bind();
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -181,7 +181,7 @@ void RayRenderer::step() {
 
     // front
     FBO->unbind();
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
