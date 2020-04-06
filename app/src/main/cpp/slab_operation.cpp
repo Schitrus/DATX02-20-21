@@ -289,7 +289,7 @@ void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float 
 
     copy(velocity, diffusionBTexture);
 
-    float dx = 1.0f;
+    float dx = 1.0f/meter_to_pixels;
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
