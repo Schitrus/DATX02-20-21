@@ -168,7 +168,6 @@ int SlabOperator::initShaders() {
     // Advection Shaders
     success &= advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
     // Dissipate Shaders
-    success &= diffuseShader.load(  "shaders/simulation/slab.vert", "shaders/simulation/diffuse/diffuse.frag");
     success &= dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
     // Force Shaders
     success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
@@ -180,6 +179,7 @@ int SlabOperator::initShaders() {
     success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
     success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
+    // Utilities
     success &= copyShader.load("shaders/simulation/slab.vert", "shaders/simulation/copy.frag");
     return success;
 }
@@ -411,7 +411,9 @@ void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
 }
 
 void SlabOperator::copy(DataTexturePair *source, GLuint target) {
+    copyShader.use();
     source->bindData(GL_TEXTURE0);
+
     for(int depth = 0; depth < grid_depth; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, 0, depth);
 
