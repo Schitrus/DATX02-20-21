@@ -19,6 +19,7 @@
 #include <android/log.h>
 
 #include "helper.h"
+#include "simulator.h"
 
 #define LOG_TAG "Renderer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -29,6 +30,8 @@ using namespace glm;
 #define PI 3.14159265359f
 
 int SlabOperator::init() {
+
+    initSize(lowResSize, lowResScale/simulationScale);
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -430,11 +433,11 @@ void SlabOperator::bindData(GLuint dataTexture, GLenum textureSlot) {
 }
 
 
-bool SlabOperator::drawAllToTexture(Shader shader, int depth) {
+bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(0, 0, gridSize.x, gridSize.y);
+    glViewport(0, 0, size.x, size.y);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -443,11 +446,11 @@ bool SlabOperator::drawAllToTexture(Shader shader, int depth) {
     return checkGLError("slab operation");
 }
 
-bool SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
+bool SlabOperator::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(1, 1, gridSize.x - 2, gridSize.y - 2);
+    glViewport(1, 1, size.x - 2, size.y - 2);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -456,11 +459,11 @@ bool SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
     return checkGLError("slab operation");
 }
 
-bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
+bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
         return false;
     clearGLErrors("slab operation");
-    glViewport(0, 0, gridSize.x, gridSize.y);
+    glViewport(0, 0, size.x, size.y);
     glBindVertexArray(boundaryVAO);
     glLineWidth(1.99f);
 

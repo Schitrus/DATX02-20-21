@@ -13,24 +13,14 @@
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
 int Simulator::init(){
-    initSize(ivec3(1, 4, 1), 12, 60, 12.0f);
 
-    if (!slab.init() || !wavelet.init(lowerResolution, higherResolution))
+    if (!slab.init() || !wavelet.init(lowResSize, highResSize))
         return 0;
     initData();
 
     start_time = NOW;
     last_time = start_time;
     return 1;
-}
-
-void Simulator::initSize(ivec3 ratio, int lowerResolution, int higherResolution, float simulationScale) {
-    sizeRatio = ratio;
-    this->lowerResolution = lowerResolution;
-    this->higherResolution = higherResolution;
-    this->simulationScale = simulationScale;
-    slab.initSize(lowerResolutionSize(), lowerResolution/simulationScale);
-    wavelet.resize(lowerResolution);
 }
 
 void Simulator::update(){
@@ -55,17 +45,14 @@ void Simulator::update(){
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
     temperatureData = temperature->getDataTexture();
     densityData = density->getDataTexture();
-    ivec3 res = higherResolutionSize();
-    width = res.x;
-    height = res.y;
-    depth = res.z;
+    width = highResSize.x;
+    height = highResSize.y;
+    depth = highResSize.z;
 }
 
 void Simulator::initData() {
-    ivec3 lowRes = lowerResolutionSize();
-    ivec3 highRes = higherResolutionSize();
-    int lowerSize = lowRes.x * lowRes.y * lowRes.z;
-    int higherSize = highRes.x * highRes.y * highRes.z;
+    int lowerSize = lowResSize.x * lowResSize.y * lowResSize.z;
+    int higherSize = highResSize.x * highResSize.y * highResSize.z;
 
     float* density_field = new float[higherSize];
     float* density_source = new float[higherSize];
@@ -74,12 +61,12 @@ void Simulator::initData() {
     vec3* velocity_field = new vec3[lowerSize];
     vec3* velocity_source = new vec3[lowerSize];
 
-    clearField(density_field, 0.0f, highRes);
-    clearField(density_source, 0.0f, highRes);
-    clearField(temperature_field, 0.0f, highRes);
-    clearField(temperature_source, 0.0f, highRes);
-    clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowRes);
-    clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowRes);
+    clearField(density_field, 0.0f, highResSize);
+    clearField(density_source, 0.0f, highResSize);
+    clearField(temperature_field, 0.0f, highResSize);
+    clearField(temperature_source, 0.0f, highResSize);
+    clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowResSize);
+    clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowResSize);
 
     float radius = 1;
     float middleW = sizeRatio.x * simulationScale / 2;
@@ -87,19 +74,19 @@ void Simulator::initData() {
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    fillIntensive(density_source, 1.0f, start, end, highRes);
-    fillIntensive(temperature_source, 800.0f, start, end, highRes);
+    fillIntensive(density_source, 1.0f, start, end, highResSize);
+    fillIntensive(temperature_source, 800.0f, start, end, highResSize);
     //fillOutgoingVector(velocity_source, 1.0f, start, end);
 
-    density = createScalarDataPair(highRes, density_field);
-    createScalar3DTexture(&densitySource, highRes, density_source);
+    density = createScalarDataPair(highResSize, density_field);
+    createScalar3DTexture(&densitySource, highResSize, density_source);
 
-    temperature = createScalarDataPair(highRes, temperature_field);
-    createScalar3DTexture(&temperatureSource, highRes, temperature_source);
+    temperature = createScalarDataPair(highResSize, temperature_field);
+    createScalar3DTexture(&temperatureSource, highResSize, temperature_source);
 
-    lowerVelocity = createVectorDataPair(lowRes, velocity_field);
-    higherVelocity = createVectorDataPair(highRes, nullptr);
-    createVector3DTexture(&velocitySource, lowRes, velocity_source);
+    lowerVelocity = createVectorDataPair(lowResSize, velocity_field);
+    higherVelocity = createVectorDataPair(highResSize, nullptr);
+    createVector3DTexture(&velocitySource, lowResSize, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
@@ -245,12 +232,4 @@ float Simulator::getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     vec3 overlapMin = max(min1, min2);
     vec3 overlapMax = min(max1, max2);
     return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
-}
-
-ivec3 Simulator::lowerResolutionSize() {
-    return sizeRatio * lowerResolution;
-}
-
-ivec3 Simulator::higherResolutionSize() {
-    return sizeRatio * higherResolution;
 }

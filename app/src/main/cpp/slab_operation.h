@@ -117,15 +117,15 @@ private:
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
     // Returns true if the operation succeeded without an error
-    bool drawAllToTexture(Shader shader, int depth);
+    bool drawAllToTexture(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the interior
     // Returns true if the operation succeeded without an error
-    bool drawInteriorToTexture(Shader shader, int depth);
+    bool drawInteriorToTexture(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the boundary
     // Returns true if the operation succeeded without an error
-    bool drawBoundaryToTexture(Shader shader, int depth);
+    bool drawBoundaryToTexture(Shader shader, int depth, ivec3 size);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

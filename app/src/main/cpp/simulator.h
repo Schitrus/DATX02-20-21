@@ -15,11 +15,15 @@
 using std::chrono::time_point;
 using std::chrono::system_clock;
 
-class Simulator{
-    ivec3 sizeRatio;
-    int lowerResolution, higherResolution;  //Simulation resolutions is sizeRatio * ___Resolution
-    float simulationScale;   //simulation size in meters is sizeRatio * meterScale
+extern const ivec3 sizeRatio = ivec3(1, 4, 1);
+extern const int lowResScale = 12;
+extern const int highResScale = 60;
+extern const float simulationScale = 12.0f;
+extern const ivec3 lowResSize = sizeRatio * lowResScale;
+extern const ivec3 highResSize = sizeRatio * highResScale;
+extern const vec3 simulationSize = sizeRatio * simulationScale;   //simulation size in meter
 
+class Simulator{
     SlabOperator slab;
     WaveletTurbulence wavelet;
 
@@ -35,6 +39,7 @@ class Simulator{
     time_point<system_clock> start_time, last_time;
 
 public:
+
     int init();
 
     void update();
@@ -42,8 +47,6 @@ public:
     void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
 
 private:
-
-    void initSize(ivec3 ratio, int lowerResolution, int higherResolution, float simulationScale);
 
     void initData();
 
@@ -79,10 +82,6 @@ private:
 
     // might return negative values if there is no overlap
     float getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
-
-    ivec3 lowerResolutionSize();
-
-    ivec3 higherResolutionSize();
 
 };
 
