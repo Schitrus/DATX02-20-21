@@ -49,10 +49,11 @@ int SlabOperator::init() {
 
 }
 
-void SlabOperator::initSize(int width, int height, int depth){
+void SlabOperator::initSize(int width, int height, int depth, float meterToVoxels){
     grid_width = width + 2;
     grid_height = height + 2;
     grid_depth = depth + 2;
+    meter_to_voxels = meterToVoxels;
 }
 
 void SlabOperator::initData() {
@@ -239,6 +240,7 @@ void SlabOperator::finish() {
 void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     temperatureShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     temperature->bindData(GL_TEXTURE1);
@@ -287,7 +289,7 @@ void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float 
 
     copy(velocity, diffusionBTexture);
 
-    float dx = 1.0f;
+    float dx = 1.0f / meter_to_voxels;
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
@@ -309,6 +311,7 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
 void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
@@ -320,6 +323,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
