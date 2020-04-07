@@ -31,8 +31,6 @@ using namespace glm;
 
 int SlabOperator::init() {
 
-    initSize(lowResSize, lowResScale/simulationScale);
-
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -52,17 +50,13 @@ int SlabOperator::init() {
 
 }
 
-void SlabOperator::initSize(ivec3 size, float meterToVoxels){
-    gridSize = size + ivec3(2, 2, 2);
-    meter_to_voxels = meterToVoxels;
-}
-
 void SlabOperator::initData() {
-    createVector3DTexture(&diffusionBTexture, gridSize, (vec3*)nullptr);
+    createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
+    createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
 
-    divergence = createScalarDataPair(gridSize, (float*)nullptr);
+    divergence = createScalarDataPair(false, (float*)nullptr);
 
-    jacobi = createScalarDataPair(gridSize, (float*)nullptr);
+    jacobi = createScalarDataPair(false, (float*)nullptr);
 }
 
 void SlabOperator::initLine() {
@@ -189,15 +183,16 @@ int SlabOperator::initShaders() {
 void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     // Input data used in all steps
     data->bindData(GL_TEXTURE0);
+    ivec3 gridSize = data->getSize();
 
     boundaryShader.use();
-    boundaryShader.uniform3f("gridSize", gridSize.x, gridSize.y, gridSize.z);
+    boundaryShader.uniform3f("gridSize", gridSize);
     boundaryShader.uniform1f("scale", scale);
 
     for(int depth = 1; depth < gridSize.z - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        if(!drawBoundaryToTexture(boundaryShader, depth))
+        if(!drawBoundaryToTexture(boundaryShader, depth, gridSize))
             return;
     }
     // Front

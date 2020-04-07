@@ -9,15 +9,20 @@
 #include <glm/glm.hpp>
 
 #include "helper.h"
+#include "simulator.h"
 
 using namespace glm;
 
-void DataTexturePair::initScalarData(ivec3 size, float* data) {
+void DataTexturePair::initScalarData(bool isHighRes, float* data) {
+    this->isHighRes = isHighRes;
+    ivec3 size = getSize();
     createScalar3DTexture(&dataTexture, size, data);
     createScalar3DTexture(&resultTexture, size, (float*)nullptr);
 }
 
-void DataTexturePair::initVectorData(ivec3 size, vec3* data) {
+void DataTexturePair::initVectorData(bool isHighRes, vec3* data) {
+    this->isHighRes = isHighRes;
+    ivec3 size = getSize();
     createVector3DTexture(&dataTexture, size, data);
     createVector3DTexture(&resultTexture, size, (vec3*)nullptr);
 }
@@ -50,14 +55,18 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
-DataTexturePair* createScalarDataPair(ivec3 size, float* data) {
+ivec3 DataTexturePair::getSize() {
+    return isHighRes ? highResSize : lowResSize;
+}
+
+DataTexturePair* createScalarDataPair(bool isHighRes, float* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initScalarData(size, data);
+    texturePair->initScalarData(isHighRes, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(ivec3 size, vec3* data) {
+DataTexturePair* createVectorDataPair(bool isHighRes, vec3* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initVectorData(size, data);
+    texturePair->initVectorData(isHighRes, data);
     return texturePair;
 }

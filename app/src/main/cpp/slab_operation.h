@@ -13,9 +13,6 @@
 #include "data_texture_pair.h"
 
 class SlabOperator {
-    ivec3 gridSize;
-    //The number of voxels in a meter in the current resolution
-    float meter_to_voxels;
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -37,7 +34,7 @@ class SlabOperator {
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
-    GLuint diffusionBTexture;
+    GLuint diffusionBLRTexture, diffusionBHRTexture;
     DataTexturePair* divergence;
     DataTexturePair* jacobi;
 
@@ -49,8 +46,6 @@ class SlabOperator {
 
 public:
     int init();
-
-    void initSize(ivec3 size, float meterToVoxels);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();

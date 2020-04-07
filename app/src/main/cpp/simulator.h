@@ -19,9 +19,12 @@ extern const ivec3 sizeRatio = ivec3(1, 4, 1);
 extern const int lowResScale = 12;
 extern const int highResScale = 60;
 extern const float simulationScale = 12.0f;
-extern const ivec3 lowResSize = sizeRatio * lowResScale;
-extern const ivec3 highResSize = sizeRatio * highResScale;
-extern const vec3 simulationSize = sizeRatio * simulationScale;   //simulation size in meter
+// size of low resolution textures. This also includes the border of the texture
+extern const ivec3 lowResSize = sizeRatio * lowResScale + ivec3(2, 2, 2);
+// size of high resolution textures. This also includes the border of the texture
+extern const ivec3 highResSize = sizeRatio * highResScale + ivec3(2, 2, 2);
+// size of simulation space in meters. This does not include the border that is included in the resolution sizes
+extern const vec3 simulationSize = sizeRatio * simulationScale;
 
 class Simulator{
     SlabOperator slab;
