@@ -50,14 +50,14 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
-DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data) {
+DataTexturePair* createScalarDataPair(vec3 size, float* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initScalarData(width, height, depth, data);
+    texturePair->initScalarData(size.x, size.y, size.z, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data) {
+DataTexturePair* createVectorDataPair(vec3 size, vec3* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initVectorData(width, height, depth, data);
+    texturePair->initVectorData(size.x, size.y, size.z, data);
     return texturePair;
 }

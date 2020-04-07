@@ -44,9 +44,9 @@ class SlabOperator{
     Shader diffuseShader, dissipateShader, setSourceShader;
 
 public:
-    int init();
+    int init(vec3 size);
 
-    void resize(int width, int height, int depth);
+    void resize(vec3 size);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();

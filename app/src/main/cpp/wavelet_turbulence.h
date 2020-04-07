@@ -25,16 +25,29 @@ using namespace glm;
 class WaveletTurbulence {
     Shader turbulenceShader;
     Shader synthesisShader;
+    Shader energyShader;
+    Shader textureCoordShader;
 
-    DataTexturePair* noise;
+    DataTexturePair* wavelet_turbulence;
+    DataTexturePair* energy;
+    DataTexturePair* texture_coord;
 
     unsigned int band_min, band_max;
-    vec3 lowerResolution, higherResolution
+    GLuint VAO;
+    vec3 lowerResolution, higherResolution;
 public:
-    int init();
-    void fluidSynthesis();
+    int init(vec3 lowerResolution, vec3 higherResolution, GLuint VAO);
+
+    void advection(DataTexturePair* lowerVelocity, float dt);
+
+    void calcEnergy(DataTexturePair* lowerVelocity);
+
+    void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
     void turbulence();
-    double perlin(vec3(position));
+
+    double perlin(vec3 position);
+    double* generateTurbulence(vec3 size);
+    void generateWavelet();
 private:
     int initShaders();
 };

@@ -44,9 +44,9 @@ public:
 };
 
 // creates a scalar data pair with the given data
-DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data);
+DataTexturePair* createScalarDataPair(vec3 size, float* data);
 
 // create a vector data pair with the given data
-DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data);
+DataTexturePair* createVectorDataPair(vec3 size, vec3* data);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H

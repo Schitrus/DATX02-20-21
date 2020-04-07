@@ -4,23 +4,26 @@ precision highp sampler3D;
 
 layout(binding = 0) uniform sampler3D velocity_field;
 layout(binding = 1) uniform sampler3D turbulence_field;
+layout(binding = 2) uniform sampler3D texture_field;
+layout(binding = 3) uniform sampler3D energy_field;
 
 uniform vec3 gridSize;
 uniform int depth;
-uniform float band;
-uniform float min_band;
-uniform float dissipation_rate;
 
-out float outData;
+out vec3 outVelocity;
 
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    vec3 velocity = texture(velocity_field, vec3(position)/gridSize).xyz;
-    float turbulence = texture(turbulence_field, vec3(position)/gridSize).x;
-    float energy_spectrum = kolmogorov * pow(dissipation_rate, (2.0/3.0)) * pow(gridSize/2.0, -(5.0/3.0));
+    vec3 velocity         = texture(velocity_field, vec3(position)/gridSize).xyz;
 
-    velocity += pow(2.0, -(5.0/6.0)) * energy_spectrum * turbulence;
+    vec3 texture_coord    = texture(texture_field, vec3(position)/gridSize).xyz;
+
+    float turbulence      = texture(turbulence_field, texture_coord).x;
+
+    float energy_spectrum = texture(energy_field, vec3(position)/gridSize).x;
+
+    outVelocity = velocity + energy_spectrum * turbulence;
 
 }

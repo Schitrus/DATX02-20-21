@@ -14,8 +14,8 @@ using namespace glm;
 
 bool checkGlError(const char *funcName);
 
-void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* data);
-void createVector3DTexture(GLuint *id, int width, int height, int depth, vec3* data);
+void createScalar3DTexture(GLuint *id, vec3 size, float* data);
+void createVector3DTexture(GLuint *id, vec3 size, vec3* data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);

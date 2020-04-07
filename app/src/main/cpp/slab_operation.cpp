@@ -27,12 +27,12 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
-int SlabOperator::init() {
+int SlabOperator::init(vec3 size) {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    resize(12, 48, 12);
+    resize(size);
     initData();
 
     initQuad();
@@ -47,10 +47,10 @@ int SlabOperator::init() {
 }
 
 // todo resize is not really supported right now because we would need to resize textures too
-void SlabOperator::resize(int width, int height, int depth){
-    grid_width = width + 2;
-    grid_height = height + 2;
-    grid_depth = depth + 2;
+void SlabOperator::resize(vec3 size){
+    grid_width = size.x + 2;
+    grid_height = size.y + 2;
+    grid_depth = size.z + 2;
     FBO = new Framebuffer();
     FBO->create(grid_width, grid_height, true);
 }
@@ -174,7 +174,7 @@ int SlabOperator::initShaders() {
     success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     // Projection Shaders
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
-    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
+    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobian.frag");
     success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
     success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");

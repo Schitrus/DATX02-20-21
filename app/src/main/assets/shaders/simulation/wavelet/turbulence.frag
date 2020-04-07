@@ -15,7 +15,7 @@ void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    vec3 data = pow(2.0, band) * texture(data_field, vec3(position)).xyz;
+    vec3 data = pow(2.0, band) * vec3(position)/gridSize;
 
     vec3 internal_position = fract(data);
     vec3 external_position = floor(data);
@@ -42,5 +42,5 @@ void main() {
                                             internal_position.z);
     // turbulance
     float w = abs(p);
-    outData = w*pow(2.0,-(5.0/6.0)*(band - min_band));
+    outData = texelFetch(data_field, position, 0).x + w*pow(2.0,-(5.0/6.0)*(band - min_band));
 }

@@ -13,9 +13,11 @@
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
 int Simulator::init(){
-    if (!slab.init())
+    resize(vec3(12, 48, 12), vec3(60, 240, 60));
+
+    if (!slab.init(lowerResolution) || !wavelet.init(lowerResolution, higherResolution))
         return 0;
-    resize(12, 48, 12);
+
     initData();
 
     start_time = NOW;
@@ -23,11 +25,11 @@ int Simulator::init(){
     return 1;
 }
 
-void Simulator::resize(int width, int height, int depth) {
-    grid_width = width + 2;
-    grid_height = height + 2;
-    grid_depth = depth + 2;
-    slab.resize(width, height, depth);
+void Simulator::resize(vec3 lowerResolution, vec3 higherResolution) {
+    this->lowerResolution = lowerResolution;
+    this->higherResolution = higherResolution;
+    slab.resize(lowerResolution);
+    wavelet.resize(lowerResolution);
 }
 
 void Simulator::update(){
@@ -40,6 +42,8 @@ void Simulator::update(){
 
     velocityStep(delta_time);
 
+    waveletStep(delta_time);
+
     densityStep(delta_time);
 
     temperatureStep(delta_time);
@@ -50,86 +54,98 @@ void Simulator::update(){
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
     temperatureData = temperature->getDataTexture();
     densityData = density->getDataTexture();
-    width = grid_width;
-    height = grid_height;
-    depth = grid_depth;
+    width = higherResolution.x;
+    height = higherResolution.y;
+    depth = higherResolution.z;
 }
 
 void Simulator::initData() {
-    int size = grid_width * grid_height * grid_depth;
+    int lowerSize = lowerResolution.x * lowerResolution.y * lowerResolution.z;
+    int higherSize = higherResolution.x * higherResolution.y * higherResolution.z;
 
-    float* density_field = new float[size];
-    float* density_source = new float[size];
-    float* temperature_field = new float[size];
-    float* temperature_source = new float[size];
-    vec3* velocity_field = new vec3[size];
-    vec3* velocity_source = new vec3[size];
+    float* density_field = new float[higherSize];
+    float* density_source = new float[higherSize];
+    float* temperature_field = new float[higherSize];
+    float* temperature_source = new float[higherSize];
+    vec3* velocity_field = new vec3[lowerSize];
+    vec3* velocity_source = new vec3[lowerSize];
 
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
+    for (int z = 0; z < higherResolution.z; z++) {
+        for (int y = 0; y < higherResolution.y; y++) {
+            for (int x = 0; x < higherResolution.x; x++) {
+                int index = higherResolution.x * (higherResolution.y * z + y) + x;
                 density_field[index]      = 0.0f;
                 density_source[index]     = 0.0f;
                 temperature_field[index]  = 0.0f;
                 temperature_source[index] = 0.0f;
+
+            }
+        }
+    }
+
+    for (int z = 0; z < lowerResolution.z; z++) {
+        for (int y = 0; y < lowerResolution.y; y++) {
+            for (int x = 0; x < lowerResolution.x; x++) {
+                int index = lowerResolution.x * (lowerResolution.y * z + y) + x;
                 velocity_field[index]     = vec3(0, 0, 0);
                 velocity_source[index]    = vec3(0.0f, 0.0f, 0.0f);
             }
         }
     }
 
-    for (int z = 1; z < grid_depth - 1; z++) {
-        for (int y = 1; y < grid_height - 1; y++) {
-            for (int x = 1; x < grid_width - 1; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-
-    int z = grid_depth/2-2, y = 2, x = grid_width/2-2;
+    int z = higherResolution.z/2-2, y = 2, x = higherResolution.x/2-2;
 
     for(int zz = z; zz < z + 2; zz++) {
         for (int yy = y; yy < y + 2; yy++) {
             for (int xx = x; xx < x + 2; xx++) {
-                int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
+                int index = higherResolution.x * (higherResolution.y * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
                 temperature_source[index] = 800.0f;
-                velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
     }
 
-    density = createScalarDataPair(grid_width, grid_height, grid_depth, density_field);
-    createScalar3DTexture(&densitySource, grid_width, grid_height, grid_depth, density_source);
+    density = createScalarDataPair(higherResolution, density_field);
+    createScalar3DTexture(&densitySource, higherResolution, density_source);
 
-    temperature = createScalarDataPair(grid_width, grid_height, grid_depth, temperature_field);
-    createScalar3DTexture(&temperatureSource, grid_width, grid_height, grid_depth, temperature_source);
+    temperature = createScalarDataPair(higherResolution, temperature_field);
+    createScalar3DTexture(&temperatureSource, higherResolution, temperature_source);
 
-    velocity = createVectorDataPair(grid_width, grid_height, grid_depth, velocity_field);
-    createVector3DTexture(&velocitySource, grid_width, grid_height, grid_depth, velocity_source);
+    lowerVelocity = createVectorDataPair(lowerResolution, velocity_field);
+    higherVelocity = createVectorDataPair(higherResolution, nullptr);
+    createVector3DTexture(&velocitySource, lowerResolution, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab.buoyancy(velocity, temperature, dt, 1.0f);
-    slab.addSource(velocity, velocitySource, dt);
+    slab.buoyancy(lowerVelocity, temperature, dt, 1.0f);
+    slab.addSource(lowerVelocity, velocitySource, dt);
     // Advect
-    slab.advection(velocity, velocity, dt);
+    slab.advection(lowerVelocity, lowerVelocity, dt);
     //slab.diffuse(velocity, 20, 1.0, dt);
-    slab.dissipate(velocity, 0.9f, dt);
+    slab.dissipate(lowerVelocity, 0.9f, dt);
     // Project
-    slab.projection(velocity);
+    slab.projection(lowerVelocity);
+}
+
+void Simulator::waveletStep(float dt){
+    // Advect texture coordinates
+    wavelet.advection(lowerVelocity, dt);
+
+    wavelet.calcEnergy(lowerVelocity);
+
+    //wavelet.turbulence();
+
+    wavelet.fluidSynthesis(lowerVelocity, higherVelocity);
 }
 
 void Simulator::temperatureStep(float dt) {
 
     slab.setSource(temperature, temperatureSource, dt);
 
-    slab.temperatureOperation(temperature, velocity, dt);
+    slab.temperatureOperation(temperature, higherVelocity, dt);
 }
 
 void Simulator::densityStep(float dt){
@@ -138,7 +154,7 @@ void Simulator::densityStep(float dt){
     slab.dissipate(density, 0.9f, dt);
 
     // Advect
-    slab.fulladvection(velocity, density, dt);
+    slab.fulladvection(higherVelocity, density, dt);
 
     // Diffuse
     //slab.diffuse(density, 20, 1.0, dt);

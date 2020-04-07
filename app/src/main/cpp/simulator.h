@@ -10,16 +10,21 @@
 #include <chrono>
 
 #include "slab_operation.h"
+#include "wavelet_turbulence.h"
 
 using std::chrono::time_point;
 using std::chrono::system_clock;
 
 class Simulator{
-    int grid_width, grid_height, grid_depth;
+    vec3 lowerResolution, higherResolution;
+
     SlabOperator slab;
+    WaveletTurbulence wavelet;
+
     DataTexturePair* density;
     DataTexturePair* temperature;
-    DataTexturePair* velocity;
+    DataTexturePair* lowerVelocity;
+    DataTexturePair* higherVelocity;
 
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
@@ -30,7 +35,7 @@ class Simulator{
 public:
     int init();
 
-    void resize(int width, int height, int depth);
+    void resize(vec3 lowerResolution, vec3 higherResolution);
 
     void update();
 
@@ -42,6 +47,8 @@ private:
 
     // Performs one simulation step for velocity
     void velocityStep(float dt);
+
+    void waveletStep(float dt);
 
     void temperatureStep( float dt);
 
