@@ -7,7 +7,7 @@ layout(binding = 0) uniform sampler3D velocity_field;
 layout(binding = 1) uniform sampler3D data_field;
 
 uniform float dt;   //in seconds
-uniform float meterToPixels;  //conversion factor from meter to pixels
+uniform float meterToVoxels;  //conversion factor from meter to voxels
 uniform int depth;  //pixel layer that is updated
 uniform vec3 gridSize;  //grid size in pixels
 
@@ -23,7 +23,7 @@ void main() {
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;    //velocity in meters/second
 
     // Location of the previous position, back in time
-    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToPixels;  //position in pixels
+    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToVoxels;  //position in pixels
 
     // Set result to velocity at previous position
     // Note: Linear interpolation due to linear texture

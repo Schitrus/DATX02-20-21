@@ -16,7 +16,7 @@ using std::chrono::system_clock;
 
 class Simulator{
     int grid_width, grid_height, grid_depth;
-    float meter_to_pixels;
+    float meter_to_voxels;
 
     SlabOperator slab;
     DataTexturePair* density;

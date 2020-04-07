@@ -13,8 +13,9 @@
 #include "data_texture_pair.h"
 
 class SlabOperator {
-    int pixel_width, pixel_height, pixel_depth;
-    float meter_to_pixels;
+    int grid_width, grid_height, grid_depth;
+    //The number of voxels in a meter in the current resolution
+    float meter_to_voxels;
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -49,7 +50,7 @@ class SlabOperator {
 public:
     int init();
 
-    void initSize(int width, int height, int depth, float simulationWidth);
+    void initSize(int width, int height, int depth, float meterToVoxels);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();
