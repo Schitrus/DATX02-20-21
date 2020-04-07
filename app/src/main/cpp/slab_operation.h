@@ -13,7 +13,7 @@
 #include "data_texture_pair.h"
 
 class SlabOperator {
-    int grid_width, grid_height, grid_depth;
+    ivec3 gridSize;
     //The number of voxels in a meter in the current resolution
     float meter_to_voxels;
 
@@ -48,9 +48,9 @@ class SlabOperator {
     Shader copyShader;
 
 public:
-    int init(vec3 size);
+    int init();
 
-    void initSize(vec3 size, float meterToVoxels);
+    void initSize(ivec3 size, float meterToVoxels);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();

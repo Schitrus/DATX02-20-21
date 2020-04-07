@@ -16,8 +16,9 @@ using std::chrono::time_point;
 using std::chrono::system_clock;
 
 class Simulator{
-    vec3 lowerResolution, higherResolution;
-    float meter_to_voxels;
+    ivec3 sizeRatio;
+    int lowerResolution, higherResolution;  //Simulation resolutions is sizeRatio * ___Resolution
+    float simulationScale;   //simulation size in meters is sizeRatio * meterScale
 
     SlabOperator slab;
     WaveletTurbulence wavelet;
@@ -42,7 +43,7 @@ public:
 
 private:
 
-    void initSize(vec3 lowerResolution, vec3 higherResolution, float simulationWidth);
+    void initSize(ivec3 ratio, int lowerResolution, int higherResolution, float simulationScale);
 
     void initData();
 
@@ -59,25 +60,29 @@ private:
     // It will not perform the "add force" step, as that depends entirely on the individual substance
     void substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt);
 
-    void clearField(float* field, float value);
+    void clearField(float* field, float value, ivec3 gridSize);
 
-    void clearField(vec3* field, vec3 value);
+    void clearField(vec3* field, vec3 value, ivec3 gridSize);
 
     // density is in unit/m^3
-    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos);
+    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize);
 
     // value is in unit
-    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos);
+    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize);
 
     // fills the field with vectors pointing outward from the center,
     // and that scale with the distance from the center
     // scale is unit/meter from center
-    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos);
+    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos, ivec3 gridSize);
 
     bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 
     // might return negative values if there is no overlap
     float getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
+
+    ivec3 lowerResolutionSize();
+
+    ivec3 higherResolutionSize();
 
 };
 

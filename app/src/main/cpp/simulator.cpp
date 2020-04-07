@@ -13,9 +13,9 @@
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
 int Simulator::init(){
-    initSize(vec3(12, 48, 12), vec3(60, 240, 60));
+    initSize(ivec3(1, 4, 1), 12, 60, 12.0f);
 
-    if (!slab.init(lowerResolution) || !wavelet.init(lowerResolution, higherResolution))
+    if (!slab.init() || !wavelet.init(lowerResolution, higherResolution))
         return 0;
     initData();
 
@@ -24,11 +24,12 @@ int Simulator::init(){
     return 1;
 }
 
-void Simulator::resize(vec3 lowerResolution, vec3 higherResolution, float simulationWidth) {
+void Simulator::initSize(ivec3 ratio, int lowerResolution, int higherResolution, float simulationScale) {
+    sizeRatio = ratio;
     this->lowerResolution = lowerResolution;
     this->higherResolution = higherResolution;
-    meter_to_voxels = lowerResolution / simulationWidth;
-    slab.initSize(lowerResolution);
+    this->simulationScale = simulationScale;
+    slab.initSize(lowerResolutionSize(), lowerResolution/simulationScale);
     wavelet.resize(lowerResolution);
 }
 
@@ -54,14 +55,17 @@ void Simulator::update(){
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
     temperatureData = temperature->getDataTexture();
     densityData = density->getDataTexture();
-    width = higherResolution.x;
-    height = higherResolution.y;
-    depth = higherResolution.z;
+    ivec3 res = higherResolutionSize();
+    width = res.x;
+    height = res.y;
+    depth = res.z;
 }
 
 void Simulator::initData() {
-    int lowerSize = lowerResolution.x * lowerResolution.y * lowerResolution.z;
-    int higherSize = higherResolution.x * higherResolution.y * higherResolution.z;
+    ivec3 lowRes = lowerResolutionSize();
+    ivec3 highRes = higherResolutionSize();
+    int lowerSize = lowRes.x * lowRes.y * lowRes.z;
+    int higherSize = highRes.x * highRes.y * highRes.z;
 
     float* density_field = new float[higherSize];
     float* density_source = new float[higherSize];
@@ -70,32 +74,32 @@ void Simulator::initData() {
     vec3* velocity_field = new vec3[lowerSize];
     vec3* velocity_source = new vec3[lowerSize];
 
-    clearField(density_field, 0.0f);
-    clearField(density_source, 0.0f);
-    clearField(temperature_field, 0.0f);
-    clearField(temperature_source, 0.0f);
-    clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f));
-    clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f));
+    clearField(density_field, 0.0f, highRes);
+    clearField(density_source, 0.0f, highRes);
+    clearField(temperature_field, 0.0f, highRes);
+    clearField(temperature_source, 0.0f, highRes);
+    clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowRes);
+    clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowRes);
 
     float radius = 1;
-    float middleW = grid_width / meter_to_voxels / 2;
-    float middleD = grid_depth / meter_to_voxels / 2;
+    float middleW = sizeRatio.x * simulationScale / 2;
+    float middleD = sizeRatio.z * simulationScale / 2;
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    fillIntensive(density_source, 1.0f, start, end);
-    fillIntensive(temperature_source, 800.0f, start, end);
+    fillIntensive(density_source, 1.0f, start, end, highRes);
+    fillIntensive(temperature_source, 800.0f, start, end, highRes);
     //fillOutgoingVector(velocity_source, 1.0f, start, end);
 
-    density = createScalarDataPair(higherResolution, density_field);
-    createScalar3DTexture(&densitySource, higherResolution, density_source);
+    density = createScalarDataPair(highRes, density_field);
+    createScalar3DTexture(&densitySource, highRes, density_source);
 
-    temperature = createScalarDataPair(higherResolution, temperature_field);
-    createScalar3DTexture(&temperatureSource, higherResolution, temperature_source);
+    temperature = createScalarDataPair(highRes, temperature_field);
+    createScalar3DTexture(&temperatureSource, highRes, temperature_source);
 
-    lowerVelocity = createVectorDataPair(lowerResolution, velocity_field);
-    higherVelocity = createVectorDataPair(higherResolution, nullptr);
-    createVector3DTexture(&velocitySource, lowerResolution, velocity_source);
+    lowerVelocity = createVectorDataPair(lowRes, velocity_field);
+    higherVelocity = createVectorDataPair(highRes, nullptr);
+    createVector3DTexture(&velocitySource, lowRes, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
@@ -146,41 +150,41 @@ void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRa
     //todo use this for temperature and density when advection has been seperated from the heat dissipation part in the temperature shader
 }
 
-void Simulator::clearField(float* field, float value) {
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
+void Simulator::clearField(float* field, float value, ivec3 gridSize) {
+    for (int z = 0; z < gridSize.z; z++) {
+        for (int y = 0; y < gridSize.y; y++) {
+            for (int x = 0; x < gridSize.x; x++) {
+                int index = gridSize.x * (gridSize.y * z + y) + x;
                 field[index] = value;
             }
         }
     }
 }
 
-void Simulator::clearField(vec3* field, vec3 value) {
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
-                int index = grid_width * (grid_height * z + y) + x;
+void Simulator::clearField(vec3* field, vec3 value, ivec3 gridSize) {
+    for (int z = 0; z < gridSize.z; z++) {
+        for (int y = 0; y < gridSize.y; y++) {
+            for (int x = 0; x < gridSize.x; x++) {
+                int index = gridSize.x * (gridSize.y * z + y) + x;
                 field[index] = value;
             }
         }
     }
 }
 
-void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos) {
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
+void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
+    for (int z = 0; z < gridSize.z; z++) {
+        for (int y = 0; y < gridSize.y; y++) {
+            for (int x = 0; x < gridSize.x; x++) {
                 //Lower corner of cell in meters
-                vec3 pos = vec3(x, y, z) / meter_to_voxels;
+                vec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in meters
-                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
                     float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
 
-                    int index = grid_width * (grid_height * z + y) + x;
+                    int index = gridSize.x * (gridSize.y * z + y) + x;
                     field[index] = density*overlappedArea;
                 }
             }
@@ -188,20 +192,20 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
     }
 }
 
-void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos) {
-    float cellArea = (1 / meter_to_voxels) * (1 / meter_to_voxels);
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
+void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
+    float cellArea = (1 / simulationScale) * (1 / simulationScale);
+    for (int z = 0; z < gridSize.z; z++) {
+        for (int y = 0; y < gridSize.y; y++) {
+            for (int x = 0; x < gridSize.x; x++) {
                 //Lower corner of cell in meters
-                vec3 pos = vec3(x, y, z) / meter_to_voxels;
+                vec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in meters
-                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
                     float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
 
-                    int index = grid_width * (grid_height * z + y) + x;
+                    int index = gridSize.x * (gridSize.y * z + y) + x;
                     field[index] = value*(overlappedArea/cellArea);
                 }
             }
@@ -209,22 +213,22 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
     }
 }
 
-void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos) {
+void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
     vec3 center = (minPos + maxPos)/2.0f;
-    float cellArea = (1 / meter_to_voxels) * (1 / meter_to_voxels);
-    for (int z = 0; z < grid_depth; z++) {
-        for (int y = 0; y < grid_height; y++) {
-            for (int x = 0; x < grid_width; x++) {
+    float cellArea = (1 / simulationScale) * (1 / simulationScale);
+    for (int z = 0; z < gridSize.z; z++) {
+        for (int y = 0; y < gridSize.y; y++) {
+            for (int x = 0; x < gridSize.x; x++) {
                 //Lower corner of cell in meters
-                vec3 pos = vec3(x, y, z) / meter_to_voxels;
+                vec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in meters
-                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
                     float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
 
                     vec3 vector = pos - center;
-                    int index = grid_width * (grid_height * z + y) + x;
+                    int index = gridSize.x * (gridSize.y * z + y) + x;
                     field[index] = vector*(scale*overlappedArea/cellArea);
                 }
             }
@@ -241,4 +245,12 @@ float Simulator::getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     vec3 overlapMin = max(min1, min2);
     vec3 overlapMax = min(max1, max2);
     return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
+}
+
+ivec3 Simulator::lowerResolutionSize() {
+    return sizeRatio * lowerResolution;
+}
+
+ivec3 Simulator::higherResolutionSize() {
+    return sizeRatio * higherResolution;
 }

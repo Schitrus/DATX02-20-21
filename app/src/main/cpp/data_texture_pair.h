@@ -18,11 +18,11 @@ public:
 
     // initiates the textures as scalar fields with the given data
     // it ignores any previous textures, so only call init once per pair!
-    void initScalarData(int width, int height, int depth, float* data);
+    void initScalarData(ivec3 size, float* data);
 
     // initiates the textures as vector fields with the given data
     // it ignores any previous textures, so only call init once per pair!
-    void initVectorData(int width, int height, int depth, vec3* data);
+    void initVectorData(ivec3 size, vec3* data);
 
     // binds the data to the provided slot
     // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
@@ -44,9 +44,9 @@ public:
 };
 
 // creates a scalar data pair with the given data
-DataTexturePair* createScalarDataPair(vec3 size, float* data);
+DataTexturePair* createScalarDataPair(ivec3 size, float* data);
 
 // create a vector data pair with the given data
-DataTexturePair* createVectorDataPair(vec3 size, vec3* data);
+DataTexturePair* createVectorDataPair(ivec3 size, vec3* data);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H
