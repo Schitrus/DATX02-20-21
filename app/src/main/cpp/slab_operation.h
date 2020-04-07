@@ -9,14 +9,16 @@
 #include <gles3/gl31.h>
 
 #include "shader.h"
-#include "framebuffer.h"
+#include "simple_framebuffer.h"
 #include "data_texture_pair.h"
 
-class SlabOperator{
+class SlabOperator {
     int grid_width, grid_height, grid_depth;
+    //The number of voxels in a meter in the current resolution
+    float meter_to_voxels;
 
     // Framebuffer
-    Framebuffer* FBO;
+    SimpleFramebuffer* FBO;
 
     // result // todo remove
     GLuint texcoordsBuffer;
@@ -35,18 +37,20 @@ class SlabOperator{
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
+    GLuint diffusionBTexture;
     DataTexturePair* divergence;
-    DataTexturePair* gradient;
+    DataTexturePair* jacobi;
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader diffuseShader, dissipateShader, setSourceShader;
+    Shader dissipateShader, setSourceShader;
+    Shader copyShader;
 
 public:
     int init(vec3 size);
 
-    void resize(vec3 size);
+    void initSize(vec3 size, float meterToVoxels);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();
@@ -70,10 +74,10 @@ public:
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt);
+    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
-    void projection(DataTexturePair* velocity);
+    void projection(DataTexturePair* velocity, int iterationCount);
 
 private:
     void initData();
@@ -82,9 +86,9 @@ private:
     void initQuad();
     int initShaders();
 
-    // Performs a number of jacobi iterations of the divergence field into jacobi
-    //example value: iterationCount = 20
-    void jacobi(int iterationCount);
+    // Performs a number of jacobi iterations with two field inputs
+    void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
+                int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData);
@@ -102,24 +106,26 @@ private:
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
 
+    void copy(DataTexturePair* source, GLuint target);
+
     // Binds the given data texture to the given slot
     // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
     // Note that the active texture is left at the given slot after this!
     void bindData(GLuint dataTexture, GLenum textureSlot);
 
-    void drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
+    bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawAllToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawAllToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the interior
-    // Should be called after the relevant call to prepareResult()
-    void drawInteriorToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawInteriorToTexture(Shader shader, int depth);
 
     // Sets the depth uniform on the shader and then draws the boundary
-    // Should be called after the relevant call to prepareResult()
-    void drawBoundaryToTexture(Shader shader, int depth);
+    // Returns true if the operation succeeded without an error
+    bool drawBoundaryToTexture(Shader shader, int depth);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

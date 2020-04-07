@@ -17,6 +17,7 @@ using std::chrono::system_clock;
 
 class Simulator{
     vec3 lowerResolution, higherResolution;
+    float meter_to_voxels;
 
     SlabOperator slab;
     WaveletTurbulence wavelet;
@@ -35,13 +36,13 @@ class Simulator{
 public:
     int init();
 
-    void resize(vec3 lowerResolution, vec3 higherResolution);
-
     void update();
 
     void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
 
 private:
+
+    void initSize(vec3 lowerResolution, vec3 higherResolution, float simulationWidth);
 
     void initData();
 
@@ -57,6 +58,26 @@ private:
     // Performs the usual steps for moving substances using the fluid velocity field
     // It will not perform the "add force" step, as that depends entirely on the individual substance
     void substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt);
+
+    void clearField(float* field, float value);
+
+    void clearField(vec3* field, vec3 value);
+
+    // density is in unit/m^3
+    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos);
+
+    // value is in unit
+    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos);
+
+    // fills the field with vectors pointing outward from the center,
+    // and that scale with the distance from the center
+    // scale is unit/meter from center
+    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos);
+
+    bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
+
+    // might return negative values if there is no overlap
+    float getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 
 };
 

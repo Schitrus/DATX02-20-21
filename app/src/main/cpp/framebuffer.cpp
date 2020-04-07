@@ -6,23 +6,17 @@
 #include "framebuffer.h"
 
 #define LOG_TAG "framebuffer"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-void Framebuffer::create(int width, int height, bool simple) {
-    this->simple = simple;
+void Framebuffer::create(int width, int height) {
     this->width = width;
     this->height = height;
 
     // framebuffer configuration
     // -------------------------
-    glGenFramebuffers(1, &FBO);
-    bind();
-
-    if(simple){
-        unbind();
-        return;
-    }
+    FBO.init();
+    FBO.bind();
 
     // create a color attachment texture
     glGenTextures(1, &colorTextureTarget);
@@ -46,16 +40,22 @@ void Framebuffer::create(int width, int height, bool simple) {
 
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        ALOGE("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+        LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
     unbind();
 
+}
+
+void Framebuffer::clear() {
+    FBO.clear();
+    glDeleteTextures(1, &colorTextureTarget);
+    colorTextureTarget = 0;
+    glDeleteRenderbuffers(1, &RBO);
+    RBO = 0;
 }
 
 void Framebuffer::resize(int width, int height){
     this->width = width;
     this->height = height;
-    if(simple)
-        return;
     bind();
     // Allocate a texture
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
@@ -72,9 +72,9 @@ GLuint Framebuffer::texture(){
 }
 
 void Framebuffer::bind() {
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    FBO.bind();
 }
 
 void Framebuffer::unbind() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    FBO.unbind();
 }

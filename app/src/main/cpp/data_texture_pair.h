@@ -1,5 +1,5 @@
 //
-// Created by kirde on 2020-03-29.
+// Created by kirderf1 on 2020-03-29.
 //
 
 #ifndef DATX02_20_21_DATA_TEXTURE_PAIR_H
