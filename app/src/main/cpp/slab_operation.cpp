@@ -331,7 +331,7 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
     fullOperation(advectionShader, data);
 }
 void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
-    float dx = 1.0f;
+    float dx = 1.0f/meter_to_voxels;
     float alpha = -(dx*dx);
     float beta = 6.0f;
 
@@ -341,13 +341,14 @@ void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    createDivergence(velocity);
+    createDivergence(velocity, dx);
     jacobiIteration(jacobi, divergence->getDataTexture(), iterationCount, alpha, beta);
-    subtractGradient(velocity);
+    subtractGradient(velocity, dx);
 }
 
-void SlabOperator::createDivergence(DataTexturePair* vectorData) {
+void SlabOperator::createDivergence(DataTexturePair* vectorData, float dx) {
     divergenceShader.use();
+    divergenceShader.uniform1f("dh", dx);
     vectorData->bindData(GL_TEXTURE0);
 
     interiorOperation(divergenceShader, divergence);
@@ -370,8 +371,9 @@ void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTextur
 
 }
 
-void SlabOperator::subtractGradient(DataTexturePair* velocity){
+void SlabOperator::subtractGradient(DataTexturePair* velocity, float dx){
     gradientShader.use();
+    gradientShader.uniform1f("dh", dx);
     jacobi->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 

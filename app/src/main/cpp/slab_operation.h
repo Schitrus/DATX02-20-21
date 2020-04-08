@@ -91,10 +91,10 @@ private:
                 int iterationCount, float alpha, float beta);
 
     // Calculates the divergence of the vector field
-    void createDivergence(DataTexturePair* vectorData);
+    void createDivergence(DataTexturePair* vectorData, float dx);
 
     // Subtracts the gradient of the given scalar field from the target vector field
-    void subtractGradient(DataTexturePair* velocity);
+    void subtractGradient(DataTexturePair* velocity, float dx);
 
     void setBoundary(DataTexturePair* data, int scale);
 
