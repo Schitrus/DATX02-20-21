@@ -71,7 +71,6 @@ void WaveletTurbulence::generateWavelet(){
                 wavelet[wi].z = 0.5*((w2[ti-dx] - w2[ti+dx]) - (w3[ti-dy] - w3[ti+dy]));
             }
         }
-        LOGE("Generating noise: %f %", glm::round(100 * z/(float)highResSize.z));
     }
 
     wavelet_turbulence = createVectorDataPair(true, wavelet);
@@ -140,33 +139,31 @@ double WaveletTurbulence::perlin(vec3 position){
 
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
     textureCoordShader.use();
-    glViewport(0, 0, lowResSize.x, lowResSize.y);
 
     textureCoordShader.uniform3f("gridSize", lowResSize);
     textureCoordShader.uniform1f("dt", dt);
 
     lowerVelocity->bindData(GL_TEXTURE0);
 
-    slab->fullOperation(textureCoordShader, texture_coord);
+    slab->interiorOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.use();
     lowerVelocity->bindData(GL_TEXTURE0);
-    slab->fullOperation(energyShader, energy);
+    slab->interiorOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
     synthesisShader.use();
     synthesisShader.uniform3f("gridSize", highResSize);
-    synthesisShader.uniform1f("scale", length((vec3)highResSize)/length((vec3)lowResSize));
 
     lowerVelocity->bindData(GL_TEXTURE0);
     wavelet_turbulence->bindData(GL_TEXTURE1);
     texture_coord->bindData(GL_TEXTURE2);
     energy->bindData(GL_TEXTURE3);
 
-    slab->fullOperation(synthesisShader, higherVelocity);
+    slab->interiorOperation(synthesisShader, higherVelocity);
 
 }
 

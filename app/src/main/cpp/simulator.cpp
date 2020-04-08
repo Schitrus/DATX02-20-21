@@ -116,11 +116,11 @@ void Simulator::initData() {
 void Simulator::velocityStep(float dt){
     // Source
     slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    slab->addSource(lowerVelocity, velocitySource, dt);
+    //slab->addSource(lowerVelocity, velocitySource, dt);
     // Advect
     slab->advection(lowerVelocity, lowerVelocity, dt);
     slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
-    //slab.dissipate(velocity, 0.9f, dt);
+    //slab->dissipate(lowerVelocity, 0.9f, dt);
     // Project
     slab->projection(lowerVelocity, 20);
 }
@@ -130,8 +130,6 @@ void Simulator::waveletStep(float dt){
     wavelet->advection(lowerVelocity, dt);
 
     wavelet->calcEnergy(lowerVelocity);
-
-    //wavelet.turbulence();
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }

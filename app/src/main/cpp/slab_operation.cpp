@@ -239,7 +239,7 @@ void SlabOperator::heatDissipation(DataTexturePair* temperature, float dt){
     temperatureShader.uniform1f("dt", dt);
     temperature->bindData(GL_TEXTURE0);
 
-    fullOperation(temperatureShader, temperature);
+    interiorOperation(temperatureShader, temperature);
 
     //setBoundary(temperature, 0);
 }
@@ -262,7 +262,7 @@ void SlabOperator::setSource(DataTexturePair* data, GLuint& source, float dt) {
     data->bindData(GL_TEXTURE0);
     bindData(source, GL_TEXTURE1);
 
-    fullOperation(setSourceShader, data);
+    interiorOperation(setSourceShader, data);
 
     //setBoundary(data, 0);
 }
@@ -328,7 +328,7 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    fullOperation(advectionShader, data);
+    interiorOperation(advectionShader, data);
 }
 void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
     float dx = 1.0f;
