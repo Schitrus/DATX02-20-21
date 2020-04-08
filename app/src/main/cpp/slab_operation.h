@@ -77,6 +77,10 @@ public:
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
 
+    // Performs the operation with the set shader over the entirety of the given data.
+    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
+    void fullOperation(Shader shader, DataTexturePair* data);
+
 private:
     void initData();
 
@@ -100,9 +104,7 @@ private:
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void interiorOperation(Shader shader, DataTexturePair* data);
 
-    // Performs the operation with the set shader over the entirety of the given data.
-    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void fullOperation(Shader shader, DataTexturePair* data);
+
 
     // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);

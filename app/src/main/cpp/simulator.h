@@ -15,20 +15,20 @@
 using std::chrono::time_point;
 using std::chrono::system_clock;
 
-extern const ivec3 sizeRatio = ivec3(1, 4, 1);
-extern const int lowResScale = 12;
-extern const int highResScale = 60;
-extern const float simulationScale = 12.0f;
+extern const ivec3 sizeRatio;
+extern const int lowResScale;
+extern const int highResScale;
+extern const float simulationScale;
 // size of low resolution textures. This also includes the border of the texture
-extern const ivec3 lowResSize = ivec3(sizeRatio.x * lowResScale, sizeRatio.y * lowResScale, sizeRatio.z * lowResScale) + ivec3(2, 2, 2);
+extern const ivec3 lowResSize;
 // size of high resolution textures. This also includes the border of the texture
-extern const ivec3 highResSize = ivec3(sizeRatio.x * highResScale, sizeRatio.y * highResScale, sizeRatio.z * highResScale) + ivec3(2, 2, 2);
+extern const ivec3 highResSize;
 // size of simulation space in meters. This does not include the border that is included in the resolution sizes
-extern const vec3 simulationSize = vec3(sizeRatio.x * simulationScale, sizeRatio.y * simulationScale, sizeRatio.z * simulationScale);
+extern const vec3 simulationSize;
 
 class Simulator{
-    SlabOperator slab;
-    WaveletTurbulence wavelet;
+    SlabOperator* slab;
+    WaveletTurbulence* wavelet;
 
     DataTexturePair* density;
     DataTexturePair* temperature;
@@ -75,6 +75,8 @@ private:
 
     // value is in unit
     void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize);
+
+    void fillSphere(float* field, float value, vec3 center, float radius, vec3 size);
 
     // fills the field with vectors pointing outward from the center,
     // and that scale with the distance from the center

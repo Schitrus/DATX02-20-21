@@ -12,10 +12,29 @@
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
+const ivec3 sizeRatio = ivec3(1, 4, 1);
+const int lowResScale = 12;
+const int highResScale = 60;
+const float simulationScale = 12.0f;
+// size of low resolution textures. This also includes the border of the texture
+const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
+// size of high resolution textures. This also includes the border of the texture
+const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
+// size of simulation space in meters. This does not include the border that is included in the resolution sizes
+const vec3 simulationSize = simulationScale * vec3(sizeRatio);
+
+
 int Simulator::init(){
 
-    if (!slab.init() || !wavelet.init())
+    slab = new SlabOperator();
+    wavelet = new WaveletTurbulence();
+
+    if (!slab->init())
         return 0;
+
+    if(!wavelet->init(slab))
+        return 0;
+
     initData();
 
     start_time = NOW;
@@ -29,7 +48,9 @@ void Simulator::update(){
     float delta_time = DURATION(NOW, last_time);
     last_time = NOW;
 
-    slab.prepare();
+    slab->prepare();
+
+    //delta_time = 1/30.0f;
 
     velocityStep(delta_time);
 
@@ -39,7 +60,7 @@ void Simulator::update(){
 
     temperatureStep(delta_time);
 
-    slab.finish();
+    slab->finish();
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
@@ -68,15 +89,16 @@ void Simulator::initData() {
     clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowResSize);
     clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowResSize);
 
-    float radius = 1;
+    float radius = 16;
     float middleW = simulationSize.x / 2;
     float middleD = simulationSize.z / 2;
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    fillIntensive(density_source, 1.0f, start, end, highResSize);
-    fillIntensive(temperature_source, 800.0f, start, end, highResSize);
-    //fillOutgoingVector(velocity_source, 1.0f, start, end);
+    vec3 center = vec3(0.5f, 0.1f, 0.5f) * vec3(highResSize);
+
+    fillSphere(density_source, 1.0f, center, radius, highResSize);
+    fillSphere(temperature_source, 800.0f, center, radius, highResSize);
 
     density = createScalarDataPair(true, density_field);
     createScalar3DTexture(&densitySource, highResSize, density_source);
@@ -93,46 +115,46 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab.buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    slab.addSource(lowerVelocity, velocitySource, dt);
+    slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
+    slab->addSource(lowerVelocity, velocitySource, dt);
     // Advect
-    slab.advection(lowerVelocity, lowerVelocity, dt);
-    slab.diffuse(lowerVelocity, 20, 18e-6f, dt);
+    slab->advection(lowerVelocity, lowerVelocity, dt);
+    slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab.dissipate(velocity, 0.9f, dt);
     // Project
-    slab.projection(lowerVelocity, 20);
+    slab->projection(lowerVelocity, 20);
 }
 
 void Simulator::waveletStep(float dt){
     // Advect texture coordinates
-    wavelet.advection(lowerVelocity, dt);
+    wavelet->advection(lowerVelocity, dt);
 
-    wavelet.calcEnergy(lowerVelocity);
+    wavelet->calcEnergy(lowerVelocity);
 
     //wavelet.turbulence();
 
-    wavelet.fluidSynthesis(lowerVelocity, higherVelocity);
+    wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }
 
 void Simulator::temperatureStep(float dt) {
 
-    slab.setSource(temperature, temperatureSource, dt);
+    slab->setSource(temperature, temperatureSource, dt);
 
-    slab.advection(lowerVelocity, temperature, dt);
+    slab->advection(higherVelocity, temperature, dt);
 
-    slab.heatDissipation(temperature, dt);
+    slab->heatDissipation(temperature, dt);
 }
 
 void Simulator::densityStep(float dt){
     // addForce
-    slab.setSource(density, densitySource, dt);
-    slab.dissipate(density, 0.9f, dt);
+    slab->setSource(density, densitySource, dt);
+    //slab->dissipate(density, 0.9f, dt);
 
     // Advect
-    slab.fulladvection(higherVelocity, density, dt);
+    slab->fulladvection(higherVelocity, density, dt);
 
     // Diffuse
-    //slab.diffuse(density, 20, 1.0, dt);
+    //slab->diffuse(density, 20, 1.0, dt);
 }
 
 void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {
@@ -164,14 +186,14 @@ void Simulator::clearField(vec3* field, vec3 value, ivec3 gridSize) {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
-    ivec3 borderSize = ivec3(1, 1, 1);
+    vec3 borderSize = vec3(1, 1, 1);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
                 //Lower corner of cell in simulation space
-                vec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
+                ivec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
                 //Upper corner of cell in simulation space
-                vec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
+                ivec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
                     float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
@@ -186,14 +208,14 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
 
 void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
     float cellArea = (1 / simulationScale) * (1 / simulationScale);
-    ivec3 borderSize = ivec3(1, 1, 1);
+    vec3 borderSize = vec3(1, 1, 1);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
                 //Lower corner of cell in simulation space
-                vec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
+                ivec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
                 //Upper corner of cell in simulation space
-                vec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
+                ivec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
                     float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
@@ -209,7 +231,7 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
 void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
     vec3 center = (minPos + maxPos)/2.0f;
     float cellArea = (1 / simulationScale) * (1 / simulationScale);
-    ivec3 borderSize = ivec3(1, 1, 1);
+    vec3 borderSize = vec3(1, 1, 1);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
@@ -229,6 +251,22 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
         }
     }
 }
+
+
+void Simulator::fillSphere(float* field, float value, vec3 center, float radius, vec3 size){
+    for(int z = 0; z < size.z; z++){
+        for(int y = 0; y < size.y; y++){
+            for(int x = 0; x < size.x; x++){
+                int index = size.x * (size.y * z + y) + x;
+                vec3 pos = vec3(x,y,z);
+                if(distance(pos, center) <= radius)
+                    field[index] = value;
+            }
+        }
+    }
+}
+
+
 #pragma clang diagnostic pop
 
 bool Simulator::hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {

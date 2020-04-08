@@ -14,6 +14,7 @@
 #include <android/log.h>
 #include "shader.h"
 #include "data_texture_pair.h"
+#include "slab_operation.h"
 
 #define LOG_TAG "Renderer"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -23,6 +24,9 @@ using namespace glm;
 #define PI 3.14159265359f
 
 class WaveletTurbulence {
+
+    SlabOperator* slab;
+
     Shader turbulenceShader;
     Shader synthesisShader;
     Shader energyShader;
@@ -33,7 +37,6 @@ class WaveletTurbulence {
     DataTexturePair* texture_coord;
 
     unsigned int band_min, band_max;
-    GLuint VAO;
 
     vec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
                        {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
@@ -43,7 +46,7 @@ class WaveletTurbulence {
     double* angles;
 
 public:
-    int init(GLuint VAO);
+    int init(SlabOperator* slab);
 
     void advection(DataTexturePair* lowerVelocity, float dt);
 

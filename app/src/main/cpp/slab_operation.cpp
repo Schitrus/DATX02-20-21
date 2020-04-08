@@ -171,7 +171,7 @@ int SlabOperator::initShaders() {
     success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     // Projection Shaders
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
-    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobian.frag");
+    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
     success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
     success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
@@ -444,7 +444,7 @@ bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
-
+    //shader.use();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     return checkGLError("slab operation");
 }

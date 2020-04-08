@@ -12,21 +12,20 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(GLuint VAO) {
+int WaveletTurbulence::init(SlabOperator* slab) {
+    this->slab = slab;
     if(!initShaders())
         return 0;
 
     texture_coord = createScalarDataPair(false, nullptr);
     energy = createScalarDataPair(true, nullptr);
 
-    band_min = log2(min(min(lowResSize.x, lowResSize.y), lowResSize.z));
-    band_max = log2(max(max(highResSize.x, highResSize.y), highResSize.z)/2);
+    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
+    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    this->VAO = VAO;
+    //generateWavelet();
 
-    generateAngles();
-
-    generateWavelet();
+    wavelet_turbulence = createVectorDataPair(true, nullptr);
 
     return 1;
 }
@@ -48,9 +47,12 @@ int WaveletTurbulence::initShaders() {
 }
 
 void WaveletTurbulence::generateWavelet(){
-    double* w1 = generateTurbulence(highResSize + vec3(2.0));
-    double* w2 = generateTurbulence(highResSize + vec3(2.0));
-    double* w3 = generateTurbulence(highResSize + vec3(2.0));
+
+    generateAngles();
+
+    double* w1 = generateTurbulence(highResSize + ivec3(2.0));
+    double* w2 = generateTurbulence(highResSize + ivec3(2.0));
+    double* w3 = generateTurbulence(highResSize + ivec3(2.0));
 
 
     vec3* wavelet = new vec3[int(highResSize.x*highResSize.y*highResSize.z)];
@@ -67,10 +69,10 @@ void WaveletTurbulence::generateWavelet(){
                 wavelet[wi].z = 0.5*((w2[ti-dx] - w2[ti+dx]) - (w3[ti-dy] - w3[ti+dy]));
             }
         }
-        LOGE("Generating noise: %f %", round(100 * z/highResSize.z));
+        LOGE("Generating noise: %f %", glm::round(100 * z/(float)highResSize.z));
     }
 
-    wavelet_turbulence = createVectorDataPair(highResSize, wavelet);
+    wavelet_turbulence = createVectorDataPair(true, wavelet);
     delete[] wavelet, w1, w2, w3;
 }
 
@@ -132,62 +134,34 @@ double WaveletTurbulence::perlin(vec3 position){
 }
 
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
-    glBindVertexArray(VAO);
     textureCoordShader.use();
     glViewport(0, 0, lowResSize.x, lowResSize.y);
 
-    for(int depth = 0; depth < lowResSize.z; depth++){
-        textureCoordShader.uniform3f("gridSize", lowResSize);
-        textureCoordShader.uniform1f("dt", dt);
-        textureCoordShader.uniform1i("depth", depth);
+    textureCoordShader.uniform3f("gridSize", lowResSize);
+    textureCoordShader.uniform1f("dt", dt);
 
-        lowerVelocity->bindData(GL_TEXTURE0);
+    lowerVelocity->bindData(GL_TEXTURE0);
 
-        texture_coord->bindToFramebuffer(depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    texture_coord->operationFinished();
+    slab->fullOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
-    glBindVertexArray(VAO);
     energyShader.use();
-    glViewport(0, 0, lowResSize.x, lowResSize.y);
-
-    for(int depth = 0; depth < lowResSize.z; depth++){
-
-        energyShader.uniform1i("depth", depth);
-
-        lowerVelocity->bindData(GL_TEXTURE0);
-
-        energy->bindToFramebuffer(depth);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    }
-    energy->operationFinished();
+    lowerVelocity->bindData(GL_TEXTURE0);
+    slab->fullOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
-    glBindVertexArray(VAO);
     synthesisShader.use();
-    glViewport(0, 0, highResSize.x, highResSize.y);
+    synthesisShader.uniform3f("gridSize", highResSize);
+    synthesisShader.uniform1f("scale", length((vec3)highResSize)/length((vec3)lowResSize));
 
-    for(int depth = 0; depth < highResSize.z; depth++){
-        synthesisShader.uniform3f("gridSize", highResSize);
-        synthesisShader.uniform1i("depth", depth);
-        synthesisShader.uniform1f("scale", length(highResSize)/length(lowResSize));
+    lowerVelocity->bindData(GL_TEXTURE0);
+    wavelet_turbulence->bindData(GL_TEXTURE1);
+    texture_coord->bindData(GL_TEXTURE2);
+    energy->bindData(GL_TEXTURE3);
 
-        higherVelocity->bindToFramebuffer(depth);
+    slab->fullOperation(synthesisShader, higherVelocity);
 
-        lowerVelocity->bindData(GL_TEXTURE0);
-        wavelet_turbulence->bindData(GL_TEXTURE1);
-        texture_coord->bindData(GL_TEXTURE2);
-        energy->bindData(GL_TEXTURE3);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    higherVelocity->operationFinished();
 }
 
