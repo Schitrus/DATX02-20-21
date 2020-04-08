@@ -14,7 +14,7 @@
 
 int Simulator::init(){
 
-    if (!slab.init() || !wavelet.init(lowResSize, highResSize))
+    if (!slab.init() || !wavelet.init())
         return 0;
     initData();
 

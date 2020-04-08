@@ -5,24 +5,22 @@
 #include "wavelet_turbulence.h"
 
 #include "slab_operation.h"
+#include "simulator.h"
 
 #define LOG_TAG "wavelet"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(vec3 lowerResolution, vec3 higherResolution, GLuint VAO) {
+int WaveletTurbulence::init(GLuint VAO) {
     if(!initShaders())
         return 0;
 
-    this->lowerResolution = lowerResolution;
-    this->higherResolution = higherResolution;
+    texture_coord = createScalarDataPair(false, nullptr);
+    energy = createScalarDataPair(true, nullptr);
 
-    texture_coord = createScalarDataPair(lowerResolution.x, lowerResolution.y, lowerResolution.z, nullptr);
-    energy = createScalarDataPair(lowerResolution.x, lowerResolution.y, lowerResolution.z, nullptr);
-
-    band_min = log2(min(min(lowerResolution.x, lowerResolution.y), lowerResolution.z));
-    band_max = log2(max(max(higherResolution.x, higherResolution.y), higherResolution.z)/2);
+    band_min = log2(min(min(lowResSize.x, lowResSize.y), lowResSize.z));
+    band_max = log2(max(max(highResSize.x, highResSize.y), highResSize.z)/2);
 
     this->VAO = VAO;
 
@@ -50,29 +48,29 @@ int WaveletTurbulence::initShaders() {
 }
 
 void WaveletTurbulence::generateWavelet(){
-    double* w1 = generateTurbulence(higherResolution + vec3(2.0));
-    double* w2 = generateTurbulence(higherResolution + vec3(2.0));
-    double* w3 = generateTurbulence(higherResolution + vec3(2.0));
+    double* w1 = generateTurbulence(highResSize + vec3(2.0));
+    double* w2 = generateTurbulence(highResSize + vec3(2.0));
+    double* w3 = generateTurbulence(highResSize + vec3(2.0));
 
 
-    vec3* wavelet = new vec3[int(higherResolution.x*higherResolution.y*higherResolution.z)];
+    vec3* wavelet = new vec3[int(highResSize.x*highResSize.y*highResSize.z)];
     int dx = 1;
-    int dy = higherResolution.x;
-    int dz = higherResolution.y*higherResolution.x;
-    for(int z = 0; z < higherResolution.z; z++) {
-        for (int y = 0; y < higherResolution.y; y++) {
-            for (int x = 0; x < higherResolution.x; x++) {
-                int wi  = z*higherResolution.y*higherResolution.x + y*higherResolution.x + x;
+    int dy = highResSize.x;
+    int dz = highResSize.y*highResSize.x;
+    for(int z = 0; z < highResSize.z; z++) {
+        for (int y = 0; y < highResSize.y; y++) {
+            for (int x = 0; x < highResSize.x; x++) {
+                int wi  = z*highResSize.y*highResSize.x + y*highResSize.x + x;
                 int ti  = wi+dz+dy+dx;
                 wavelet[wi].x = 0.5*((w1[ti-dy] - w1[ti+dy]) - (w2[ti-dz] - w2[ti+dz]));
                 wavelet[wi].y = 0.5*((w3[ti-dz] - w3[ti+dz]) - (w1[ti-dx] - w1[ti+dx]));
                 wavelet[wi].z = 0.5*((w2[ti-dx] - w2[ti+dx]) - (w3[ti-dy] - w3[ti+dy]));
             }
         }
-        LOGE("Generating noise: %f %", round(100 * z/higherResolution.z));
+        LOGE("Generating noise: %f %", round(100 * z/highResSize.z));
     }
 
-    wavelet_turbulence = createVectorDataPair(higherResolution.x, higherResolution.y, higherResolution.z, wavelet);
+    wavelet_turbulence = createVectorDataPair(highResSize, wavelet);
     delete[] wavelet, w1, w2, w3;
 }
 
@@ -136,10 +134,10 @@ double WaveletTurbulence::perlin(vec3 position){
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
     glBindVertexArray(VAO);
     textureCoordShader.use();
-    glViewport(0, 0, lowerResolution.x, lowerResolution.y);
+    glViewport(0, 0, lowResSize.x, lowResSize.y);
 
-    for(int depth = 0; depth < lowerResolution.z; depth++){
-        textureCoordShader.uniform3f("gridSize", lowerResolution.x, lowerResolution.y, lowerResolution.z);
+    for(int depth = 0; depth < lowResSize.z; depth++){
+        textureCoordShader.uniform3f("gridSize", lowResSize);
         textureCoordShader.uniform1f("dt", dt);
         textureCoordShader.uniform1i("depth", depth);
 
@@ -155,9 +153,9 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     glBindVertexArray(VAO);
     energyShader.use();
-    glViewport(0, 0, lowerResolution.x, lowerResolution.y);
+    glViewport(0, 0, lowResSize.x, lowResSize.y);
 
-    for(int depth = 0; depth < lowerResolution.z; depth++){
+    for(int depth = 0; depth < lowResSize.z; depth++){
 
         energyShader.uniform1i("depth", depth);
 
@@ -174,12 +172,12 @@ void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
     glBindVertexArray(VAO);
     synthesisShader.use();
-    glViewport(0, 0, higherResolution.x, higherResolution.y);
+    glViewport(0, 0, highResSize.x, highResSize.y);
 
-    for(int depth = 0; depth < higherResolution.z; depth++){
-        synthesisShader.uniform3f("gridSize", higherResolution.x, higherResolution.y, higherResolution.z);
+    for(int depth = 0; depth < highResSize.z; depth++){
+        synthesisShader.uniform3f("gridSize", highResSize);
         synthesisShader.uniform1i("depth", depth);
-        synthesisShader.uniform1f("scale", length(higherResolution)/length(lowerResolution));
+        synthesisShader.uniform1f("scale", length(highResSize)/length(lowResSize));
 
         higherVelocity->bindToFramebuffer(depth);
 
