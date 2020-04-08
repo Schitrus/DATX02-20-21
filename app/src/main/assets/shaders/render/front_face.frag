@@ -17,7 +17,7 @@ void main() {
    direction = normalize(direction);
    vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
    color.a = 0.0f;
-   float h = 1.0/256.0;         // todo fix
+   float h = 1.0/128.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
    vec3 blackbody = vec3(1.0,0.3,0.0);
@@ -27,17 +27,17 @@ void main() {
            //vec4 samp = vec4(baseColor, texture(volume, tr).x);
            //vec4 samp = texelFetch(volume, iv, 0);
            float samp = clamp(texture(pressure, tr).x, 0.0, 1.0);
-           float lum = clamp((texture(temperature, tr).x-50.0)/200.0, 0.0, 1.0);
-           float rad = clamp((texture(temperature, tr).x-200.0)/400.0, 0.0, 1.0);
+           float lum = clamp((texture(temperature, tr).x-50.0)/50.0, 0.0, 1.0);
+           float rad = clamp((texture(temperature, tr).x-100.0)/300.0, 0.0, 1.0);
            float hot = clamp((texture(temperature, tr).x-400.0)/800.0, 0.0, 1.0);
            //calculate Alpha
 
            //accumulating collor and alpha using under operator
-           vec3 baseColor = mix(mix(mix(vec3(0.1,0.1,0.1),
+           vec3 baseColor = mix(mix(mix(vec3(0.05,0.05,0.05),
                                         vec3(1.0,0.4,0.2), lum),
                                         vec3(1.0,1.0,0.5), rad),
                                         vec3(0.25,0.5,1.0), hot);
-           float alpha = pow(samp,4.0);
+           float alpha = 10.0*samp*h;
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)
               color.rgb = ( color.rgb * color.a + baseColor * alpha * (1.0 - color.a))/over;
@@ -48,6 +48,7 @@ void main() {
            tr += rayStep;
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
+        color.a = pow(color.a, 0.1);
         outColor = color;
      //   outColor = vec4(1.0f,1.0f,1.0f,color.a); // todo
 }
