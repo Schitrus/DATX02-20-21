@@ -173,6 +173,8 @@ int SlabOperator::initShaders() {
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
     success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
     success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
+    // Vorticity Shaders
+    success &= vorticityShader.load("shaders/simulation/slab.vert", "shaders/simulation/vorticity/vorticity.frag");
     // Temperature Shaders
     success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
     // Utilities
@@ -345,6 +347,15 @@ void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
     createDivergence(velocity);
     jacobiIteration(jacobi, divergence->getDataTexture(), iterationCount, alpha, beta);
     subtractGradient(velocity);
+}
+
+void SlabOperator::vorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
+    vorticityShader.use();
+    vorticityShader.uniform1f("dt", dt);
+    vorticityShader.uniform1f("vorticityScale", vorticityScale);
+
+    velocity->bindData(GL_TEXTURE0);
+    interiorOperation(vorticityShader, velocity);
 }
 
 void SlabOperator::createDivergence(DataTexturePair* vectorData) {
