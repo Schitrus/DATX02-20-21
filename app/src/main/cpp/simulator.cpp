@@ -161,6 +161,8 @@ void Simulator::clearField(vec3* field, vec3 value, ivec3 gridSize) {
     }
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
     ivec3 borderSize = ivec3(1, 1, 1);
     for (int z = 1; z < gridSize.z - 1; z++) {
@@ -227,6 +229,7 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
         }
     }
 }
+#pragma clang diagnostic pop
 
 bool Simulator::hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     return max1.x > min2.x && max1.y > min2.y && max1.z > min2.z

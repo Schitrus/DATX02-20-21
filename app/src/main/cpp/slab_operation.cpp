@@ -271,7 +271,10 @@ void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperat
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
     buoyancyShader.uniform1f("scale", scale);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "err_typecheck_invalid_operands"
     buoyancyShader.uniform3f("temp_border_width", vec3(1)/vec3(temperature->getSize()));
+#pragma clang diagnostic pop
     buoyancyShader.uniform3f("gridSize", velocity->getSize());
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
