@@ -46,6 +46,10 @@ int SlabOperator::init(vec3 size) {
 
 }
 
+GLuint SlabOperator::getVAO(){
+    return interiorVAO;
+}
+
 // todo resize is not really supported right now because we would need to resize textures too
 void SlabOperator::resize(vec3 size){
     grid_width = size.x + 2;
@@ -174,45 +178,45 @@ int SlabOperator::initShaders() {
     success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     // Projection Shaders
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
-    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobian.frag");
+    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
     success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Temperature Shaders
     success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
     return success;
 }
 
-void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
+void SlabOperator::setBoundary(DataTexturePair* data, vec3 size, int scale) {
     // Input data used in all steps
     data->bindData(GL_TEXTURE0);
 
     boundaryShader.use();
-    boundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    boundaryShader.uniform3f("gridSize", size.x, size.y, size.z);
     boundaryShader.uniform1f("scale", scale);
 
     for(int depth = 1; depth < grid_depth - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        drawBoundaryToTexture(boundaryShader, depth);
+        drawBoundaryToTexture(boundaryShader, size, depth);
     }
     // Front
-    drawFrontOrBackBoundary(data, scale, 0);
+    drawFrontOrBackBoundary(data, size, scale, 0);
 
     //Back
-    drawFrontOrBackBoundary(data, scale, grid_depth - 1);
+    drawFrontOrBackBoundary(data, size, scale, grid_depth - 1);
 
     data->operationFinished();
 }
 
-void SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
+void SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, vec3 size, int scale, int depth){
     data->bindToFramebuffer(depth);
 
     FABBoundaryShader.use();
-    FABBoundaryShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    FABBoundaryShader.uniform3f("gridSize", size.x, size.y, size.z);
     FABBoundaryShader.uniform1f("scale", scale);
-    drawBoundaryToTexture(FABBoundaryShader,  depth);
+    drawBoundaryToTexture(FABBoundaryShader, size, depth);
 
     FABInteriorShader.use();
-    drawInteriorToTexture(FABInteriorShader, depth);
+    drawInteriorToTexture(FABInteriorShader, size, depth);
 }
 
 void SlabOperator::prepare() {
@@ -229,54 +233,55 @@ void SlabOperator::finish() {
     FBO->unbind();
 }
 
-void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
+void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, vec3 lowerResolution, vec3 higherResolution, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
-    temperatureShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    temperatureShader.uniform3f("gridSize", lowerResolution.x, lowerResolution.y, lowerResolution.z);
     velocity->bindData(GL_TEXTURE0);
     temperature->bindData(GL_TEXTURE1);
 
-    fullOperation(temperatureShader, temperature);
+    fullOperation(temperatureShader, higherResolution, temperature);
 
     //setBoundary(temperature, 0);
 }
 
 // todo how (if in any way) should the two source functions apply border restrictions
-void SlabOperator::addSource(DataTexturePair* data, GLuint& source, float dt) {
+void SlabOperator::addSource(DataTexturePair* data, vec3 size, GLuint& source, float dt) {
     addSourceShader.use();
     addSourceShader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
     bindData(source, GL_TEXTURE1);
 
-    interiorOperation(addSourceShader, data);
+    interiorOperation(addSourceShader, size, data);
 
     //setBoundary(data, 0);
 }
 
-void SlabOperator::setSource(DataTexturePair* data, GLuint& source, float dt) {
+void SlabOperator::setSource(DataTexturePair* data, vec3 size, GLuint& source, float dt) {
     setSourceShader.use();
     setSourceShader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
     bindData(source, GL_TEXTURE1);
 
-    fullOperation(setSourceShader, data);
+    fullOperation(setSourceShader, size, data);
 
     //setBoundary(data, 0);
 }
 
-void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale){
+void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, vec3 size, float dt, float scale){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
     buoyancyShader.uniform1f("scale", scale);
+    buoyancyShader.uniform3f("gridSize", size.x, size.y, size.z);
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
-    interiorOperation(buoyancyShader, velocity);
+    interiorOperation(buoyancyShader, size, velocity);
 
     //setBoundary(velocity, 1);
 }
 
-void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diffusionConstant, float dt) {
+void SlabOperator::diffuse(DataTexturePair* data, vec3 size, int iterationCount, float diffusionConstant, float dt) {
     diffuseShader.use();
     diffuseShader.uniform1f("dt", dt);
     diffuseShader.uniform1f("diffusion_constant", diffusionConstant);
@@ -284,62 +289,62 @@ void SlabOperator::diffuse(DataTexturePair* data, int iterationCount, float diff
     for(int i = 0; i < iterationCount; i++) {
         /*bind3DTexture0(data);
         bind3DTexture1(result); // todo fix bad data. Should not use a texture as both input and output*/
-        interiorOperation(diffuseShader, data);
+        interiorOperation(diffuseShader, size, data);
 
         //setBoundary(data, 0);
     }
 }
 
-void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float dt){
+void SlabOperator::dissipate(DataTexturePair* data, vec3 size, float dissipationRate, float dt){
 
     dissipateShader.use();
     dissipateShader.uniform1f("dt", dt);
     dissipateShader.uniform1f("dissipation_rate", dissipationRate);
     data->bindData(GL_TEXTURE0);
 
-    interiorOperation(dissipateShader, data);
+    interiorOperation(dissipateShader, size, data);
 
     //setBoundary(data, 0);
 }
 
-void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
+void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, vec3 lowerResolution, vec3 higherResolution, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    advectionShader.uniform3f("gridSize", lowerResolution.x, lowerResolution.y, lowerResolution.z);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    interiorOperation(advectionShader, data);
+    interiorOperation(advectionShader, higherResolution, data);
 
     //setBoundary(data, 0);
 }
-void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
+void SlabOperator::fulladvection(DataTexturePair* velocity, vec3 lowerResolution, vec3 higherResolution, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
+    advectionShader.uniform3f("gridSize", lowerResolution.x, lowerResolution.y, lowerResolution.z);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    fullOperation(advectionShader, data);
+    fullOperation(advectionShader, higherResolution, data);
 }
-void SlabOperator::projection(DataTexturePair* velocity){
-    createDivergence(velocity);
-    jacobi(20);
-    subtractGradient(velocity);
+void SlabOperator::projection(DataTexturePair* velocity, vec3 size){
+    createDivergence(velocity, size);
+    jacobi(size, 20);
+    subtractGradient(velocity, size);
 }
 
-void SlabOperator::createDivergence(DataTexturePair* vectorData) {
+void SlabOperator::createDivergence(DataTexturePair* vectorData, vec3 size) {
     divergenceShader.use();
     vectorData->bindData(GL_TEXTURE0);
 
-    interiorOperation(divergenceShader, divergence);
+    interiorOperation(divergenceShader, size, divergence);
 
     //setBoundary(divergence, 0);
 }
 
-void SlabOperator::jacobi(int iterationCount) {
+void SlabOperator::jacobi(vec3 size, int iterationCount) {
 
-    for(int depth = 0; depth < grid_depth; depth++){
+    for(int depth = 0; depth < size.z; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gradient->getDataTexture(), 0, depth);
         glClear(GL_COLOR_BUFFER_BIT);
     }
@@ -349,18 +354,18 @@ void SlabOperator::jacobi(int iterationCount) {
 
     for(int i = 0; i < iterationCount; i++) {
         gradient->bindData(GL_TEXTURE0);
-        interiorOperation(jacobiShader, gradient);
+        interiorOperation(jacobiShader, size, gradient);
 
         //setBoundary(gradient, 0);
     }
 }
 
-void SlabOperator::subtractGradient(DataTexturePair* velocity){
+void SlabOperator::subtractGradient(DataTexturePair* velocity, vec3 size){
     gradientShader.use();
     gradient->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
-    interiorOperation(gradientShader, velocity);
+    interiorOperation(gradientShader, size, velocity);
 
   //  setBoundary(velocity, 0);
 }
@@ -379,22 +384,22 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 */
 
 
-void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 1; depth < grid_depth - 1; depth++){
+void SlabOperator::interiorOperation(Shader shader, vec3 size, DataTexturePair* data) {
+    for(int depth = 1; depth < size.z - 1; depth++){
         data->bindToFramebuffer(depth);
 
         // Interior
-        drawInteriorToTexture(shader, depth);
+        drawInteriorToTexture(shader, size, depth);
     }
     data->operationFinished();
 }
 
-void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
-    for(int depth = 0; depth < grid_depth; depth++){
+void SlabOperator::fullOperation(Shader shader, vec3 size, DataTexturePair* data) {
+    for(int depth = 0; depth < size.z; depth++){
         data->bindToFramebuffer(depth);
 
         // Interior
-        drawAllToTexture(shader, depth);
+        drawAllToTexture(shader, size, depth);
     }
     data->operationFinished();
 }
@@ -405,8 +410,8 @@ void SlabOperator::bindData(GLuint dataTexture, GLenum textureSlot) {
 }
 
 
-void SlabOperator::drawAllToTexture(Shader shader, int depth) {
-    glViewport(0, 0, grid_width, grid_height);
+void SlabOperator::drawAllToTexture(Shader shader, vec3 size, int depth) {
+    glViewport(0, 0, size.x, size.y);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -414,8 +419,8 @@ void SlabOperator::drawAllToTexture(Shader shader, int depth) {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
-    glViewport(1, 1, grid_width - 2, grid_height - 2);
+void SlabOperator::drawInteriorToTexture(Shader shader, vec3 size, int depth) {
+    glViewport(1, 1, size.x - 2, size.y - 2);
     glBindVertexArray(interiorVAO);
 
     shader.uniform1i("depth", depth);
@@ -423,8 +428,8 @@ void SlabOperator::drawInteriorToTexture(Shader shader, int depth) {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void SlabOperator::drawBoundaryToTexture(Shader shader, int depth) {
-    glViewport(0, 0, grid_width, grid_height);
+void SlabOperator::drawBoundaryToTexture(Shader shader, vec3 size, int depth) {
+    glViewport(0, 0, size.x, size.y);
     glBindVertexArray(boundaryVAO);
     glLineWidth(1.99f);
 

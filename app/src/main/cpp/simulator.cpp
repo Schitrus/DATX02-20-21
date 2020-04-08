@@ -15,7 +15,12 @@
 int Simulator::init(){
     resize(vec3(12, 48, 12), vec3(60, 240, 60));
 
-    if (!slab.init(lowerResolution) || !wavelet.init(lowerResolution, higherResolution))
+    if (!slab.init(lowerResolution))
+        return 0;
+
+    GLuint VAO = slab.getVAO();
+
+    if(!wavelet.init(lowerResolution, higherResolution, VAO))
         return 0;
 
     initData();
@@ -29,7 +34,7 @@ void Simulator::resize(vec3 lowerResolution, vec3 higherResolution) {
     this->lowerResolution = lowerResolution;
     this->higherResolution = higherResolution;
     slab.resize(lowerResolution);
-    wavelet.resize(lowerResolution);
+    //wavelet.resize(lowerResolution, higherResolution);
 }
 
 void Simulator::update(){
@@ -70,6 +75,8 @@ void Simulator::initData() {
     vec3* velocity_field = new vec3[lowerSize];
     vec3* velocity_source = new vec3[lowerSize];
 
+    vec3 center = vec3(higherResolution.x/2, higherResolution.y/6, higherResolution.z/2);
+
     for (int z = 0; z < higherResolution.z; z++) {
         for (int y = 0; y < higherResolution.y; y++) {
             for (int x = 0; x < higherResolution.x; x++) {
@@ -78,6 +85,11 @@ void Simulator::initData() {
                 density_source[index]     = 0.0f;
                 temperature_field[index]  = 0.0f;
                 temperature_source[index] = 0.0f;
+
+                if(distance(vec3(x,y,z), center) <= 12.0){
+                    density_source[index] = 1.0f;
+                    temperature_source[index] = 800.0f;
+                }
 
             }
         }
@@ -93,26 +105,15 @@ void Simulator::initData() {
         }
     }
 
-    int z = higherResolution.z/2-2, y = 2, x = higherResolution.x/2-2;
 
-    for(int zz = z; zz < z + 2; zz++) {
-        for (int yy = y; yy < y + 2; yy++) {
-            for (int xx = x; xx < x + 2; xx++) {
-                int index = higherResolution.x * (higherResolution.y * (zz) + (yy)) + (xx);
-                density_source[index] = 1.0f;
-                temperature_source[index] = 800.0f;
-            }
-        }
-    }
-
-    density = createScalarDataPair(higherResolution, density_field);
+    density = createScalarDataPair(higherResolution.x, higherResolution.y, higherResolution.z, density_field);
     createScalar3DTexture(&densitySource, higherResolution, density_source);
 
-    temperature = createScalarDataPair(higherResolution, temperature_field);
+    temperature = createScalarDataPair(higherResolution.x, higherResolution.y, higherResolution.z, temperature_field);
     createScalar3DTexture(&temperatureSource, higherResolution, temperature_source);
 
-    lowerVelocity = createVectorDataPair(lowerResolution, velocity_field);
-    higherVelocity = createVectorDataPair(higherResolution, nullptr);
+    lowerVelocity = createVectorDataPair(lowerResolution.x, lowerResolution.y, lowerResolution.z, velocity_field);
+    higherVelocity = createVectorDataPair(higherResolution.x, higherResolution.y, higherResolution.z, nullptr);
     createVector3DTexture(&velocitySource, lowerResolution, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
@@ -120,14 +121,14 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab.buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    slab.addSource(lowerVelocity, velocitySource, dt);
+    slab.buoyancy(lowerVelocity, temperature, lowerResolution, dt, 1.0f);
+    slab.addSource(lowerVelocity, lowerResolution, velocitySource, dt);
     // Advect
-    slab.advection(lowerVelocity, lowerVelocity, dt);
+    slab.advection(lowerVelocity, lowerVelocity, lowerResolution, lowerResolution, dt);
     //slab.diffuse(velocity, 20, 1.0, dt);
-    slab.dissipate(lowerVelocity, 0.9f, dt);
+    slab.dissipate(lowerVelocity, lowerResolution, 0.9f, dt);
     // Project
-    slab.projection(lowerVelocity);
+    slab.projection(lowerVelocity, lowerResolution);
 }
 
 void Simulator::waveletStep(float dt){
@@ -136,25 +137,23 @@ void Simulator::waveletStep(float dt){
 
     wavelet.calcEnergy(lowerVelocity);
 
-    //wavelet.turbulence();
-
     wavelet.fluidSynthesis(lowerVelocity, higherVelocity);
 }
 
 void Simulator::temperatureStep(float dt) {
 
-    slab.setSource(temperature, temperatureSource, dt);
+    slab.setSource(temperature, higherResolution, temperatureSource, dt);
 
-    slab.temperatureOperation(temperature, higherVelocity, dt);
+    slab.temperatureOperation(temperature, higherVelocity, higherResolution, higherResolution, dt);
 }
 
 void Simulator::densityStep(float dt){
     // addForce
-    slab.setSource(density, densitySource, dt);
-    slab.dissipate(density, 0.9f, dt);
+    slab.setSource(density, higherResolution, densitySource, dt);
+    slab.dissipate(density, higherResolution, 0.9f, dt);
 
     // Advect
-    slab.fulladvection(higherVelocity, density, dt);
+    slab.fulladvection(higherVelocity, higherResolution, higherResolution, density, dt);
 
     // Diffuse
     //slab.diffuse(density, 20, 1.0, dt);

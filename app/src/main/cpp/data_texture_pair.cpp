@@ -13,13 +13,13 @@
 using namespace glm;
 
 void DataTexturePair::initScalarData(int width, int height, int depth, float* data) {
-    createScalar3DTexture(&dataTexture, width, height, depth, data);
-    createScalar3DTexture(&resultTexture, width, height, depth, (float*)nullptr);
+    createScalar3DTexture(&dataTexture, vec3(width, height, depth), data);
+    createScalar3DTexture(&resultTexture, vec3(width, height, depth), (float*)nullptr);
 }
 
 void DataTexturePair::initVectorData(int width, int height, int depth, vec3* data) {
-    createVector3DTexture(&dataTexture, width, height, depth, data);
-    createVector3DTexture(&resultTexture, width, height, depth, (vec3*)nullptr);
+    createVector3DTexture(&dataTexture, vec3(width, height, depth), data);
+    createVector3DTexture(&resultTexture, vec3(width, height, depth), (vec3*)nullptr);
 }
 
 void DataTexturePair::bindData(GLenum textureSlot) {
@@ -50,14 +50,14 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
-DataTexturePair* createScalarDataPair(vec3 size, float* data) {
+DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initScalarData(size.x, size.y, size.z, data);
+    texturePair->initScalarData(width, height, depth, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(vec3 size, vec3* data) {
+DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initVectorData(size.x, size.y, size.z, data);
+    texturePair->initVectorData(width, height, depth, data);
     return texturePair;
 }
