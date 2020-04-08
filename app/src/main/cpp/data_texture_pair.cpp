@@ -55,8 +55,16 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
+bool DataTexturePair::isUsingHighRes() {
+    return isHighRes;
+}
+
 ivec3 DataTexturePair::getSize() {
     return isHighRes ? highResSize : lowResSize;
+}
+
+float DataTexturePair::toVoxelScaleFactor() {
+    return (isHighRes ? highResScale : lowResScale)/simulationScale;
 }
 
 DataTexturePair* createScalarDataPair(bool isHighRes, float* data) {

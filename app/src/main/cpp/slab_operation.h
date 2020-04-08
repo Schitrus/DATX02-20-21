@@ -101,6 +101,7 @@ private:
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
 
+    // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
 
     // Binds the given data texture to the given slot

@@ -20,7 +20,7 @@ void main() {
     ivec3 position = ivec3(gl_FragCoord.xy, depth); //position in pixels
 
     // Get velocity at a specific position in the velocity field
-    vec3 velocity = texelFetch(velocity_field, position, 0).xyz;    //velocity in meters/second
+    vec3 velocity = texture(velocity_field, position / gridSize).xyz;    //velocity in meters/second
 
     // Location of the previous position, back in time
     vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToVoxels;  //position in pixels

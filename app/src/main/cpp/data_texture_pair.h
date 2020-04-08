@@ -43,7 +43,11 @@ public:
     // returns the result texture. Try to avoid usage of this by calling bindToFramebuffer() instead
     GLuint getResultTexture();
 
+    bool isUsingHighRes();
+
     ivec3 getSize();
+
+    float toVoxelScaleFactor();
 };
 
 // creates a scalar data pair with the given data
