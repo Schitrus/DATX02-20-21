@@ -55,12 +55,15 @@ public:
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
+
     // Performs advection on the given data
+    // The data and the velocity should use the same resolution for the shader to work correctly
     void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
     void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
-    void temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt);
+    // Performs heat dissipation on the given temperature field
+    void heatDissipation(DataTexturePair* temperature, float dt);
 
     // Adds the given source field multiplied by dt to the target field
     void addSource(DataTexturePair* data, GLuint& source, float dt);

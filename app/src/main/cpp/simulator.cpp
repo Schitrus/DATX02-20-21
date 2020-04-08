@@ -118,7 +118,9 @@ void Simulator::temperatureStep(float dt) {
 
     slab.setSource(temperature, temperatureSource, dt);
 
-    slab.temperatureOperation(temperature, higherVelocity, dt);
+    slab.advection(lowerVelocity, temperature, dt);
+
+    slab.heatDissipation(temperature, dt);
 }
 
 void Simulator::densityStep(float dt){

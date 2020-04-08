@@ -234,7 +234,7 @@ void SlabOperator::finish() {
     FBO->unbind();
 }
 
-void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
+void SlabOperator::heatDissipation(DataTexturePair* temperature, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
     temperature->bindData(GL_TEXTURE0);
