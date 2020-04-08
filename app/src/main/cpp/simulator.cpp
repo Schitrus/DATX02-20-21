@@ -14,7 +14,7 @@
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 12;
-const int highResScale = 60;
+const int highResScale = lowResScale*5;
 const float simulationScale = 12.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
@@ -50,7 +50,7 @@ void Simulator::update(){
 
     slab->prepare();
 
-    delta_time = 1/30.0f;
+    delta_time = 1/20.0f;
 
     velocityStep(delta_time);
 
@@ -95,9 +95,9 @@ void Simulator::initData() {
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    vec3 center = vec3(0.5f, 0.1f, 0.5f) * vec3(highResSize);
+    vec3 center = vec3(0.5f, 0.2f, 0.5f) * vec3(highResSize);
 
-    fillSphere(density_source, 1.0f, center, radius, highResSize);
+    fillSphere(density_source, 0.8f, center, radius, highResSize);
     fillSphere(temperature_source, 800.0f, center, radius, highResSize);
     fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
@@ -121,7 +121,7 @@ void Simulator::velocityStep(float dt){
     // Advect
     slab->advection(lowerVelocity, lowerVelocity, dt);
 
-    slab->vorticity(lowerVelocity, 2.0f, dt);
+    slab->vorticity(lowerVelocity, 5.0f, dt);
 
     //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab->dissipate(lowerVelocity, 0.9f, dt);
