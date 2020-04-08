@@ -8,6 +8,7 @@ layout(binding = 2) uniform sampler3D texture_field;
 layout(binding = 3) uniform sampler3D energy_field;
 
 uniform vec3 gridSize;
+uniform float scale;
 uniform int depth;
 
 out vec3 outVelocity;
@@ -20,10 +21,10 @@ void main() {
 
     vec3 texture_coord    = texture(texture_field, vec3(position)/gridSize).xyz;
 
-    float turbulence      = texture(turbulence_field, texture_coord).x;
+    vec3 turbulence      = texture(turbulence_field, texture_coord).xyz;
 
     float energy_spectrum = texture(energy_field, vec3(position)/gridSize).x;
 
-    outVelocity = velocity + energy_spectrum * turbulence;
+    outVelocity = scale * (velocity + energy_spectrum * turbulence);
 
 }

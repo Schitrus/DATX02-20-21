@@ -6,13 +6,13 @@ layout(binding = 0) uniform sampler3D velocity_field;
 
 uniform int depth;
 
-out vec3 outEnergy;
+out float outEnergy;
 
 void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    vec3 velocity_vector = texelFetch(velocity_field, position).xyz;
+    vec3 velocity_vector = texelFetch(velocity_field, position, 0).xyz;
 
     float velocity = length(velocity_vector);
 

@@ -19,7 +19,7 @@ void main() {
     float ambient_temperature = 0.0f;
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
-    float temperature = texture(temperature_field, position / gridSize).x;
+    float temperature = texture(temperature_field, (vec3(position)+vec3(0.5))/gridSize).x;
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
     vec3 vertical_direction = vec3(0.0f, 1.0f, 0.0f);

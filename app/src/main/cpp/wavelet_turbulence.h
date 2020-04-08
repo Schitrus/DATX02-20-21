@@ -35,6 +35,14 @@ class WaveletTurbulence {
     unsigned int band_min, band_max;
     GLuint VAO;
     vec3 lowerResolution, higherResolution;
+
+    vec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
+                       {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
+
+    int num_angles;
+
+    double* angles;
+
 public:
     int init(vec3 lowerResolution, vec3 higherResolution, GLuint VAO);
 
@@ -43,13 +51,15 @@ public:
     void calcEnergy(DataTexturePair* lowerVelocity);
 
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
-    void turbulence();
 
-    double perlin(vec3 position);
-    double* generateTurbulence(vec3 size);
-    void generateWavelet();
 private:
     int initShaders();
+
+    void generateAngles();
+    void generateWavelet();
+    double* generateTurbulence(vec3 size);
+    double perlin(vec3 position);
+
 };
 
 
