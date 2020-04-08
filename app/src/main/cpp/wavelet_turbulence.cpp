@@ -7,6 +7,8 @@
 #include "slab_operation.h"
 #include "simulator.h"
 
+#include <stdio.h>
+
 #define LOG_TAG "wavelet"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -73,7 +75,10 @@ void WaveletTurbulence::generateWavelet(){
     }
 
     wavelet_turbulence = createVectorDataPair(true, wavelet);
-    delete[] wavelet, w1, w2, w3;
+    delete[] wavelet;
+    delete[] w1;
+    delete[] w2;
+    delete[] w3;
 }
 
 double* WaveletTurbulence::generateTurbulence(vec3 size) {

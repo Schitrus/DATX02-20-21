@@ -50,7 +50,7 @@ void Simulator::update(){
 
     slab->prepare();
 
-    //delta_time = 1/30.0f;
+    delta_time = 1/30.0f;
 
     velocityStep(delta_time);
 
