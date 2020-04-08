@@ -99,6 +99,7 @@ void Simulator::initData() {
 
     fillSphere(density_source, 1.0f, center, radius, highResSize);
     fillSphere(temperature_source, 800.0f, center, radius, highResSize);
+    fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
     createScalar3DTexture(&densitySource, highResSize, density_source);
@@ -116,10 +117,12 @@ void Simulator::initData() {
 void Simulator::velocityStep(float dt){
     // Source
     slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    //slab->addSource(lowerVelocity, velocitySource, dt);
+    slab->addSource(lowerVelocity, velocitySource, dt);
     // Advect
     slab->advection(lowerVelocity, lowerVelocity, dt);
-    slab->vorticity(lowerVelocity, 10.0f, dt);
+
+    slab->vorticity(lowerVelocity, 2.0f, dt);
+
     //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab->dissipate(lowerVelocity, 0.9f, dt);
     // Project
@@ -133,6 +136,8 @@ void Simulator::waveletStep(float dt){
     wavelet->calcEnergy(lowerVelocity);
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
+
+    slab->vorticity(higherVelocity, 8.0f, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
@@ -147,10 +152,11 @@ void Simulator::temperatureStep(float dt) {
 void Simulator::densityStep(float dt){
     // addForce
     slab->setSource(density, densitySource, dt);
-    //slab->dissipate(density, 0.9f, dt);
 
     // Advect
     slab->fulladvection(higherVelocity, density, dt);
+
+    slab->dissipate(density, 2.0f, dt);
 
     // Diffuse
     //slab->diffuse(density, 20, 1.0, dt);
@@ -253,6 +259,19 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
 
 
 void Simulator::fillSphere(float* field, float value, vec3 center, float radius, vec3 size){
+    for(int z = 0; z < size.z; z++){
+        for(int y = 0; y < size.y; y++){
+            for(int x = 0; x < size.x; x++){
+                int index = size.x * (size.y * z + y) + x;
+                vec3 pos = vec3(x,y,z);
+                if(distance(pos, center) <= radius)
+                    field[index] = value;
+            }
+        }
+    }
+}
+
+void Simulator::fillSphere(vec3* field, vec3 value, vec3 center, float radius, vec3 size){
     for(int z = 0; z < size.z; z++){
         for(int y = 0; y < size.y; y++){
             for(int x = 0; x < size.x; x++){

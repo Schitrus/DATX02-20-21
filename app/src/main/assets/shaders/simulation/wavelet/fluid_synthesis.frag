@@ -20,10 +20,10 @@ void main() {
 
     vec3 texture_coord    = texture(texture_field, vec3(position)/gridSize).xyz;
 
-    vec3 turbulence      = texture(turbulence_field, vec3(position)/gridSize).xyz;
+    vec3 turbulence      = texture(turbulence_field, texture_coord).xyz;
 
     float energy_spectrum = texture(energy_field, vec3(position)/gridSize).x;
 
-    outVelocity = velocity;// + energy_spectrum * turbulence;
+    outVelocity = velocity + energy_spectrum * turbulence;
 
 }

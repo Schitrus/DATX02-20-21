@@ -25,9 +25,9 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    //generateWavelet();
+    generateWavelet();
 
-    wavelet_turbulence = createVectorDataPair(true, nullptr);
+    //wavelet_turbulence = createVectorDataPair(true, nullptr);
 
     return 1;
 }

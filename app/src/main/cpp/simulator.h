@@ -77,6 +77,7 @@ private:
     void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize);
 
     void fillSphere(float* field, float value, vec3 center, float radius, vec3 size);
+    void fillSphere(vec3* field, vec3 value, vec3 center, float radius, vec3 size);
 
     // fills the field with vectors pointing outward from the center,
     // and that scale with the distance from the center
