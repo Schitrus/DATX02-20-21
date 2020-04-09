@@ -19,7 +19,7 @@
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 int Simulator::init(){
-    initSize(12, 48, 12, 4.0f);
+    initSize(32, 40, 32, 4.0f);
     if (!slab.init())
         return 0;
     initData();
@@ -40,7 +40,7 @@ void Simulator::initSize(int width, int height, int depth, float simulationWidth
 void Simulator::update(){
     // todo maybe put a cap on the delta time to not get too big time steps during lag?
     float current_time = DURATION(NOW, start_time);
-    float delta_time = DURATION(NOW, last_time);
+    float delta_time = 1.0f/30.0f;//DURATION(NOW, last_time);
     last_time = NOW;
 
     slab.prepare();
@@ -79,15 +79,15 @@ void Simulator::initData() {
     clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f));
     clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f));
 
-    float radius = 1;
+    float radius = 0.5f;
     float middleW = grid_width / meter_to_voxels / 2;
     float middleD = grid_depth / meter_to_voxels / 2;
-    vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
-    vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
+    vec3 start = vec3(middleW - radius, 1 - radius, middleD - radius);
+    vec3 end = vec3(middleW + radius, 1 + radius, middleD + radius);
 
-    fillIntensive(density_source, 1.0f, start, end);
-    fillIntensive(temperature_source, 800.0f, start, end);
-    //fillOutgoingVector(velocity_source, 1.0f, start, end);
+    fillIntensive(density_source, 1.5f, start, end);
+    fillIntensive(temperature_source, 600.0f, start, end);
+    fillOutgoingVector(velocity_source, 10.0f, start, end);
 
     density = createScalarDataPair(grid_width, grid_height, grid_depth, density_field);
     createScalar3DTexture(&densitySource, grid_width, grid_height, grid_depth, density_source);
@@ -108,7 +108,7 @@ void Simulator::velocityStep(float dt){
     updateAndApplyWind(dt);
     // Advect
     slab.advection(velocity, velocity, dt);
-    slab.diffuse(velocity, 20, 18e-6f, dt);
+    //slab.diffuse(velocity, 20, 18e-6f, dt);
     //slab.dissipate(velocity, 0.9f, dt);
     // Project
     slab.projection(velocity, 20);
@@ -119,7 +119,7 @@ void Simulator::updateAndApplyWind(float dt) {
 
     windAngle += dt*random*6.0f;
 
-    float baseVelocity = 4;
+    float baseVelocity = 10;
     float windStrength = baseVelocity*(sin(windAngle) + 1)/2;
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     slab.addWind(velocity, windStrength, dt);
