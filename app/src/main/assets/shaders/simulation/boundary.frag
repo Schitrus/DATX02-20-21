@@ -18,7 +18,7 @@ void main() {
 
     vec2 center = vec2(0.5, 0.5);
 
-    ivec3 direction = ivec3((center - uv_position) * 2.0f, 0);
+    ivec3 direction = ivec3(floor((center - uv_position) * 2.0f), 0);
 
     vec3 data = scale * texelFetch(data_field, position + direction, 0).xyz;
 
@@ -28,5 +28,5 @@ void main() {
         data += scale * texelFetch(data_field, position + ivec3(0, direction.y, 0), 0).xyz;
         data *= 0.5f;
     }
-    outData = vec3(0.0f);
+    outData = data;// vec3(1.0f);
 }

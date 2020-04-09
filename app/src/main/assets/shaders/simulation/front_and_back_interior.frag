@@ -13,6 +13,6 @@ void main() {
    int direction = depth == 0 ? 1 : -1;
    ivec3 position = ivec3(gl_FragCoord.xy, depth + direction);
 
-   //outData = texelFetch(data_field, position, 0).xyz;
-   outData = vec3(0.0f);
+   outData = texelFetch(data_field, position, 0).xyz;
+   //outData = vec3(1.0f);
 }

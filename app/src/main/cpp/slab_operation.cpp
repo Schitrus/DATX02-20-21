@@ -200,6 +200,9 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
         if(!drawBoundaryToTexture(boundaryShader, depth))
             return;
     }
+
+    data->operationFinished();
+
     // Front
     if(!drawFrontOrBackBoundary(data, scale, 0))
         return;
@@ -282,7 +285,7 @@ void SlabOperator::buoyancy(DataTexturePair* velocity, DataTexturePair* temperat
 
     interiorOperation(buoyancyShader, velocity);
 
-    //setBoundary(velocity, 1);
+    setBoundary(velocity, -1);
 }
 
 void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
@@ -317,7 +320,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 
     interiorOperation(advectionShader, data);
 
-    //setBoundary(data, 0);
+    setBoundary(data, -1);
 }
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
@@ -359,21 +362,24 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
 
     interiorOperation(divergenceShader, divergence);
 
-    //setBoundary(divergence, 0);
+    setBoundary(divergence, 0);
 }
 
 void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
                             int iterationCount, float alpha, float beta){
 
-    jacobiShader.use();
-    jacobiShader.uniform1f("alpha", alpha);
-    jacobiShader.uniform1f("beta", beta);
     bindData(bTexture, GL_TEXTURE1);
-
     for(int i = 0; i < iterationCount; i++){
+        jacobiShader.use();
+        jacobiShader.uniform1f("alpha", alpha);
+        jacobiShader.uniform1f("beta", beta);
         xTexturePair->bindData(GL_TEXTURE0);
         interiorOperation(jacobiShader, xTexturePair);
+
+        setBoundary(xTexturePair, 1);
     }
+
+
 
 }
 
@@ -384,7 +390,7 @@ void SlabOperator::subtractGradient(DataTexturePair* velocity){
 
     interiorOperation(gradientShader, velocity);
 
-  //  setBoundary(velocity, 0);
+    setBoundary(velocity, -1);
 }
 /*
 void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float dissipationRate, float dh, float dt){
