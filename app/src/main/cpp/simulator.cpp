@@ -6,11 +6,16 @@
 
 #include <jni.h>
 #include <gles3/gl31.h>
+#include <android/log.h>
 
 #include <chrono>
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
+
+#define LOG_TAG "Simulator"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 int Simulator::init(){
     initSize(12, 48, 12, 4.0f);
@@ -160,12 +165,12 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
                 vec3 pos = vec3(x, y, z) / meter_to_voxels;
                 //Upper corner of cell in meters
                 vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
-                //Does this cell overlap with the fill area?
+                //Does this cell overlap with the fill volume?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     int index = grid_width * (grid_height * z + y) + x;
-                    field[index] = density*overlappedArea;
+                    field[index] = density*overlappedVolume;
                 }
             }
         }
@@ -173,7 +178,7 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
 }
 
 void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos) {
-    float cellArea = (1 / meter_to_voxels) * (1 / meter_to_voxels);
+    float cellVolume = (1 / meter_to_voxels) * (1 / meter_to_voxels) * (1 / meter_to_voxels);
     for (int z = 0; z < grid_depth; z++) {
         for (int y = 0; y < grid_height; y++) {
             for (int x = 0; x < grid_width; x++) {
@@ -181,12 +186,12 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
                 vec3 pos = vec3(x, y, z) / meter_to_voxels;
                 //Upper corner of cell in meters
                 vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
-                //Does this cell overlap with the fill area?
+                //Does this cell overlap with the fill volume?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     int index = grid_width * (grid_height * z + y) + x;
-                    field[index] = value*(overlappedArea/cellArea);
+                    field[index] = value*(overlappedVolume / cellVolume);
                 }
             }
         }
@@ -195,7 +200,7 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
 
 void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos) {
     vec3 center = (minPos + maxPos)/2.0f;
-    float cellArea = (1 / meter_to_voxels) * (1 / meter_to_voxels);
+    float cellVolume = (1 / meter_to_voxels) * (1 / meter_to_voxels) * (1 / meter_to_voxels);
     for (int z = 0; z < grid_depth; z++) {
         for (int y = 0; y < grid_height; y++) {
             for (int x = 0; x < grid_width; x++) {
@@ -203,13 +208,13 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
                 vec3 pos = vec3(x, y, z) / meter_to_voxels;
                 //Upper corner of cell in meters
                 vec3 pos1 = vec3(x + 1, y + 1, z + 1) / meter_to_voxels;
-                //Does this cell overlap with the fill area?
+                //Does this cell overlap with the fill volume?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     vec3 vector = pos - center;
                     int index = grid_width * (grid_height * z + y) + x;
-                    field[index] = vector*(scale*overlappedArea/cellArea);
+                    field[index] = vector*(scale*overlappedVolume/cellVolume);
                 }
             }
         }
@@ -221,7 +226,7 @@ bool Simulator::hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
            && min1.x < max2.x && min1.y < max2.y && min1.z < max2.z;
 }
 
-float Simulator::getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
+float Simulator::getOverlapVolume(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     vec3 overlapMin = max(min1, min2);
     vec3 overlapMax = min(max1, max2);
     return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
