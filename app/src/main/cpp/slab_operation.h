@@ -90,7 +90,7 @@ private:
 
     // Performs a number of jacobi iterations with two field inputs
     void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
-                int iterationCount, float alpha, float beta);
+                int iterationCount, float alpha, float beta, int scale );
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData);
