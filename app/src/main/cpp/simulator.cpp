@@ -9,6 +9,7 @@
 #include <android/log.h>
 
 #include <chrono>
+#include <cstdlib>
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
@@ -104,12 +105,24 @@ void Simulator::velocityStep(float dt){
     // Source
     slab.buoyancy(velocity, temperature, dt, 1.0f);
     slab.addSource(velocity, velocitySource, dt);
+    updateAndApplyWind(dt);
     // Advect
     slab.advection(velocity, velocity, dt);
     slab.diffuse(velocity, 20, 18e-6f, dt);
     //slab.dissipate(velocity, 0.9f, dt);
     // Project
     slab.projection(velocity, 20);
+}
+
+void Simulator::updateAndApplyWind(float dt) {
+    float random = float(rand())/float((RAND_MAX));
+
+    windAngle += dt*random*6.0f;
+
+    float baseVelocity = 4;
+    float windStrength = baseVelocity*(sin(windAngle) + 1)/2;
+    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
+    slab.addWind(velocity, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
@@ -121,7 +134,7 @@ void Simulator::temperatureStep(float dt) {
 
 void Simulator::densityStep(float dt){
     // addForce
-    slab.setSource(density, densitySource, dt);
+    slab.addSource(density, densitySource, dt);
     slab.dissipate(density, 0.9f, dt);
 
     // Advect
