@@ -54,6 +54,7 @@ public:
 
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
 
+    double turbulence(vec3 position, vec3 offset, vec3 size);
 private:
     int initShaders();
 

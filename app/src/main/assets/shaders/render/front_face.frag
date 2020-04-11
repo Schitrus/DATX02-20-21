@@ -17,7 +17,7 @@ void main() {
    direction = normalize(direction);
    vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
    color.a = 0.0f;
-   float h = 1.0/128.0;         // todo fix
+   float h = 1.0/32.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
    vec3 blackbody = vec3(1.0,0.3,0.0);

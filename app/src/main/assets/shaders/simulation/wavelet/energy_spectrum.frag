@@ -5,6 +5,7 @@ precision highp sampler3D;
 layout(binding = 0) uniform sampler3D velocity_field;
 
 uniform int depth;
+uniform float meterToVoxels;  //conversion factor from meter to voxels
 
 out float outEnergy;
 
@@ -14,10 +15,10 @@ void main() {
 
     vec3 velocity_vector = texelFetch(velocity_field, position, 0).xyz;
 
-    float velocity = length(velocity_vector);
+    float velocity = length(velocity_vector * meterToVoxels);
 
-    float energy = (1.0/2.0) * velocity * velocity;
+    float energy = 0.5 * velocity * velocity;
 
-    outEnergy = pow(2.0, -(5.0/6.0)) * energy;
+    outEnergy = energy;
 
 }

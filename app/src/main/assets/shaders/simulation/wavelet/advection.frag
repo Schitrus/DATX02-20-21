@@ -6,6 +6,7 @@ precision highp sampler3D;
 layout(binding = 0) uniform sampler3D velocity_field;
 
 uniform float dt;
+uniform float meterToVoxels;  //conversion factor from meter to voxels
 uniform int depth;
 uniform vec3 gridSize;
 
@@ -21,10 +22,10 @@ void main() {
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
     // Location of the previous position, back in time
-    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity;
+    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToVoxels;
 
     // Set result to velocity at previous position
     // Note: Linear interpolation due to linear texture
-    outTextureCoord = previous_position / gridSize;
+    outTextureCoord = previous_position / (gridSize);
 }
 

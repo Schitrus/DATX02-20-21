@@ -24,6 +24,6 @@ void main() {
 
     float energy_spectrum = texture(energy_field, vec3(position)/gridSize).x;
 
-    outVelocity = velocity + energy_spectrum * turbulence;
+    outVelocity = velocity;// + 10.0*turbulence;
 
 }

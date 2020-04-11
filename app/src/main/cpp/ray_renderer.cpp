@@ -193,10 +193,14 @@ void RayRenderer::step() {
     glBindVertexArray(0);
 }
 
+void RayRenderer::touch(double dx, double dy){
+    rx += 2*dx/window_width;
+    ry += 2*dy/window_height;
+}
+
 void RayRenderer::loadMVP(Shader shader, float current_time) {
 
     float p = current_time / 10.0f;
-    float rot = 2 * PI * p;
 
     // Set up a projection matrix
     float nearPlane = 0.01f;
@@ -207,7 +211,8 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     vec3 modelPos(0, 0, -1.0);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
-                     //* rotate(mat4(1.0f), rot, vec3(0,1,0))
+                     * rotate(mat4(1.0f), (float)rx, vec3(0,1,0))
+                     //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 
