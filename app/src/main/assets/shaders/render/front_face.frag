@@ -17,7 +17,7 @@ void main() {
    direction = normalize(direction);
    vec4 color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
    color.a = 0.0f;
-   float h = 1.0/32.0;         // todo fix
+   float h = D/32.0;         // todo fix
    vec3 tr = hit;
    vec3 rayStep = direction * h;
    vec3 blackbody = vec3(1.0,0.3,0.0);
@@ -34,7 +34,7 @@ void main() {
 
            //accumulating collor and alpha using under operator
            vec3 baseColor = mix(mix(mix(vec3(0.05,0.05,0.05),
-                                        vec3(1.0,0.4,0.2), lum),
+                                        vec3(1.0,0.5,0.2), lum),
                                         vec3(1.0,1.0,0.5), rad),
                                         vec3(0.25,0.5,1.0), hot);
            float alpha = 10.0*samp*h;
