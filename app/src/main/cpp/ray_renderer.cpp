@@ -201,7 +201,7 @@ void RayRenderer::step() {
 void RayRenderer::loadMVP(Shader shader, float current_time) {
 
     float p = current_time / 10.0f;
-    float rot = 2 * PI * p;
+    float rot = 2 * PI * 0.25f;//* p;
 
     // Set up a projection matrix
     float nearPlane = 0.01f;

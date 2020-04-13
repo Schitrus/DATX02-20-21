@@ -49,10 +49,11 @@ int SlabOperator::init() {
 
 }
 
-void SlabOperator::initSize(int width, int height, int depth){
+void SlabOperator::initSize(int width, int height, int depth, float meterToVoxels){
     grid_width = width + 2;
     grid_height = height + 2;
     grid_depth = depth + 2;
+    meter_to_voxels = meterToVoxels;
 }
 
 void SlabOperator::initData() {
@@ -173,6 +174,7 @@ int SlabOperator::initShaders() {
     success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
     success &= setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
     success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
+    success &= windShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_wind.frag");
     // Projection Shaders
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
     success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
@@ -241,6 +243,7 @@ void SlabOperator::finish() {
 void SlabOperator::temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt){
     temperatureShader.use();
     temperatureShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     temperatureShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     temperature->bindData(GL_TEXTURE1);
@@ -287,9 +290,8 @@ void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float 
 
     copy(velocity, diffusionBTexture);
 
-    float dx = 1.0f;
-    // dt does not work
-    float alpha = (dx*dx)/ (kinematicViscosity * (1.0f/30.0f)); //(kinematicViscosity * dt);
+    float dx = 1.0f / meter_to_voxels;
+    float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
     jacobiIteration(velocity, diffusionBTexture, iterationCount, alpha, beta, -1);
@@ -310,6 +312,7 @@ void SlabOperator::dissipate(DataTexturePair* data, float dissipationRate, float
 void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
@@ -322,6 +325,7 @@ void SlabOperator::advection(DataTexturePair* velocity, DataTexturePair* data, f
 void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
+    advectionShader.uniform1f("meterToVoxels", meter_to_voxels);
     advectionShader.uniform3f("gridSize", grid_width, grid_height, grid_depth);
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
@@ -330,7 +334,7 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
     data->operationFinished();
 }
 void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
-    float dx = 1.0f;
+    float dx = 1.0f/meter_to_voxels;
     float alpha = -(dx*dx);
     float beta = 6.0f;
 
@@ -340,9 +344,9 @@ void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    createDivergence(velocity);
+    createDivergence(velocity, dx);
     jacobiIteration(jacobi, divergence->getDataTexture(), iterationCount, alpha, beta, 1);
-    subtractGradient(velocity);
+    subtractGradient(velocity, dx);
 }
 
 void SlabOperator::vorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
@@ -356,8 +360,9 @@ void SlabOperator::vorticity(DataTexturePair *velocity, float vorticityScale, fl
     velocity->operationFinished();
 }
 
-void SlabOperator::createDivergence(DataTexturePair* vectorData) {
+void SlabOperator::createDivergence(DataTexturePair* vectorData, float dx) {
     divergenceShader.use();
+    divergenceShader.uniform1f("dh", dx);
     vectorData->bindData(GL_TEXTURE0);
 
     interiorOperation(divergenceShader, divergence);
@@ -382,8 +387,9 @@ void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTextur
     }
 }
 
-void SlabOperator::subtractGradient(DataTexturePair* velocity){
+void SlabOperator::subtractGradient(DataTexturePair* velocity, float dx){
     gradientShader.use();
+    gradientShader.uniform1f("dh", dx);
     jacobi->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
@@ -406,6 +412,33 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 }
 */
 
+void SlabOperator::addEdgeWind(DataTexturePair* velocity, float wind, float dt) {
+    //Step one: apply wind to depth layer 1 while rendering to the result texture
+    windShader.use();
+    windShader.uniform1f("dt", dt);
+    windShader.uniform1f("wind", wind);
+    velocity->bindData(GL_TEXTURE0);
+    velocity->bindToFramebuffer(1);
+    if(!drawInteriorToTexture(windShader, 1))
+        return;
+    //Step two: instead of copying the rest of the data to the result texture, let's copy the depth layer with wind back to the data
+    velocity->operationFinished();
+    copyShader.use();
+    velocity->bindData(GL_TEXTURE0);
+    velocity->bindToFramebuffer(1);
+    drawInteriorToTexture(windShader, 1);
+    //The current result is the original data, so even if rendering failed or not, we should switch back
+    velocity->operationFinished();
+}
+
+void SlabOperator::addWind(DataTexturePair* velocity, float wind, float dt) {
+    windShader.use();
+    windShader.uniform1f("dt", dt);
+    windShader.uniform1f("wind", wind);
+    velocity->bindData(GL_TEXTURE0);
+
+    interiorOperation(windShader, velocity);
+}
 
 void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
     for(int depth = 1; depth < grid_depth - 1; depth++) {

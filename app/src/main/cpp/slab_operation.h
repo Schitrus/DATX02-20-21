@@ -12,8 +12,10 @@
 #include "simple_framebuffer.h"
 #include "data_texture_pair.h"
 
-class SlabOperator{
+class SlabOperator {
     int grid_width, grid_height, grid_depth;
+    //The number of voxels in a meter in the current resolution
+    float meter_to_voxels;
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -42,14 +44,14 @@ class SlabOperator{
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader dissipateShader, setSourceShader;
+    Shader dissipateShader, setSourceShader, windShader;
     Shader copyShader;
     Shader vorticityShader;
 
 public:
     int init();
 
-    void initSize(int width, int height, int depth);
+    void initSize(int width, int height, int depth, float meterToVoxels);
 
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();
@@ -81,6 +83,10 @@ public:
     // Apply rotational flows
     void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
 
+    void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
+
+    void addWind(DataTexturePair* velocity, float wind, float dt);
+
 private:
     void initData();
 
@@ -93,10 +99,10 @@ private:
                 int iterationCount, float alpha, float beta, int scale );
 
     // Calculates the divergence of the vector field
-    void createDivergence(DataTexturePair* vectorData);
+    void createDivergence(DataTexturePair* vectorData, float dx);
 
     // Subtracts the gradient of the given scalar field from the target vector field
-    void subtractGradient(DataTexturePair* velocity);
+    void subtractGradient(DataTexturePair* velocity, float dx);
 
     void setBoundary(DataTexturePair* data, int scale);
 
