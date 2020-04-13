@@ -26,6 +26,8 @@ class Simulator{
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
 
+    float windAngle = 0.0f;
+
     // Time
     time_point<system_clock> start_time, last_time;
 
@@ -44,6 +46,8 @@ private:
 
     // Performs one simulation step for velocity
     void velocityStep(float dt);
+
+    void updateAndApplyWind(float dt);
 
     void temperatureStep( float dt);
 
@@ -71,7 +75,7 @@ private:
     bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 
     // might return negative values if there is no overlap
-    float getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
+    float getOverlapVolume(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 
 };
 

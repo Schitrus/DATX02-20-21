@@ -44,7 +44,7 @@ class SlabOperator {
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
     Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader dissipateShader, setSourceShader;
+    Shader dissipateShader, setSourceShader, windShader;
     Shader copyShader;
 
 public:
@@ -78,6 +78,10 @@ public:
 
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
+
+    void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
+
+    void addWind(DataTexturePair* velocity, float wind, float dt);
 
 private:
     void initData();
