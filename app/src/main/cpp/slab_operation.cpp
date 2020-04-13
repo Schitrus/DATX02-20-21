@@ -288,7 +288,8 @@ void SlabOperator::diffuse(DataTexturePair* velocity, int iterationCount, float 
     copy(velocity, diffusionBTexture);
 
     float dx = 1.0f;
-    float alpha = (dx*dx) / (kinematicViscosity * dt);
+    // dt does not work
+    float alpha = (dx*dx)/ (kinematicViscosity * (1.0f/30.0f)); //(kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
     jacobiIteration(velocity, diffusionBTexture, iterationCount, alpha, beta, -1);

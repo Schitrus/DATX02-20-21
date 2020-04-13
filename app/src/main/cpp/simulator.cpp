@@ -122,13 +122,12 @@ void Simulator::velocityStep(float dt){
     slab.buoyancy(velocity, temperature, dt, 1.0f);
     slab.vorticity(velocity, 10.0f, dt);
 
-    //slab.diffuse(velocity, 20, 18e-6f, dt);
+    slab.diffuse(velocity, 20, 18e-6f, dt);
 
     // Advect
     slab.advection(velocity, velocity, dt);
-
-
     //slab.dissipate(velocity, 0.9f, dt);
+    
     // Project
     slab.projection(velocity, 20);
 }
