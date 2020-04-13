@@ -90,12 +90,14 @@ void Simulator::initData() {
 
     int z = grid_depth/2-2, y = 5, x = grid_width/2-2;
 
+    //int z = 0, y = 2, x = 0;
+
     for(int zz = z; zz < z + 7; zz++) {
-        for (int yy = y; yy < y + 50; yy++) {
-            for (int xx = x; xx < x +13; xx++) {
+        for (int yy = y; yy < y + 40; yy++) {
+            for (int xx = x; xx < x + 7; xx++) {
                 int index = grid_width * (grid_height * (zz) + (yy)) + (xx);
                 density_source[index] = 1.0f;
-                temperature_source[index] = 1200.0f;
+                temperature_source[index] = 800.0f;
                 velocity_source[index] = vec3(0.0f, 0.0f, 0.0f);
             }
         }
@@ -115,12 +117,16 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
+    slab.addSource(velocity, velocitySource, dt);
+    // External force
     slab.buoyancy(velocity, temperature, dt, 1.0f);
     slab.vorticity(velocity, 10.0f, dt);
-    slab.addSource(velocity, velocitySource, dt);
+
+    //slab.diffuse(velocity, 20, 18e-6f, dt);
+
     // Advect
     slab.advection(velocity, velocity, dt);
-    //slab.diffuse(velocity, 20, 18e-6f, dt);
+
 
     //slab.dissipate(velocity, 0.9f, dt);
     // Project

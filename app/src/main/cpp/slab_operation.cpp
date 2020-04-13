@@ -201,9 +201,6 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
             return;
     }
 
-    //data->operationFinished();
-
-
     // Front
     if(!drawFrontOrBackBoundary(data, scale, 0))
         return;
@@ -211,8 +208,6 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     //Back
     if(!drawFrontOrBackBoundary(data, scale, grid_depth - 1))
         return;
-
-    //data->operationFinished();
 }
 
 bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
@@ -225,6 +220,7 @@ bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int
         return false;
 
     FABInteriorShader.use();
+    FABInteriorShader.uniform1f("scale", scale);
     return drawInteriorToTexture(FABInteriorShader, depth);
 }
 
@@ -365,7 +361,7 @@ void SlabOperator::createDivergence(DataTexturePair* vectorData) {
 
     interiorOperation(divergenceShader, divergence);
 
-    setBoundary(divergence, 0);
+    setBoundary(divergence, 1);
     divergence->operationFinished();
 }
 
@@ -383,9 +379,6 @@ void SlabOperator::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTextur
         setBoundary(xTexturePair, scale);
         xTexturePair->operationFinished();
     }
-
-
-
 }
 
 void SlabOperator::subtractGradient(DataTexturePair* velocity){
@@ -420,7 +413,6 @@ void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data) {
         if(!drawInteriorToTexture(shader, depth))
             return;
     }
-    //data->operationFinished();
 }
 
 void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
@@ -430,7 +422,6 @@ void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
         if(!drawAllToTexture(shader, depth))
             return;
     }
-    //data->operationFinished();
 }
 
 void SlabOperator::copy(DataTexturePair *source, GLuint target) {
