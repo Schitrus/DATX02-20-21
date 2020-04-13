@@ -6,6 +6,8 @@ precision highp sampler3D;
 layout(binding = 0) uniform sampler3D velocity_field;
 
 uniform int depth;
+// Distance between each grid element. Assumes that grid elements are cubical such that dh can be applied to all three axis
+uniform float dh;
 
 out float outDivergence;
 
@@ -21,5 +23,5 @@ void main() {
     float y = texelFetch(velocity_field, position + dy, 0).y - texelFetch(velocity_field, position - dy, 0).y;
     float z = texelFetch(velocity_field, position + dz, 0).z - texelFetch(velocity_field, position - dz, 0).z;
 
-    outDivergence = 0.5f * (x + y + z);
+    outDivergence = 0.5f * (x + y + z) / dh;
 }

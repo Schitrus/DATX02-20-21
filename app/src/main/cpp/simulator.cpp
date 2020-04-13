@@ -6,11 +6,17 @@
 
 #include <jni.h>
 #include <gles3/gl31.h>
+#include <android/log.h>
 
 #include <chrono>
+#include <cstdlib>
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
+
+#define LOG_TAG "Simulator"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 12;
@@ -95,7 +101,11 @@ void Simulator::initData() {
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
+
+
     vec3 center = vec3(0.5f, 0.2f, 0.5f) * vec3(highResSize);
+
+    fillOutgoingVector(velocity_source, 10.0f, start, end);
 
     fillSphere(density_source, 0.8f, center, radius, highResSize);
     fillSphere(temperature_source, 800.0f, center, radius, highResSize);
@@ -118,6 +128,7 @@ void Simulator::velocityStep(float dt){
     // Source
     slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
     slab->addSource(lowerVelocity, velocitySource, dt);
+    updateAndApplyWind(dt);
     // Advect
     slab->advection(lowerVelocity, lowerVelocity, dt);
 
@@ -140,6 +151,17 @@ void Simulator::waveletStep(float dt){
     slab->vorticity(higherVelocity, 8.0f, dt);
 }
 
+void Simulator::updateAndApplyWind(float dt) {
+    float random = float(rand())/float((RAND_MAX));
+
+    windAngle += dt*random*6.0f;
+
+    float baseVelocity = 10;
+    float windStrength = baseVelocity*(sin(windAngle) + 1)/2;
+    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
+    slab->addWind(lowerVelocity, windStrength, dt);
+}
+
 void Simulator::temperatureStep(float dt) {
 
     slab->setSource(temperature, temperatureSource, dt);
@@ -152,6 +174,7 @@ void Simulator::temperatureStep(float dt) {
 void Simulator::densityStep(float dt){
     // addForce
     slab->setSource(density, densitySource, dt);
+    //slab->addSource(density, densitySource, dt);
 
     // Advect
     slab->fulladvection(higherVelocity, density, dt);
@@ -191,20 +214,19 @@ void Simulator::clearField(vec3* field, vec3 value, ivec3 gridSize) {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
-    vec3 borderSize = vec3(1, 1, 1);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
                 //Lower corner of cell in simulation space
-                ivec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
+                ivec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in simulation space
-                ivec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
+                ivec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     int index = gridSize.x * (gridSize.y * z + y) + x;
-                    field[index] = density*overlappedArea;
+                    field[index] = density*overlappedVolume;
                 }
             }
         }
@@ -212,21 +234,20 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
 }
 
 void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
-    float cellArea = (1 / simulationScale) * (1 / simulationScale);
-    vec3 borderSize = vec3(1, 1, 1);
+    float cellVolume = (1 / simulationScale) * (1 / simulationScale) * (1 / simulationScale);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
                 //Lower corner of cell in simulation space
-                ivec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
+                ivec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in simulation space
-                ivec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
+                ivec3 pos1 = vec3(x + 1, y + 1, z + 1)  / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     int index = gridSize.x * (gridSize.y * z + y) + x;
-                    field[index] = value*(overlappedArea/cellArea);
+                    field[index] = value*(overlappedVolume/cellVolume);
                 }
             }
         }
@@ -235,22 +256,21 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
 
 void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos, ivec3 gridSize) {
     vec3 center = (minPos + maxPos)/2.0f;
-    float cellArea = (1 / simulationScale) * (1 / simulationScale);
-    vec3 borderSize = vec3(1, 1, 1);
+    float cellVolume = (1 / simulationScale) * (1 / simulationScale) * (1 / simulationScale);
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
                 //Lower corner of cell in simulation space
-                vec3 pos = (vec3(x, y, z) - borderSize) / simulationScale;
+                vec3 pos = vec3(x, y, z) / simulationScale;
                 //Upper corner of cell in simulation space
-                vec3 pos1 = (vec3(x + 1, y + 1, z + 1) - borderSize) / simulationScale;
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedArea = getOverlapArea(pos, pos1, minPos, maxPos);
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
 
                     vec3 vector = pos - center;
                     int index = gridSize.x * (gridSize.y * z + y) + x;
-                    field[index] = vector*(scale*overlappedArea/cellArea);
+                    field[index] = vector*(scale*overlappedVolume/cellVolume);
                 }
             }
         }
@@ -292,7 +312,7 @@ bool Simulator::hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
            && min1.x < max2.x && min1.y < max2.y && min1.z < max2.z;
 }
 
-float Simulator::getOverlapArea(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
+float Simulator::getOverlapVolume(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     vec3 overlapMin = max(min1, min2);
     vec3 overlapMax = min(max1, max2);
     return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
