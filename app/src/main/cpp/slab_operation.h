@@ -108,7 +108,7 @@ private:
 
     // Performs the operation with the set shader over the interior of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void interiorOperation(Shader shader, DataTexturePair* data);
+    void interiorOperation(Shader shader, DataTexturePair* data, int boundaryScale);
 
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
