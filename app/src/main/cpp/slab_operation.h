@@ -78,6 +78,9 @@ public:
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
 
+    // Apply rotational flows
+    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
+
     void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
 
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
@@ -88,7 +91,7 @@ public:
 
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void fullOperation(Shader shader, DataTexturePair* data);
+    void fullOperation(Shader shader, DataTexturePair* data, int boundaryScale);
 
     // Performs the operation with the set shader over the interior of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
@@ -103,7 +106,7 @@ private:
 
     // Performs a number of jacobi iterations with two field inputs
     void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
-                int iterationCount, float alpha, float beta);
+                int iterationCount, float alpha, float beta, int scale );
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData, float dx);

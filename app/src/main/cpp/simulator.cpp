@@ -136,6 +136,7 @@ void Simulator::velocityStep(float dt){
 
     //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab->dissipate(lowerVelocity, 0.9f, dt);
+  
     // Project
     slab->projection(lowerVelocity, 20);
 }
