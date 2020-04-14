@@ -111,6 +111,11 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
     delete[] fileContent;
 }
 
+void bindData(GLuint dataTexture, GLenum textureSlot) {
+    glActiveTexture(textureSlot);
+    glBindTexture(GL_TEXTURE_3D, dataTexture);
+}
+
 void clearGLErrors(const char* tag) {
 #ifndef ENABLE_OPENGL_ERROR_CHECKING
     return;

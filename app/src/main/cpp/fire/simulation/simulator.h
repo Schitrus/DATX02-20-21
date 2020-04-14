@@ -9,7 +9,7 @@
 #include <GLES3/gl31.h>
 #include <chrono>
 
-#include "slab_operation.h"
+#include "simulation_operations.h"
 #include "wavelet_turbulence.h"
 
 using std::chrono::time_point;
@@ -28,6 +28,7 @@ extern const vec3 simulationSize;
 
 class Simulator{
     SlabOperator* slab;
+    SimulationOperations* operations;
     WaveletTurbulence* wavelet;
 
     DataTexturePair* density;

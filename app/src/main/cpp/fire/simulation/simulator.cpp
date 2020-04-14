@@ -33,9 +33,13 @@ const vec3 simulationSize = simulationScale * vec3(sizeRatio);
 int Simulator::init(){
 
     slab = new SlabOperator();
+    operations = new SimulationOperations();
     wavelet = new WaveletTurbulence();
 
     if (!slab->init())
+        return 0;
+
+    if(!operations->init(slab))
         return 0;
 
     if(!wavelet->init(slab))
@@ -126,19 +130,19 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
+    operations->buoyancy(lowerVelocity, temperature, dt, 1.0f);
     //slab->addSource(lowerVelocity, velocitySource, dt);
     updateAndApplyWind(dt);
     // Advect
-    slab->advection(lowerVelocity, lowerVelocity, dt);
+    operations->advection(lowerVelocity, lowerVelocity, dt);
 
-    slab->vorticity(lowerVelocity, 6.0f, dt);
+    operations->vorticity(lowerVelocity, 6.0f, dt);
 
     //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab->dissipate(lowerVelocity, 0.9f, dt);
   
     // Project
-    slab->projection(lowerVelocity, 20);
+    operations->projection(lowerVelocity, 20);
 }
 
 void Simulator::waveletStep(float dt){
@@ -158,27 +162,27 @@ void Simulator::updateAndApplyWind(float dt) {
 
     float windStrength = 12.0 + 11*sin(windAngle*2.14+123);
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
-    slab->addWind(lowerVelocity, windAngle, windStrength, dt);
+    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
 
-    slab->addSource(temperature, temperatureSource, dt);
+    operations->addSource(temperature, temperatureSource, dt);
 
-    slab->advection(higherVelocity, temperature, dt);
+    operations->advection(higherVelocity, temperature, dt);
 
-    slab->heatDissipation(temperature, dt);
+    operations->heatDissipation(temperature, dt);
 }
 
 void Simulator::densityStep(float dt){
     // addForce
     //slab->setSource(density, densitySource, dt);
-    slab->addSource(density, densitySource, dt);
+    operations->addSource(density, densitySource, dt);
 
     // Advect
-    slab->fulladvection(higherVelocity, density, dt);
+    operations->fulladvection(higherVelocity, density, dt);
 
-    slab->dissipate(density, 2.0f, dt);
+    operations->dissipate(density, 2.0f, dt);
 
     // Diffuse
     //slab->diffuse(density, 20, 1.0, dt);

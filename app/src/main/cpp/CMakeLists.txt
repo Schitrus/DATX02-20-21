@@ -29,8 +29,10 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         fire/fire.cpp
         fire/rendering/renderer.cpp
-        fire/simulation/simulator.cpp
         fire/rendering/ray_renderer.cpp
+        fire/simulation/simulator.cpp
+        fire/simulation/simulation_operations.cpp
+        fire/simulation/wavelet_turbulence.cpp
         fire/simulation/slab_operation.cpp
         fire/util/helper.cpp
         fire/util/file_loader.cpp
@@ -38,7 +40,6 @@ add_library( # Sets the name of the library.
         fire/util/simple_framebuffer.cpp
         fire/util/framebuffer.cpp
         fire/util/data_texture_pair.cpp
-        fire/simulation/wavelet_turbulence.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

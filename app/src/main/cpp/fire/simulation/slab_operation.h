@@ -33,17 +33,7 @@ class SlabOperator {
     Shader FABInteriorShader;
     Shader FABBoundaryShader;
     Shader boundaryShader;
-
-    GLuint diffusionBLRTexture, diffusionBHRTexture;
-    DataTexturePair* divergence;
-    DataTexturePair* jacobi;
-
-    Shader temperatureShader;
-    Shader divergenceShader, jacobiShader, gradientShader;
-    Shader addSourceShader, buoyancyShader, advectionShader;
-    Shader dissipateShader, setSourceShader, windShader;
     Shader copyShader;
-    Shader vorticityShader;
 
 public:
     int init();
@@ -54,37 +44,6 @@ public:
     // Called at the end of a series of operations to unbind the framebuffer
     void finish();
 
-    // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
-
-    // Performs advection on the given data
-    // The data and the velocity should use the same resolution for the shader to work correctly
-    void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
-
-    void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
-
-    // Performs heat dissipation on the given temperature field
-    void heatDissipation(DataTexturePair* temperature, float dt);
-
-    // Adds the given source field multiplied by dt to the target field
-    void addSource(DataTexturePair* data, GLuint& source, float dt);
-    void setSource(DataTexturePair* data, GLuint& source, float dt);
-
-    void dissipate(DataTexturePair* data, float dissipationRate, float dt);
-
-    //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
-
-    // Projects the given *vector* field
-    void projection(DataTexturePair* velocity, int iterationCount);
-
-    // Apply rotational flows
-    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
-
-    void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
-
-    void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
-
     // Performs the operation with the set shader over the entirety of the given data.
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void fullOperation(Shader shader, DataTexturePair* data);
@@ -93,32 +52,15 @@ public:
     // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
     void interiorOperation(Shader shader, DataTexturePair* data, int boundaryScale);
 
-private:
-    void initData();
+    // Target texture is assumed to be of the same size as source
+    void copy(DataTexturePair* source, GLuint target);
 
+private:
     void initLine();
     void initQuad();
     int initShaders();
 
-    // Performs a number of jacobi iterations with two field inputs
-    void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
-                int iterationCount, float alpha, float beta, int scale );
-
-    // Calculates the divergence of the vector field
-    void createDivergence(DataTexturePair* vectorData, float dx);
-
-    // Subtracts the gradient of the given scalar field from the target vector field
-    void subtractGradient(DataTexturePair* velocity, float dx);
-
     void setBoundary(DataTexturePair* data, int scale);
-
-    // Target texture is assumed to be of the same size as source
-    void copy(DataTexturePair* source, GLuint target);
-
-    // Binds the given data texture to the given slot
-    // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
-    // Note that the active texture is left at the given slot after this!
-    void bindData(GLuint dataTexture, GLenum textureSlot);
 
     bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
