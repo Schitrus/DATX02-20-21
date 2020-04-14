@@ -41,6 +41,7 @@ std::string FileLoader::loadFile(const char *path) {
 
     // If error occurred
     if(bytesRead < 0){
+        LOG_ERROR("Error occurred while reading file '%s'", path);
         return nullptr;
     }
 
