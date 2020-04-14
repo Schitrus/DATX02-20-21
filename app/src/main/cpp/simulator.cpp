@@ -40,7 +40,7 @@ void Simulator::initSize(int width, int height, int depth, float simulationWidth
 void Simulator::update(){
     // todo maybe put a cap on the delta time to not get too big time steps during lag?
     float current_time = DURATION(NOW, start_time);
-    float delta_time = 1.0f/30.0f;//DURATION(NOW, last_time);
+    float delta_time = 1.0f/30.0f; //DURATION(NOW, last_time);
     last_time = NOW;
 
     slab.prepare();
@@ -103,13 +103,18 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab.buoyancy(velocity, temperature, dt, 1.0f);
     slab.addSource(velocity, velocitySource, dt);
+    // External force
+    slab.buoyancy(velocity, temperature, dt, 1.0f);
+    slab.vorticity(velocity, 10.0f, dt);
+
+    slab.diffuse(velocity, 20, 18e-6f, dt);
+
     updateAndApplyWind(dt);
     // Advect
     slab.advection(velocity, velocity, dt);
-    //slab.diffuse(velocity, 20, 18e-6f, dt);
     //slab.dissipate(velocity, 0.9f, dt);
+
     // Project
     slab.projection(velocity, 20);
 }

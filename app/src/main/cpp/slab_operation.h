@@ -46,6 +46,7 @@ class SlabOperator {
     Shader addSourceShader, buoyancyShader, advectionShader;
     Shader dissipateShader, setSourceShader, windShader;
     Shader copyShader;
+    Shader vorticityShader;
 
 public:
     int init();
@@ -79,6 +80,9 @@ public:
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
 
+    // Apply rotational flows
+    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
+
     void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
 
     void addWind(DataTexturePair* velocity, float wind, float dt);
@@ -92,7 +96,7 @@ private:
 
     // Performs a number of jacobi iterations with two field inputs
     void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
-                int iterationCount, float alpha, float beta);
+                int iterationCount, float alpha, float beta, int scale );
 
     // Calculates the divergence of the vector field
     void createDivergence(DataTexturePair* vectorData, float dx);
