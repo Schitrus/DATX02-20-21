@@ -80,7 +80,7 @@ public:
 
     void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
 
-    void addWind(DataTexturePair* velocity, float wind, float dt);
+    void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
 
     // Apply rotational flows
     void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);

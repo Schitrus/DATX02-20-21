@@ -108,7 +108,7 @@ void Simulator::initData() {
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
     fillSphere(density_source, 0.8f, center, radius, highResSize);
-    fillSphere(temperature_source, 800.0f, center, radius, highResSize);
+    fillSphere(temperature_source, 3000.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
@@ -127,12 +127,12 @@ void Simulator::initData() {
 void Simulator::velocityStep(float dt){
     // Source
     slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    slab->addSource(lowerVelocity, velocitySource, dt);
+    //slab->addSource(lowerVelocity, velocitySource, dt);
     updateAndApplyWind(dt);
     // Advect
     slab->advection(lowerVelocity, lowerVelocity, dt);
 
-    slab->vorticity(lowerVelocity, 5.0f, dt);
+    slab->vorticity(lowerVelocity, 6.0f, dt);
 
     //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
     //slab->dissipate(lowerVelocity, 0.9f, dt);
@@ -148,23 +148,23 @@ void Simulator::waveletStep(float dt){
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 
-    slab->vorticity(higherVelocity, 8.0f, dt);
+    //slab->vorticity(higherVelocity, 8.0f, dt);
 }
 
 void Simulator::updateAndApplyWind(float dt) {
-    float random = float(rand())/float((RAND_MAX));
+    float random = rand()%(2*314)/100.0f;
 
-    windAngle += dt*random*6.0f;
+    windAngle += dt*1.0;
 
     float baseVelocity = 10;
     float windStrength = baseVelocity*(sin(windAngle) + 1)/2;
-    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
-    slab->addWind(lowerVelocity, windStrength, dt);
+    LOG_INFO("Angle: %f, Wind: %f", windAngle, baseVelocity);
+    slab->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
 
-    slab->setSource(temperature, temperatureSource, dt);
+    slab->addSource(temperature, temperatureSource, dt);
 
     slab->advection(higherVelocity, temperature, dt);
 
@@ -173,8 +173,8 @@ void Simulator::temperatureStep(float dt) {
 
 void Simulator::densityStep(float dt){
     // addForce
-    slab->setSource(density, densitySource, dt);
-    //slab->addSource(density, densitySource, dt);
+    //slab->setSource(density, densitySource, dt);
+    slab->addSource(density, densitySource, dt);
 
     // Advect
     slab->fulladvection(higherVelocity, density, dt);

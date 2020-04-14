@@ -427,10 +427,11 @@ void SlabOperator::addEdgeWind(DataTexturePair* velocity, float wind, float dt) 
     velocity->operationFinished();
 }
 
-void SlabOperator::addWind(DataTexturePair* velocity, float wind, float dt) {
+void SlabOperator::addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt) {
     windShader.use();
     windShader.uniform1f("dt", dt);
-    windShader.uniform1f("wind", wind);
+    windShader.uniform1f("wind_angle", wind_angle);
+    windShader.uniform1f("wind_strength", wind_strength);
     velocity->bindData(GL_TEXTURE0);
 
     interiorOperation(windShader, velocity);
