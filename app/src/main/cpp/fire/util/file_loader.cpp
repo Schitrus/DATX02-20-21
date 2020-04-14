@@ -10,6 +10,7 @@
 
 #define LOG_TAG "file_loader"
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 static FileLoader *fileLoader;
 
@@ -28,6 +29,11 @@ FileLoader::FileLoader(AAssetManager* assetManager) {
 // Return string instead of char pointer to avoid potential memory leaks
 std::string FileLoader::loadFile(const char *path) {
     AAsset *asset = AAssetManager_open(assetManager, path, AASSET_MODE_BUFFER);
+    if(asset == NULL){
+        LOG_ERROR("File '%s' not found!", path);
+        return nullptr;
+    }
+
     off_t size = AAsset_getLength(asset);
 
     std::unique_ptr<char[]> buffer(new char[size]);
