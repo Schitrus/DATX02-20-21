@@ -158,28 +158,28 @@ void SlabOperator::initQuad() {
 int SlabOperator::initShaders() {
     bool success = true;
     // Boundaries
-    success &= boundaryShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/boundary.frag");
-    success &= FABInteriorShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/front_and_back_interior.frag");
-    success &= FABBoundaryShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/front_and_back_boundary.frag");
+    success &= boundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/boundary.frag");
+    success &= FABInteriorShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_interior.frag");
+    success &= FABBoundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_boundary.frag");
     // Advection Shaders
-    success &= advectionShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/advection/advection.frag");
+    success &= advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
     // Dissipate Shaders
-    success &= dissipateShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/dissipate/dissipate.frag");
+    success &= dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
     // Force Shaders
-    success &= addSourceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/add_source.frag");
-    success &= setSourceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/set_source.frag");
-    success &= buoyancyShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/buoyancy.frag");
-    success &= windShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/add_wind.frag");
+    success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
+    success &= setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
+    success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
+    success &= windShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_wind.frag");
     // Projection Shaders
-    success &= divergenceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/divergence.frag");
-    success &= jacobiShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/jacobi.frag");
-    success &= gradientShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/gradient_subtraction.frag");
+    success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
+    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
+    success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
     // Vorticity Shaders
-    success &= vorticityShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/vorticity/vorticity.frag");
+    success &= vorticityShader.load("shaders/simulation/slab.vert", "shaders/simulation/vorticity/vorticity.frag");
     // Temperature Shaders
-    success &= temperatureShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/temperature/temperature.frag");
+    success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
     // Utilities
-    success &= copyShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/copy.frag");
+    success &= copyShader.load("shaders/simulation/slab.vert", "shaders/simulation/copy.frag");
     return success;
 }
 
