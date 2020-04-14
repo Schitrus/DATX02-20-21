@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>
@@ -18,7 +18,7 @@
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
 
-#include "helper.h"
+#include "fire/util/helper.h"
 
 #define LOG_TAG "Renderer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)

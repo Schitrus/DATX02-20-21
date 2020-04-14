@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 #include <glm/glm.hpp>
@@ -18,7 +18,7 @@
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
 
-#include "helper.h"
+#include "fire/util/helper.h"
 #include "simulator.h"
 
 #define LOG_TAG "Renderer"
@@ -158,28 +158,28 @@ void SlabOperator::initQuad() {
 int SlabOperator::initShaders() {
     bool success = true;
     // Boundaries
-    success &= boundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/boundary.frag");
-    success &= FABInteriorShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_interior.frag");
-    success &= FABBoundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/front_and_back_boundary.frag");
+    success &= boundaryShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/boundary.frag");
+    success &= FABInteriorShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/front_and_back_interior.frag");
+    success &= FABBoundaryShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/front_and_back_boundary.frag");
     // Advection Shaders
-    success &= advectionShader.load("shaders/simulation/slab.vert", "shaders/simulation/advection/advection.frag");
+    success &= advectionShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/advection/advection.frag");
     // Dissipate Shaders
-    success &= dissipateShader.load("shaders/simulation/slab.vert", "shaders/simulation/dissipate/dissipate.frag");
+    success &= dissipateShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/dissipate/dissipate.frag");
     // Force Shaders
-    success &= addSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_source.frag");
-    success &= setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
-    success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
-    success &= windShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_wind.frag");
+    success &= addSourceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/add_source.frag");
+    success &= setSourceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/set_source.frag");
+    success &= buoyancyShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/buoyancy.frag");
+    success &= windShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/force/add_wind.frag");
     // Projection Shaders
-    success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
-    success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
-    success &= gradientShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/gradient_subtraction.frag");
+    success &= divergenceShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/divergence.frag");
+    success &= jacobiShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/jacobi.frag");
+    success &= gradientShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/projection/gradient_subtraction.frag");
     // Vorticity Shaders
-    success &= vorticityShader.load("shaders/simulation/slab.vert", "shaders/simulation/vorticity/vorticity.frag");
+    success &= vorticityShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/vorticity/vorticity.frag");
     // Temperature Shaders
-    success &= temperatureShader.load("shaders/simulation/slab.vert", "shaders/simulation/temperature/temperature.frag");
+    success &= temperatureShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/temperature/temperature.frag");
     // Utilities
-    success &= copyShader.load("shaders/simulation/slab.vert", "shaders/simulation/copy.frag");
+    success &= copyShader.load("shaders/fire.simulation/slab.vert", "shaders/fire.simulation/copy.frag");
     return success;
 }
 
@@ -393,9 +393,9 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 
     advection(target, result, dt);
 
-    // Usually there is also a diffusion step for fluid simulation here.
+    // Usually there is also a diffusion step for fluid fire.simulation here.
     // However we assume that all fluids we simulate has a diffusion term of zero,
-    // removing the need of this simulation step
+    // removing the need of this fire.simulation step
 
     if(dissipationRate != 0)
         dissipate(target, result, dissipationRate, dt);
@@ -403,7 +403,7 @@ void SlabOperator::substanceMovementStep(GLuint &target, GLuint& result, float d
 */
 
 void SlabOperator::addEdgeWind(DataTexturePair* velocity, float wind, float dt) {
-    //Step one: apply wind to depth layer 1 while rendering to the result texture
+    //Step one: apply wind to depth layer 1 while fire.rendering to the result texture
     windShader.use();
     windShader.uniform1f("dt", dt);
     windShader.uniform1f("wind", wind);
@@ -417,7 +417,7 @@ void SlabOperator::addEdgeWind(DataTexturePair* velocity, float wind, float dt) 
     velocity->bindData(GL_TEXTURE0);
     velocity->bindToFramebuffer(1);
     drawInteriorToTexture(windShader, 1, velocity->getSize());
-    //The current result is the original data, so even if rendering failed or not, we should switch back
+    //The current result is the original data, so even if fire.rendering failed or not, we should switch back
     velocity->operationFinished();
 }
 
@@ -474,7 +474,7 @@ void SlabOperator::bindData(GLuint dataTexture, GLenum textureSlot) {
 }
 
 bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
-    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
     glViewport(0, 0, size.x, size.y);
@@ -487,7 +487,7 @@ bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
 }
 
 bool SlabOperator::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
-    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
     glViewport(1, 1, size.x - 2, size.y - 2);
@@ -500,7 +500,7 @@ bool SlabOperator::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
 }
 
 bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth, ivec3 size) {
-    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "simulation"))
+    if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
     glViewport(0, 0, size.x, size.y);

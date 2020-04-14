@@ -2,10 +2,10 @@
 // Created by Kalle on 2020-03-04.
 //
 #include "simulator.h"
-#include "helper.h"
+#include "fire/util/helper.h"
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <android/log.h>
 
 #include <chrono>
@@ -26,7 +26,7 @@ const float simulationScale = 12.0f;
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 // size of high resolution textures. This also includes the border of the texture
 const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
-// size of simulation space in meters. This does not include the border that is included in the resolution sizes
+// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 const vec3 simulationSize = simulationScale * vec3(sizeRatio);
 
 
@@ -216,9 +216,9 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 ivec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 ivec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
@@ -237,9 +237,9 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 ivec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 ivec3 pos1 = vec3(x + 1, y + 1, z + 1)  / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
@@ -259,9 +259,9 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 vec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {

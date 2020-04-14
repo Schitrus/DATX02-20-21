@@ -6,7 +6,7 @@
 #define DATX02_20_21_FRAMEBUFFER_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 
 #include "simple_framebuffer.h"
 

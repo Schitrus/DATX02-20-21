@@ -6,14 +6,14 @@
 #define DATX02_20_21_RAY_RENDERER_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <glm/glm.hpp>
 #include <chrono>
 
 #include <android/asset_manager.h>
 
-#include "shader.h"
-#include "framebuffer.h"
+#include "fire/util/shader.h"
+#include "fire/util/framebuffer.h"
 
 using namespace glm;
 

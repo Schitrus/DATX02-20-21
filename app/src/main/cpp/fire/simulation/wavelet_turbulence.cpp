@@ -48,10 +48,10 @@ void WaveletTurbulence::generateAngles() {
 
 int WaveletTurbulence::initShaders() {
     bool success = true;
-    //success &= turbulenceShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/turbulence.frag");
-    success &= synthesisShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/fluid_synthesis.frag");
-    success &= textureCoordShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/advection.frag");
-    success &= energyShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/energy_spectrum.frag");
+    //success &= turbulenceShader.load("shaders/fire.simulation/wavelet/turbulence.vert", "shaders/fire.simulation/wavelet/turbulence.frag");
+    success &= synthesisShader.load("shaders/fire.simulation/wavelet/turbulence.vert", "shaders/fire.simulation/wavelet/fluid_synthesis.frag");
+    success &= textureCoordShader.load("shaders/fire.simulation/wavelet/turbulence.vert", "shaders/fire.simulation/wavelet/advection.frag");
+    success &= energyShader.load("shaders/fire.simulation/wavelet/turbulence.vert", "shaders/fire.simulation/wavelet/energy_spectrum.frag");
     return success;
 }
 

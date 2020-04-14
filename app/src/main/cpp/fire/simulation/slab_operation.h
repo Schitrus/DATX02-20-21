@@ -6,11 +6,11 @@
 #define DATX02_20_21_SLAB_OPERATION_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 
-#include "shader.h"
-#include "simple_framebuffer.h"
-#include "data_texture_pair.h"
+#include "fire/util/shader.h"
+#include "fire/util/simple_framebuffer.h"
+#include "fire/util/data_texture_pair.h"
 
 class SlabOperator {
 

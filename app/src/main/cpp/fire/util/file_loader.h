@@ -5,7 +5,7 @@
 #ifndef DATX02_20_21_FILE_LOADER_H
 #define DATX02_20_21_FILE_LOADER_H
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <jni.h>
 #include <android/asset_manager.h>
 #include <string>

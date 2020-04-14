@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <utility>
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 /*

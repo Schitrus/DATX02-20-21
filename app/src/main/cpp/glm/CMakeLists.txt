@@ -3,7 +3,7 @@ file(GLOB ROOT_INLINE *.inl)
 file(GLOB ROOT_HEADER *.hpp)
 file(GLOB ROOT_TEXT ../*.txt)
 file(GLOB ROOT_MD ../*.md)
-file(GLOB ROOT_NAT ../util/glm.natvis)
+file(GLOB ROOT_NAT ../fire/util/glm.natvis)
 
 file(GLOB_RECURSE CORE_SOURCE ./detail/*.cpp)
 file(GLOB_RECURSE CORE_INLINE ./detail/*.inl)

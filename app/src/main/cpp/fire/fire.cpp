@@ -3,11 +3,11 @@
 //
 
 #include "fire.h"
-#include "file_loader.h"
+#include "util/file_loader.h"
 #include <android/asset_manager_jni.h>
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <android/log.h>
 
 #define LOG_TAG "FIRE"

@@ -5,14 +5,14 @@
 #include "shader.h"
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <android/log.h>
 #include <string>
 
 #include "helper.h"
-#include "file_loader.h"
+#include "fire/util/file_loader.h"
 
 #define LOG_TAG "shader"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
