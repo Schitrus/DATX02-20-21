@@ -13,9 +13,6 @@
 #include "data_texture_pair.h"
 
 class SlabOperator {
-    int grid_width, grid_height, grid_depth;
-    //The number of voxels in a meter in the current resolution
-    float meter_to_voxels;
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -37,7 +34,7 @@ class SlabOperator {
     Shader FABBoundaryShader;
     Shader boundaryShader;
 
-    GLuint diffusionBTexture;
+    GLuint diffusionBLRTexture, diffusionBHRTexture;
     DataTexturePair* divergence;
     DataTexturePair* jacobi;
 
@@ -51,8 +48,6 @@ class SlabOperator {
 public:
     int init();
 
-    void initSize(int width, int height, int depth, float meterToVoxels);
-
     // Called at the beginning of a series of operations to prepare opengl
     void prepare();
 
@@ -61,12 +56,15 @@ public:
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
+
     // Performs advection on the given data
+    // The data and the velocity should use the same resolution for the shader to work correctly
     void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
     void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
 
-    void temperatureOperation(DataTexturePair* temperature, DataTexturePair* velocity, float dt);
+    // Performs heat dissipation on the given temperature field
+    void heatDissipation(DataTexturePair* temperature, float dt);
 
     // Adds the given source field multiplied by dt to the target field
     void addSource(DataTexturePair* data, GLuint& source, float dt);
@@ -85,7 +83,19 @@ public:
 
     void addEdgeWind(DataTexturePair* velocity, float wind, float dt);
 
-    void addWind(DataTexturePair* velocity, float wind, float dt);
+    void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
+
+    // Apply rotational flows
+    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
+
+
+    // Performs the operation with the set shader over the entirety of the given data.
+    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
+    void fullOperation(Shader shader, DataTexturePair* data, int boundaryScale);
+
+    // Performs the operation with the set shader over the interior of the given data.
+    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
+    void interiorOperation(Shader shader, DataTexturePair* data);
 
 private:
     void initData();
@@ -106,14 +116,7 @@ private:
 
     void setBoundary(DataTexturePair* data, int scale);
 
-    // Performs the operation with the set shader over the interior of the given data.
-    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void interiorOperation(Shader shader, DataTexturePair* data, int boundaryScale);
-
-    // Performs the operation with the set shader over the entirety of the given data.
-    // You must set the shader program, along with any uniform input or textures needed by the shader beforehand.
-    void fullOperation(Shader shader, DataTexturePair* data);
-
+    // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
 
     // Binds the given data texture to the given slot
@@ -125,15 +128,15 @@ private:
 
     // Sets the depth uniform on the shader and then draws both the interior and boundary
     // Returns true if the operation succeeded without an error
-    bool drawAllToTexture(Shader shader, int depth);
+    bool drawAllToTexture(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the interior
     // Returns true if the operation succeeded without an error
-    bool drawInteriorToTexture(Shader shader, int depth);
+    bool drawInteriorToTexture(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the boundary
     // Returns true if the operation succeeded without an error
-    bool drawBoundaryToTexture(Shader shader, int depth);
+    bool drawBoundaryToTexture(Shader shader, int depth, ivec3 size);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

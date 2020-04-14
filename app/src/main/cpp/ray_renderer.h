@@ -37,6 +37,10 @@ class RayRenderer{
     GLuint temperatureTexID;
     GLuint densityTexID;
 
+    // rotation
+    double rx;
+    double ry;
+
     // Shaders
     Shader frontFaceShader, backFaceShader;
 
@@ -52,6 +56,8 @@ public:
     void step();
 
     void setData(GLuint density, GLuint temperature, int width, int height, int depth);
+
+    void touch(double dx, double dy);
 
 private:
 

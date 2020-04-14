@@ -12,18 +12,8 @@
 
 using namespace glm;
 
-double fade(double x);
-
-double lerp(double a, double b, double t);
-
-double perlin(double x, double y, double z);
-
-vec4 noise(double x, double y, double z);
-
-void generate3DTexture(GLuint *textureID, GLsizei width, GLsizei height, GLsizei depth);
-
-void createScalar3DTexture(GLuint *id, int width, int height, int depth, float* data);
-void createVector3DTexture(GLuint *id, int width, int height, int depth, vec3* data);
+void createScalar3DTexture(GLuint *id, ivec3 size, float* data);
+void createVector3DTexture(GLuint *id, ivec3 size, vec3* data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);

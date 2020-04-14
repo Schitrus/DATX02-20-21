@@ -86,13 +86,8 @@ void RayRenderer::setData(GLuint density, GLuint temperature, int width, int hei
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
-    //::load3DTexture(assetManager, fileName, 256, 256, 178, &volumeTexID);
-    //boundingScale = vec3(1, 1, 0.7);
-    texture_width = 32;
-    texture_height = 32;
-    texture_depth = 32;
-    generate3DTexture(&densityTexID, texture_width, texture_height, texture_depth);
-    boundingScale = vec3(1.0f);
+    ::load3DTexture(assetManager, fileName, 256, 256, 178, &densityTexID);
+    boundingScale = vec3(1, 1, 0.7);
 }
 
 void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
@@ -171,7 +166,7 @@ void RayRenderer::step() {
 
     // back
     FBO->bind();
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
 
@@ -181,7 +176,7 @@ void RayRenderer::step() {
 
     // front
     FBO->unbind();
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -198,10 +193,14 @@ void RayRenderer::step() {
     glBindVertexArray(0);
 }
 
+void RayRenderer::touch(double dx, double dy){
+    rx += 2*dx/window_width;
+    ry += 2*dy/window_height;
+}
+
 void RayRenderer::loadMVP(Shader shader, float current_time) {
 
     float p = current_time / 10.0f;
-    float rot = 2 * PI * 0.25f;//* p;
 
     // Set up a projection matrix
     float nearPlane = 0.01f;
@@ -212,7 +211,8 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     vec3 modelPos(0, 0, -1.0);
 
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
-                     * rotate(mat4(1.0f), rot, vec3(0,1,0))
+                     * rotate(mat4(1.0f), (float)rx, vec3(0,1,0))
+                     //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
                      * scale(mat4(1.0f), boundingScale)
                      * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 

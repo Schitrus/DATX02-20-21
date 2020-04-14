@@ -9,17 +9,22 @@
 #include <glm/glm.hpp>
 
 #include "helper.h"
+#include "simulator.h"
 
 using namespace glm;
 
-void DataTexturePair::initScalarData(int width, int height, int depth, float* data) {
-    createScalar3DTexture(&dataTexture, width, height, depth, data);
-    createScalar3DTexture(&resultTexture, width, height, depth, (float*)nullptr);
+void DataTexturePair::initScalarData(bool isHighRes, float* data) {
+    this->isHighRes = isHighRes;
+    ivec3 size = getSize();
+    createScalar3DTexture(&dataTexture, size, data);
+    createScalar3DTexture(&resultTexture, size, (float*)nullptr);
 }
 
-void DataTexturePair::initVectorData(int width, int height, int depth, vec3* data) {
-    createVector3DTexture(&dataTexture, width, height, depth, data);
-    createVector3DTexture(&resultTexture, width, height, depth, (vec3*)nullptr);
+void DataTexturePair::initVectorData(bool isHighRes, vec3* data) {
+    this->isHighRes = isHighRes;
+    ivec3 size = getSize();
+    createVector3DTexture(&dataTexture, size, data);
+    createVector3DTexture(&resultTexture, size, (vec3*)nullptr);
 }
 
 void DataTexturePair::bindData(GLenum textureSlot) {
@@ -50,14 +55,26 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
-DataTexturePair* createScalarDataPair(int width, int height, int depth, float* data) {
+bool DataTexturePair::isUsingHighRes() {
+    return isHighRes;
+}
+
+ivec3 DataTexturePair::getSize() {
+    return isHighRes ? highResSize : lowResSize;
+}
+
+float DataTexturePair::toVoxelScaleFactor() {
+    return (isHighRes ? highResScale : lowResScale)/simulationScale;
+}
+
+DataTexturePair* createScalarDataPair(bool isHighRes, float* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initScalarData(width, height, depth, data);
+    texturePair->initScalarData(isHighRes, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(int width, int height, int depth, vec3* data) {
+DataTexturePair* createVectorDataPair(bool isHighRes, vec3* data) {
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initVectorData(width, height, depth, data);
+    texturePair->initVectorData(isHighRes, data);
     return texturePair;
 }

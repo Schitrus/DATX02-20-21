@@ -3,10 +3,12 @@ package com.pbf;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
+import android.view.OrientationEventListener;
+import android.view.OrientationListener;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-class FireListener implements GLSurfaceView.OnTouchListener{
+class FireListener implements GLSurfaceView.OnTouchListener {
 
     private double touchX, touchY, oldX, oldY;
     private float scaleFactor = 1.0f;
@@ -31,6 +33,10 @@ class FireListener implements GLSurfaceView.OnTouchListener{
             touch(deltaX, deltaY);
 
         return true;
+    }
+
+    public void onOrientationChanged(int orientation){
+
     }
 
     private class ScaleListener

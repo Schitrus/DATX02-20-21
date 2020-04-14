@@ -44,6 +44,7 @@ void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
 
 void Renderer::touch(double dx, double dy){
     // TODO implement
+    rayRenderer.touch(dx, dy);
 }
 
 void Renderer::setData(GLuint density, GLuint temperature, int width, int height, int depth){

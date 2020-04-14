@@ -38,6 +38,7 @@ add_library( # Sets the name of the library.
         simple_framebuffer.cpp
         framebuffer.cpp
         data_texture_pair.cpp
+        wavelet_turbulence.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

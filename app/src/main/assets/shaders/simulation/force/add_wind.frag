@@ -7,7 +7,8 @@ layout(binding = 0) uniform sampler3D target_field;
 
 uniform float dt;
 uniform int depth;
-uniform float wind;
+uniform float wind_angle;
+uniform float wind_strength;
 
 out vec3 outValue;
 
@@ -16,5 +17,5 @@ void main() {
 
     vec3 target = texelFetch(target_field, position, 0).xyz;
 
-    outValue = target + dt*vec3(0, 0, wind);
+    outValue = target + dt*vec3(wind_strength*cos(wind_angle), 0, wind_strength*sin(wind_angle));
 }
