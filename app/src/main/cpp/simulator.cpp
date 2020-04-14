@@ -56,7 +56,7 @@ void Simulator::update(){
 
     slab->prepare();
 
-    delta_time = 1/30.0f;
+    delta_time = 1/20.0f;
 
     velocityStep(delta_time);
 
@@ -152,13 +152,11 @@ void Simulator::waveletStep(float dt){
 }
 
 void Simulator::updateAndApplyWind(float dt) {
-    float random = rand()%(2*314)/100.0f;
 
-    windAngle += dt*1.0;
+    windAngle += dt*0.5f;
 
-    float baseVelocity = 10;
-    float windStrength = baseVelocity*(sin(windAngle) + 1)/2;
-    LOG_INFO("Angle: %f, Wind: %f", windAngle, baseVelocity);
+    float windStrength = 12.0 + 11*sin(windAngle*2.14+123);
+    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     slab->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 

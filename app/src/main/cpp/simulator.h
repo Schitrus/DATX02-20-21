@@ -38,7 +38,7 @@ class Simulator{
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
 
-    float windAngle = 0.0f;
+    float windAngle = 3.14f;
 
     // Time
     time_point<system_clock> start_time, last_time;

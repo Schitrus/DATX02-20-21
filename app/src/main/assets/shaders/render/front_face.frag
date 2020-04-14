@@ -37,7 +37,7 @@ void main() {
                                         vec3(1.0,0.25,0.0), lum),
                                         vec3(1.0,0.75,0.0), rad),
                                         vec3(1.0,1.0,1.0), hot);
-           float alpha = 10.0*samp*h;
+           float alpha = samp;
            float over = color.a + alpha * (1.0 - color.a);
            if(over > 0.0)
               color.rgb = ( color.rgb * color.a + baseColor * alpha * (1.0 - color.a))/over;
@@ -48,7 +48,7 @@ void main() {
            tr += rayStep;
    }
         color.rgb = pow( color.rgb, vec3(0.4545));
-        color.a = pow(color.a, 0.2);
+        color.a = pow(color.a, 0.5);
         outColor = color;
      //   outColor = vec4(1.0f,1.0f,1.0f,color.a); // todo
 }
