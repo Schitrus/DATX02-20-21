@@ -10,6 +10,10 @@
 #include <gles3/gl31.h>
 #include <android/log.h>
 
+#define LOG_TAG "FIRE"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
     : javaEnvironment(javaEnvironment), assetManager(assetManager),
       screen_width(width), screen_height(height) {

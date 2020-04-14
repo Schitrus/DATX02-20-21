@@ -16,9 +16,6 @@
 #include "data_texture_pair.h"
 #include "slab_operation.h"
 
-#define LOG_TAG "Renderer"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-
 using namespace glm;
 
 #define PI 3.14159265359f

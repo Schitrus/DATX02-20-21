@@ -205,14 +205,14 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 
     lowerVelocity->bindData(GL_TEXTURE0);
 
-    slab->interiorOperation(textureCoordShader, texture_coord);
+    slab->fullOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.use();
     energyShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
     lowerVelocity->bindData(GL_TEXTURE0);
-    slab->interiorOperation(energyShader, energy);
+    slab->fullOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
@@ -224,7 +224,7 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     texture_coord->bindData(GL_TEXTURE2);
     energy->bindData(GL_TEXTURE3);
 
-    slab->interiorOperation(synthesisShader, higherVelocity);
+    slab->interiorOperation(synthesisShader, higherVelocity, -1);
 
 }
 

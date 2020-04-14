@@ -201,10 +201,10 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
 
     //Copy over the inside
     copyShader.use();
-    for(int depth = 1; depth < grid_depth - 1; depth++){
+    for(int depth = 1; depth < gridSize.z - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        if(!drawInteriorToTexture(copyShader, depth))
+        if(!drawInteriorToTexture(copyShader, depth, gridSize))
             return;
     }
 
@@ -330,7 +330,7 @@ void SlabOperator::fulladvection(DataTexturePair* velocity, DataTexturePair* dat
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    interiorOperation(advectionShader, data);
+    fullOperation(advectionShader, data);
 }
 void SlabOperator::projection(DataTexturePair* velocity, int iterationCount){
     float dx = 1.0f/velocity->toVoxelScaleFactor();

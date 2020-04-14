@@ -13,10 +13,6 @@
 #include "renderer.h"
 #include "simulator.h"
 
-#define LOG_TAG "FIRE"
-#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-
 /*
  Did you ever hear the tragedy of Darth Plagueis The Wise?
  I thought not. It’s not a story the Jedi would tell you.
