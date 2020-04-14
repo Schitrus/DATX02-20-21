@@ -56,7 +56,7 @@ void Simulator::update(){
 
     slab->prepare();
 
-    delta_time = 1/20.0f;
+    delta_time = 1/30.0f;
 
     velocityStep(delta_time);
 
@@ -105,11 +105,11 @@ void Simulator::initData() {
 
     vec3 center = vec3(0.5f, 0.2f, 0.5f) * vec3(highResSize);
 
-    fillOutgoingVector(velocity_source, 10.0f, start, end);
+    //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
     fillSphere(density_source, 0.8f, center, radius, highResSize);
     fillSphere(temperature_source, 800.0f, center, radius, highResSize);
-    fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
+    //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
     createScalar3DTexture(&densitySource, highResSize, density_source);
