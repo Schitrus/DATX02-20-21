@@ -39,6 +39,7 @@ int SimulationOperations::initShaders() {
     success &= setSourceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/set_source.frag");
     success &= buoyancyShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/buoyancy.frag");
     success &= windShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/add_wind.frag");
+    success &= externalForceShader.load("shaders/simulation/slab.vert", "shaders/simulation/force/external_force.frag");
     // Projection Shaders
     success &= divergenceShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/divergence.frag");
     success &= jacobiShader.load("shaders/simulation/slab.vert", "shaders/simulation/projection/jacobi.frag");
@@ -213,4 +214,13 @@ void SimulationOperations::addWind(DataTexturePair* velocity, float wind_angle, 
     velocity->bindData(GL_TEXTURE0);
 
     slab->interiorOperation(windShader, velocity, -1);
+}
+
+void SimulationOperations::externalForce(DataTexturePair *velocity, GLuint &force, float dt) {
+    externalForceShader.use();
+    externalForceShader.uniform1f("dt", dt);
+    velocity->bindData(GL_TEXTURE0);
+    bindData(force, GL_TEXTURE1);
+
+    slab->fullOperation(externalForceShader, velocity);
 }

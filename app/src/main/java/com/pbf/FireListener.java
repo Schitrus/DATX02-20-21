@@ -30,7 +30,7 @@ class FireListener implements GLSurfaceView.OnTouchListener {
         if (oldscale != scaleFactor)
             lastScale = scaleDetector.getEventTime();
         if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE)
-            touch(deltaX, deltaY);
+            touch(touchX, touchY, deltaX, deltaY);
 
         return true;
     }
@@ -55,5 +55,5 @@ class FireListener implements GLSurfaceView.OnTouchListener {
 
     public native void scale(float scaleFactor, double scaleX, double scaleY);
 
-    public native void touch(double dx, double dy);
+    public native void touch(double x, double y, double dx, double dy);
 }

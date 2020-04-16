@@ -43,7 +43,7 @@ public:
     void resize(int width, int height);
     void update();
 
-    void touch(double dx, double dy);
+    void touch(double x, double y, double dx, double dy);
     void scale(float scaleFactor, double scaleX, double scaleY);
 };
 
@@ -63,7 +63,7 @@ JC(jint) Java_com_pbf_FireRenderer_init(JCT);
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height);
 JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener
-JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
+JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble x, jdouble y, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
 
 #endif //DATX02_20_21_FIRE_H

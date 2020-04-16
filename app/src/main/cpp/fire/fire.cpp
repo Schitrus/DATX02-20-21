@@ -14,6 +14,10 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+// Enable touch interaction with the fire, if not defined touch will rotate camera.
+// Enable/disable by commenting/uncommenting the line below
+#define ENABLE_TOUCH_INTERACTION
+
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
     : javaEnvironment(javaEnvironment), assetManager(assetManager),
       screen_width(width), screen_height(height) {
@@ -37,8 +41,46 @@ void Fire::update(){
     renderer.update();
 }
 
-void Fire::touch(double dx, double dy){
+void Fire::touch(double x, double y, double dx, double dy){
+#ifndef ENABLE_TOUCH_INTERACTION
     renderer.touch(dx, dy);
+    return;
+#endif
+//Only works when camera is not rotated
+
+    float aspectRatio = (float)screen_width / screen_height;
+    int width, height, depth;
+    simulator.getSize(width, height, depth);
+
+    // cube coordinates in ray_renderer
+    float m = max(max(width, height), depth);
+    vec3 tex = vec3(width, height, depth)/m;
+
+    //check if x & y coordinate is inside the grid area
+    double lowerBoundX = screen_width/2 - (screen_width * tex.x);
+    double higherBoundX = screen_width/2 + (screen_width * tex.x);
+    if(x < lowerBoundX || x > higherBoundX){
+        return;
+    }
+
+    double higherBoundY = screen_height/2 + (screen_height * tex.y * aspectRatio);
+    double lowerBoundY = screen_height/2 - (screen_height * tex.y * aspectRatio);
+    if(y < lowerBoundY || y > higherBoundY){
+        return;
+    }
+
+    //translate coordinates to texCoords
+    double w = higherBoundX-lowerBoundX;
+    double pixels_per_cellX = w/width;
+    x = floor((x-lowerBoundX)/pixels_per_cellX);
+
+    double h = higherBoundY-lowerBoundY;
+    double pixels_per_cellY = h/height;
+    y = height - ceil((y-lowerBoundY)/pixels_per_cellY);
+
+    simulator.touch(x, y, dx, -dy);
+
+    return;
 }
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){
@@ -77,8 +119,8 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT){
 }
 
 // FireListener
-JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
-    fire->touch(dx, dy);
+JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble x, jdouble y, jdouble dx, jdouble dy){
+    fire->touch(x, y, dx, dy);
 }
 
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){

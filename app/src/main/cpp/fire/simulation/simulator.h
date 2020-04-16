@@ -39,6 +39,11 @@ class Simulator{
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
 
+    //External force
+    GLuint force;
+    vec3* force_field;
+    bool externalForceReady;
+
     float windAngle = 3.14f;
 
     // Time
@@ -51,6 +56,10 @@ public:
     void update();
 
     void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
+
+    void getSize(int& width, int& height, int& depth);
+
+    void touch(double x, double y, double dx, double dy);
 
 private:
 

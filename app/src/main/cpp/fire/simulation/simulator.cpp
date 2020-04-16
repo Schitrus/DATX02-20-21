@@ -26,7 +26,7 @@ const float simulationScale = 12.0f;
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 // size of high resolution textures. This also includes the border of the texture
 const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
-// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
+// size of simulation space in meters. This does not include the border that is included in the resolution sizes
 const vec3 simulationSize = simulationScale * vec3(sizeRatio);
 
 
@@ -81,6 +81,12 @@ void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width
     depth = highResSize.z;
 }
 
+void Simulator::getSize(int &width, int &height, int &depth) {
+    width = lowResSize.x;
+    height = lowResSize.y;
+    depth = lowResSize.z;
+}
+
 void Simulator::initData() {
     int lowerSize = lowResSize.x * lowResSize.y * lowResSize.z;
     int higherSize = highResSize.x * highResSize.y * highResSize.z;
@@ -105,8 +111,6 @@ void Simulator::initData() {
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-
-
     vec3 center = vec3(0.5f, 0.2f, 0.5f) * vec3(highResSize);
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
@@ -128,9 +132,18 @@ void Simulator::initData() {
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
 
-void Simulator::velocityStep(float dt){
+void Simulator::velocityStep(float dt) {
     // Source
     operations->buoyancy(lowerVelocity, temperature, dt, 1.0f);
+
+    if(externalForceReady){
+        createVector3DTexture(&force, lowResSize, force_field);
+        operations->externalForce(lowerVelocity, force, dt);
+        delete[] force_field;
+        glDeleteTextures(1, &force);
+        externalForceReady = false;
+    }
+
     //slab->addSource(lowerVelocity, velocitySource, dt);
     updateAndApplyWind(dt);
     // Advect
@@ -143,9 +156,10 @@ void Simulator::velocityStep(float dt){
   
     // Project
     operations->projection(lowerVelocity, 20);
+
 }
 
-void Simulator::waveletStep(float dt){
+void Simulator::waveletStep(float dt) {
     // Advect texture coordinates
     wavelet->advection(lowerVelocity, dt);
 
@@ -161,7 +175,7 @@ void Simulator::updateAndApplyWind(float dt) {
     windAngle += dt*0.5f;
 
     float windStrength = 12.0 + 11*sin(windAngle*2.14+123);
-    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
+    //LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     operations->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
@@ -174,7 +188,7 @@ void Simulator::temperatureStep(float dt) {
     operations->heatDissipation(temperature, dt);
 }
 
-void Simulator::densityStep(float dt){
+void Simulator::densityStep(float dt) {
     // addForce
     //slab->setSource(density, densitySource, dt);
     operations->addSource(density, densitySource, dt);
@@ -281,7 +295,7 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
 }
 
 
-void Simulator::fillSphere(float* field, float value, vec3 center, float radius, vec3 size){
+void Simulator::fillSphere(float* field, float value, vec3 center, float radius, vec3 size) {
     for(int z = 0; z < size.z; z++){
         for(int y = 0; y < size.y; y++){
             for(int x = 0; x < size.x; x++){
@@ -294,7 +308,7 @@ void Simulator::fillSphere(float* field, float value, vec3 center, float radius,
     }
 }
 
-void Simulator::fillSphere(vec3* field, vec3 value, vec3 center, float radius, vec3 size){
+void Simulator::fillSphere(vec3* field, vec3 value, vec3 center, float radius, vec3 size) {
     for(int z = 0; z < size.z; z++){
         for(int y = 0; y < size.y; y++){
             for(int x = 0; x < size.x; x++){
@@ -319,4 +333,17 @@ float Simulator::getOverlapVolume(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
     vec3 overlapMin = max(min1, min2);
     vec3 overlapMax = min(max1, max2);
     return (overlapMax.x - overlapMin.x)*(overlapMax.y - overlapMin.y)*(overlapMax.z - overlapMin.z);
+}
+
+
+void Simulator::touch(double x, double y, double dx, double dy) {
+    force_field = new vec3[lowResSize.x*lowResSize.y*lowResSize.z];
+    clearField(force_field, vec3(0.0f, 0.0f,0.0f), lowResSize);
+
+    for(int z = 0; z < lowResSize.z; z++) {
+        int index = lowResSize.x * (lowResSize.y * z + y) + x;
+        force_field[index] = vec3(100*dx, 100*dy, 0.0f);
+    }
+
+    externalForceReady = true;
 }
