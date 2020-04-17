@@ -11,6 +11,7 @@ uniform int depth;
 uniform float scale;
 uniform vec3 temp_border_width;
 uniform vec3 gridSize;
+uniform vec3 direction;
 
 out vec3 outVelocity;
 
@@ -24,10 +25,11 @@ void main() {
     float temperature = texture(temperature_field, (vec3(position) + vec3(0.5))/gridSize).x;
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
-    vec3 vertical_direction = vec3(0.0f, 1.0f, 0.0f);
+    //vec3 vertical_direction = vec3(0.0f, 1.0f, 0.0f);
 
     // Buoyancy force
-    vec3 buoyancy = (temperature - ambient_temperature) * vertical_direction;
+    //vec3 buoyancy = (temperature - ambient_temperature) * vertical_direction;
+    vec3 buoyancy = (temperature - ambient_temperature) * direction;
 
     outVelocity = velocity + scale * buoyancy * dt;
 }

@@ -45,6 +45,7 @@ public:
 
     void touch(double dx, double dy);
     void scale(float scaleFactor, double scaleX, double scaleY);
+    void rotationSensor(float *rotationMatrix);
 };
 
 Fire* fire;
@@ -53,7 +54,7 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager);
 
 // Interface between java and c++
 #define JC(T) extern "C" JNIEXPORT T JNICALL
-#define JCT JNIEnv*, jobject
+#define JCT JNIEnv* env, jobject
 
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject, jobject mgr, jint width, jint height);
@@ -65,5 +66,6 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
+JC(void) Java_com_pbf_FireListener_rotationSensor(JCT, jfloatArray rotationMatrix);
 
 #endif //DATX02_20_21_FIRE_H

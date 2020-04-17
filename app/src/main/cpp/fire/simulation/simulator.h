@@ -25,6 +25,8 @@ extern const ivec3 lowResSize;
 extern const ivec3 highResSize;
 // size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 extern const vec3 simulationSize;
+// The sensor values for the orientation of the device
+extern mat3 deviceRotationMatrix;
 
 class Simulator{
     SlabOperator* slab;
@@ -51,6 +53,8 @@ public:
     void update();
 
     void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
+
+    void updateDeviceRotationMatrix(float *rotationMatrix);
 
 private:
 

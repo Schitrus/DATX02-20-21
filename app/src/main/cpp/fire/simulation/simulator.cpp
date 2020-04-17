@@ -8,6 +8,9 @@
 #include <GLES3/gl31.h>
 #include <android/log.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include <chrono>
 #include <cstdlib>
 
@@ -28,6 +31,8 @@ const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
 // size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 const vec3 simulationSize = simulationScale * vec3(sizeRatio);
+// The sensor values for the orientation of the device
+mat3 deviceRotationMatrix = mat3(1.0);
 
 
 int Simulator::init(){
@@ -81,6 +86,17 @@ void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width
     depth = highResSize.z;
 }
 
+void Simulator::updateDeviceRotationMatrix(float *rotationMatrix){
+    // Update global variable deviceRotationMatrix with correct value in simulation file
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j++){
+            deviceRotationMatrix[i][j] = rotationMatrix[3*i + j];
+        }
+    }
+    LOG_INFO("Device rotation matrix: %s", glm::to_string(deviceRotationMatrix).c_str());
+}
+
+
 void Simulator::initData() {
     int lowerSize = lowResSize.x * lowResSize.y * lowResSize.z;
     int higherSize = highResSize.x * highResSize.y * highResSize.z;
@@ -130,9 +146,9 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    operations->buoyancy(lowerVelocity, temperature, dt, 1.0f);
+    operations->buoyancy(lowerVelocity, temperature, deviceRotationMatrix, dt, 1.0f);
     //slab->addSource(lowerVelocity, velocitySource, dt);
-    updateAndApplyWind(dt);
+    //updateAndApplyWind(dt); // TODO REMOVE TO APPLY WIND
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 

@@ -148,7 +148,7 @@ void Shader::uniform1f(const GLchar *name, GLfloat value) {
     else LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
 }
 
-void Shader::uniform3f(const GLchar *name, ivec3 vector) {
+void Shader::uniform3f(const GLchar *name, vec3 vector) {
     if(program() != 0)
         glUniform3f(glGetUniformLocation(program(), name), vector.x, vector.y, vector.z);
     else LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);

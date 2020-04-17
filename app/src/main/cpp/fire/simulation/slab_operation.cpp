@@ -156,6 +156,8 @@ int SlabOperator::initShaders() {
 }
 
 void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
+    return; // TODO REMOVE TO MAKE BOUNDARY WORK
+
     // Input data used in all steps
     data->bindData(GL_TEXTURE0);
     ivec3 gridSize = data->getSize();

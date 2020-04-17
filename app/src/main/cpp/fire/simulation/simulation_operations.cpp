@@ -2,6 +2,7 @@
 // Created by kirderf on 2020-04-14.
 //
 
+#include <glm/gtx/string_cast.hpp>
 #include "simulation_operations.h"
 #include "simulator.h"
 #include "fire/util/helper.h"
@@ -78,15 +79,20 @@ void SimulationOperations::setSource(DataTexturePair* data, GLuint& source, floa
     slab->fullOperation(setSourceShader, data);
 }
 
-void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale){
+void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, mat3 deviceRotationMatrix, float dt, float scale){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
     buoyancyShader.uniform1f("scale", scale);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
+    vec3 direction = deviceRotationMatrix * vec3(0.0f, 0.0f, 1.0f);
+    direction = normalize(direction);
+    LOG_INFO("Direction vector: %s", glm::to_string(direction).c_str());
+    buoyancyShader.uniform3f("direction", direction);
     buoyancyShader.uniform3f("temp_border_width", vec3(1)/vec3(temperature->getSize()));
 #pragma clang diagnostic pop
     buoyancyShader.uniform3f("gridSize", velocity->getSize());
+
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 

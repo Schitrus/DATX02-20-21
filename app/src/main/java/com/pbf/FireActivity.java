@@ -3,6 +3,7 @@ package com.pbf;
 import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Point;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
 import com.example.datx02_20_21.R;
@@ -26,7 +27,7 @@ public class FireActivity extends Activity {
 
         init(getResources().getAssets(), dimension.x, dimension.y);
 
-        fire = new FireView(getApplication());
+        fire = new FireView(getApplication(), (SensorManager) getSystemService(SENSOR_SERVICE));
 
         setContentView(fire);
 

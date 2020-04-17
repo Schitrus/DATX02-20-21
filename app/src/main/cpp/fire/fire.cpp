@@ -45,6 +45,10 @@ void Fire::scale(float scaleFactor, double scaleX, double scaleY){
     renderer.scale(scaleFactor, scaleX, scaleY);
 }
 
+void Fire::rotationSensor(float *rotationMatrix) {
+    simulator.updateDeviceRotationMatrix(rotationMatrix);
+}
+
 
 AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
@@ -83,5 +87,11 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
 
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->scale(scaleFactor, scaleX, scaleY);
+}
+
+JC(void) Java_com_pbf_FireListener_rotationSensor(JCT, jfloatArray rotationMatrix) {
+    float *data = env->GetFloatArrayElements(rotationMatrix, NULL);
+    fire->rotationSensor(data);
+    env->ReleaseFloatArrayElements(rotationMatrix, data, 0);
 }
 

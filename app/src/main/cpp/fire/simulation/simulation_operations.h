@@ -30,7 +30,7 @@ public:
     int initShaders();
 
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
+    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, mat3 deviceRotationMatrix, float dt, float scale);
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly
