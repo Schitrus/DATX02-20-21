@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.widget.ProgressBar;
+import android.text.Layout;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
-import androidx.appcompat.widget.AppCompatSeekBar;
 
 import com.example.datx02_20_21.R;
 
@@ -21,47 +20,34 @@ public class FireActivity extends Activity {
     }
 
     private FireView fire;
-
-    private TextView textView;
-    private ProgressBar progressBar;
     private SeekBar seekBar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FrameLayout fl = new FrameLayout(getApplicationContext());
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+
+        //seekBar = (SeekBar) findViewById(R.id.seekBar);
+        fire = new FireView(getApplication());
+        seekBar = new SeekBar(this);
+
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
 
         init(getResources().getAssets(), dimension.x, dimension.y);
+        fl.addView(fire);
+        fl.addView(seekBar);
 
-        fire = new FireView(getApplication());
+        setContentView(fl);
 
-        setContentView(fire);
+        //setContentView(fire);
 
-        textView = (TextView) findViewById(R.id.textView);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-                progressBar.setProgress(progress); 
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 
     }
 
