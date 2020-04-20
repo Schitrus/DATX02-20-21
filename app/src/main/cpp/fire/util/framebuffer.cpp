@@ -9,10 +9,11 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-void Framebuffer::create(int width, int height) {
+void Framebuffer::create(int width, int height, GLuint inFormat ,GLuint format){
     this->width = width;
     this->height = height;
-
+    this -> inFormat = inFormat;
+    this -> format = format;
     // framebuffer configuration
     // -------------------------
     FBO.init();
@@ -22,7 +23,7 @@ void Framebuffer::create(int width, int height) {
     glGenTextures(1, &colorTextureTarget);
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -42,7 +43,10 @@ void Framebuffer::create(int width, int height) {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
     unbind();
+}
 
+void Framebuffer::create(int width, int height) {
+    create(width, height,GL_RGB8 ,GL_UNSIGNED_BYTE);
 }
 
 void Framebuffer::clear() {
@@ -59,7 +63,7 @@ void Framebuffer::resize(int width, int height){
     bind();
     // Allocate a texture
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
 
     // Allocate for renderBuffer
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);

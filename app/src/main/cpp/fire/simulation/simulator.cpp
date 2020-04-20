@@ -18,10 +18,12 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+#define MAX_TEMPERATURE
+
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 12;
 const int highResScale = lowResScale*5;
-const float simulationScale = 12.0f;
+const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 // size of high resolution textures. This also includes the border of the texture
@@ -60,7 +62,10 @@ void Simulator::update(){
 
     slab->prepare();
 
-    delta_time = 1/20.0f;
+    delta_time = 1/30.0f;
+    stopTime += delta_time;
+
+    if(stopTime<10.0f){
 
     velocityStep(delta_time);
 
@@ -71,6 +76,7 @@ void Simulator::update(){
     temperatureStep(delta_time);
 
     slab->finish();
+    }
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
@@ -111,8 +117,8 @@ void Simulator::initData() {
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
-    fillSphere(density_source, 0.8f, center, radius, highResSize);
-    fillSphere(temperature_source, 3000.0f, center, radius, highResSize);
+    fillSphere(density_source, 0.4f, center, radius, highResSize);
+    fillSphere(temperature_source, 3500.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
@@ -130,16 +136,13 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    operations->buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    //slab->addSource(lowerVelocity, velocitySource, dt);
-    updateAndApplyWind(dt);
+    operations->buoyancy(lowerVelocity, temperature, dt, 0.15f);
+
+    //updateAndApplyWind(dt);
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 
-    operations->vorticity(lowerVelocity, 6.0f, dt);
-
-    //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
-    //slab->dissipate(lowerVelocity, 0.9f, dt);
+    operations->vorticity(lowerVelocity, 8.0f, dt);
   
     // Project
     operations->projection(lowerVelocity, 20);
@@ -152,8 +155,6 @@ void Simulator::waveletStep(float dt){
     wavelet->calcEnergy(lowerVelocity);
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
-
-    //slab->vorticity(higherVelocity, 8.0f, dt);
 }
 
 void Simulator::updateAndApplyWind(float dt) {
@@ -167,25 +168,20 @@ void Simulator::updateAndApplyWind(float dt) {
 
 void Simulator::temperatureStep(float dt) {
 
-    operations->addSource(temperature, temperatureSource, dt);
+    operations->setSource(temperature, temperatureSource, dt);
 
-    operations->advection(higherVelocity, temperature, dt);
+    operations->fulladvection(higherVelocity, temperature, dt);
 
     operations->heatDissipation(temperature, dt);
+
 }
 
 void Simulator::densityStep(float dt){
     // addForce
-    //slab->setSource(density, densitySource, dt);
-    operations->addSource(density, densitySource, dt);
+    operations->setSource(density, densitySource, dt);
 
     // Advect
     operations->fulladvection(higherVelocity, density, dt);
-
-    operations->dissipate(density, 2.0f, dt);
-
-    // Diffuse
-    //slab->diffuse(density, 20, 1.0, dt);
 }
 
 void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {

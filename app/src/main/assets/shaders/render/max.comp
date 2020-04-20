@@ -1,0 +1,73 @@
+#version 310 es
+precision highp float;
+precision highp sampler3D;
+#define localSize 1024 // power of 2 and max 1024
+layout(local_size_x = localSize) in;
+
+layout(rgba16f, binding = 0)  uniform writeonly image2D resultTexID;
+
+layout(binding = 0) uniform readonly sampler2D LMS;
+
+layout(std430,binding = 1) buffer SSBO{
+    vec4 max[localSize];
+}ssbo;
+
+void main()
+{
+
+    int id = int(gl_GlobalInvocationID.x);
+    vec4 lmax = vec4(0.0f);;
+
+    ivec2 size = ivec2(1080,1920);
+
+    float num = float(size.x * size.y) / float(localSize);
+
+    int index = int(float(id) * num);
+
+
+    if (index < size.x*size.y){
+        int Sy = int(index) / size.x;
+        int Sx = int(index) - size.x * Sy;
+
+
+        for (int y = Sy; y < size.y; y++){
+            for (int x = Sx; x < size.x; x++){
+
+                vec4 maxLMS = texelFetch(LMS, ivec2(x, y), 0);
+                lmax = max(lmax, maxLMS);
+
+                if (--num < 0.0f){
+                    y = size.y;
+                    break;
+                }
+            }
+            Sx = 0;
+        }
+
+        ssbo.max[id] = lmax;
+
+    }
+    memoryBarrierShared();
+    barrier();
+///*
+for(int i = 2; i<=localSize; i*=2){
+
+    if(fract(float(id)/float(i)) == 0.0f){
+        ssbo.max[id] = max(ssbo.max[id],ssbo.max[id + i/2]);
+    }
+    barrier();
+}
+if(id == 0){
+    imageStore(resultTexID, ivec2(0), ssbo.max[0]);
+}
+// */
+    /*
+
+    if (id == 0){
+        for (int i = 1; i < localSize; i++){
+            lmax = max(ssbo.max[i], lmax);
+        }
+        imageStore(resultTexID, ivec2(0), lmax);
+    }
+// */
+}

@@ -17,6 +17,8 @@ class Shader {
 public:
     int load(const char* vertex_path, const char* fragment_path);
 
+    int load(const char* compute_path);
+
     void use();
 
     GLuint program();
@@ -28,6 +30,8 @@ public:
     void uniform3f(const GLchar *name, ivec3 vector);
 private:
     GLuint createShader(GLenum type, const char* src);
+
+    GLuint createProgram(const char *compute_path);
 
     GLuint createProgram(const char* vertex_path, const char* fragment_path);
 
