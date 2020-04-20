@@ -275,6 +275,10 @@ void RayRenderer::step() {
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo);
 
+    maxCompShader.uniform3f("imageSize", vec3(window_width,window_height,0));
+
+    glUniform2i(glGetUniformLocation(maxCompShader.program(), "size"),window_width,window_height);
+
     glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
     glMemoryBarrier(GL_ALL_SHADER_BITS);

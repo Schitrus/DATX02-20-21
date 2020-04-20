@@ -12,13 +12,13 @@ layout(std430,binding = 1) buffer SSBO{
     vec4 max[localSize];
 }ssbo;
 
+uniform ivec2 size;
+
 void main()
 {
 
     int id = int(gl_GlobalInvocationID.x);
     vec4 lmax = vec4(0.0f);;
-
-    ivec2 size = ivec2(1080,1920);
 
     float num = float(size.x * size.y) / float(localSize);
 
