@@ -65,24 +65,24 @@ int RayRenderer::init(AAssetManager *assetManager) {
     return 1;
 }
 
-void RayRenderer::initSSBO(){
+void RayRenderer::initSSBO() {
     glGenBuffers(1, &ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 65536, NULL, GL_DYNAMIC_READ);
 }
 
-Framebuffer* RayRenderer::updateFBO(Framebuffer *FBO, int window_width, int window_height,
-                            GLuint internal_format, GLuint type) {
+Framebuffer *RayRenderer::updateFBO(Framebuffer *FBO, int window_width, int window_height,
+                                    GLuint internal_format, GLuint type) {
     if (FBO != nullptr) {
         FBO->resize(window_width, window_height);
     } else {
         FBO = new Framebuffer();
-        FBO ->create(window_width, window_height, GL_RGBA16F, GL_HALF_FLOAT);
+        FBO->create(window_width, window_height, GL_RGBA16F, GL_HALF_FLOAT);
     }
     return FBO;
 }
 
-void RayRenderer::resizeMaxTexture(){
+void RayRenderer::resizeMaxTexture() {
     glGenTextures(1, &maxTexID);
     glBindTexture(GL_TEXTURE_2D, maxTexID);
 
@@ -103,31 +103,35 @@ void RayRenderer::resize(int width, int height) {
 
     resizeMaxTexture();
 }
+
 void RayRenderer::resizeSim() {
 
     simScale();
 
-    back_FBO = updateFBO(back_FBO,sim_width,sim_height,GL_RGBA16F, GL_HALF_FLOAT);
-    front_FBO = updateFBO(front_FBO,sim_width,sim_height,GL_RGBA16F, GL_HALF_FLOAT);
+    back_FBO = updateFBO(back_FBO, sim_width, sim_height, GL_RGBA16F, GL_HALF_FLOAT);
+    front_FBO = updateFBO(front_FBO, sim_width, sim_height, GL_RGBA16F, GL_HALF_FLOAT);
 
 }
 
-void RayRenderer::simScale(){
+void RayRenderer::simScale() {
 
     float scale = 1;
 
-    int gcd = std::__algo_gcd(window_width,window_height);
-    int w = window_width/gcd;
-    int h = window_height/gcd;
+    int gcd = std::__algo_gcd(window_width, window_height);
+    int w = window_width / gcd;
+    int h = window_height / gcd;
     int n;
-    if(w < h){
-        n = (int)ceil(max_sim_res*scale/w);
-    }else{
-        n = (int)ceil(max_sim_res*scale/h);
+    if (w < h) {
+        n = (int) ceil(max_sim_res * scale / w);
+    } else {
+        n = (int) ceil(max_sim_res * scale / h);
     }
 
     sim_width = n * w;
     sim_height = n * h;
+
+    sim_width = min(sim_width, window_width);
+    sim_height = min(sim_height, window_height);
 }
 
 void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth) {
@@ -138,7 +142,7 @@ void RayRenderer::setData(GLuint density, GLuint temperature, int width, int hei
     texture_height = height;
     texture_depth = depth;
     max_sim_res = max(max(texture_width, texture_height), texture_depth);
-    vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float)max_sim_res);
+    vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float) max_sim_res);
     boundingScale = tex;
 
     resizeSim();
@@ -301,7 +305,7 @@ void RayRenderer::step() {
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo);
 
-    glUniform2i(glGetUniformLocation(maxCompShader.program(), "size"),sim_width,sim_height);
+    glUniform2i(glGetUniformLocation(maxCompShader.program(), "size"), sim_width, sim_height);
 
     glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
