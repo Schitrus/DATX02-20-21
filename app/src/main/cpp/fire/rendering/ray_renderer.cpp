@@ -99,10 +99,35 @@ void RayRenderer::resize(int width, int height) {
     window_width = width;
     window_height = height;
 
-    back_FBO = updateFBO(back_FBO,window_width,window_height,GL_RGBA16F, GL_HALF_FLOAT);
-    front_FBO = updateFBO(front_FBO,window_width,window_height,GL_RGBA16F, GL_HALF_FLOAT);
+    resizeSim();
 
     resizeMaxTexture();
+}
+void RayRenderer::resizeSim() {
+
+    simScale();
+
+    back_FBO = updateFBO(back_FBO,sim_width,sim_height,GL_RGBA16F, GL_HALF_FLOAT);
+    front_FBO = updateFBO(front_FBO,sim_width,sim_height,GL_RGBA16F, GL_HALF_FLOAT);
+
+}
+
+void RayRenderer::simScale(){
+
+    float scale = 1;
+
+    int gcd = std::__algo_gcd(window_width,window_height);
+    int w = window_width/gcd;
+    int h = window_height/gcd;
+    int n;
+    if(w < h){
+        n = (int)ceil(max_sim_res*scale/w);
+    }else{
+        n = (int)ceil(max_sim_res*scale/h);
+    }
+
+    sim_width = n * w;
+    sim_height = n * h;
 }
 
 void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth) {
@@ -112,9 +137,11 @@ void RayRenderer::setData(GLuint density, GLuint temperature, int width, int hei
     texture_width = width;
     texture_height = height;
     texture_depth = depth;
-    float m = max(max(texture_width, texture_height), texture_depth);
-    vec3 tex = vec3(texture_width, texture_height, texture_depth) / m;
+    max_sim_res = max(max(texture_width, texture_height), texture_depth);
+    vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float)max_sim_res);
     boundingScale = tex;
+
+    resizeSim();
 }
 
 void RayRenderer::load3DTexture(const char *fileName) {
@@ -223,7 +250,6 @@ int RayRenderer::initProgram() {
     return success;
 }
 
-///*
 void RayRenderer::step() {
 
     float current_time = DURATION(NOW, start_time);
@@ -236,7 +262,7 @@ void RayRenderer::step() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glViewport(0, 0, window_width, window_height);
+    glViewport(0, 0, sim_width, sim_height);
 
     glBindVertexArray(VAO);
 
@@ -275,9 +301,7 @@ void RayRenderer::step() {
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo);
 
-    maxCompShader.uniform3f("imageSize", vec3(window_width,window_height,0));
-
-    glUniform2i(glGetUniformLocation(maxCompShader.program(), "size"),window_width,window_height);
+    glUniform2i(glGetUniformLocation(maxCompShader.program(), "size"),sim_width,sim_height);
 
     glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);

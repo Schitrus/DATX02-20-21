@@ -22,6 +22,8 @@ using std::chrono::system_clock;
 
 class RayRenderer {
     int window_width, window_height;
+    int sim_width, sim_height, max_sim_res;
+
     int texture_width, texture_height, texture_depth;
     AAssetManager *assetManager;
     GLint threads;
@@ -85,6 +87,10 @@ private:
     void initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO);
 
     int initProgram();
+
+    void simScale();
+
+    void resizeSim();
 
     void loadMVP(Shader shader, float current_time);
 
