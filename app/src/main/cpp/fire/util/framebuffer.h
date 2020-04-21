@@ -12,12 +12,14 @@
 
 class Framebuffer {
     int width, height;
+    GLuint format,inFormat;
 
     SimpleFramebuffer FBO;
     GLuint RBO;
     GLuint colorTextureTarget;
 public:
     void create(int width, int height);
+    void create(int width, int height, GLuint outFormat, GLuint inFormat);
 
     void clear();
 
