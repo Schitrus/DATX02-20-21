@@ -85,8 +85,10 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     buoyancyShader.uniform1f("scale", scale);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
+    // Apply rotation to direction vector, pointing upwards
     vec3 direction = deviceRotationMatrix * vec3(0.0f, 0.0f, 1.0f);
-    direction = normalize(direction);
+    direction[2] = 0.0f; // Project to xy-plane by setting z-coordinate to 0
+    direction = normalize(direction); // Normalize to get a vector of length 1
     LOG_INFO("Direction vector: %s", glm::to_string(direction).c_str());
     buoyancyShader.uniform3f("direction", direction);
     buoyancyShader.uniform3f("temp_border_width", vec3(1)/vec3(temperature->getSize()));
