@@ -22,6 +22,7 @@
 
 #define LOG_TAG "Renderer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
@@ -66,9 +67,14 @@ int RayRenderer::init(AAssetManager *assetManager) {
 }
 
 void RayRenderer::initSSBO() {
+    LOG_INFO("INITING SSBO");
+
+    //glBindVertexArray(quad_VAO);
+
     glGenBuffers(1, &ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 65536, NULL, GL_DYNAMIC_READ);
+    LOG_INFO("DONE INITING SSBO");
 }
 
 Framebuffer *RayRenderer::updateFBO(Framebuffer *FBO, int window_width, int window_height,
