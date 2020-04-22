@@ -27,14 +27,14 @@ int WaveletTurbulence::init(SlabOperator* slab) {
         return 0;
 
     texture_coord = createScalarDataPair(false, nullptr);
-    energy = createScalarDataPair(true, nullptr);
+    energy = createScalarDataPair(false, nullptr);
 
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    //generateWavelet();
+    generateWavelet();
 
-    wavelet_turbulence = createVectorDataPair(true, nullptr);
+    //wavelet_turbulence = createVectorDataPair(true, nullptr);
 
     return 1;
 }
@@ -43,7 +43,7 @@ void WaveletTurbulence::generateAngles() {
     num_angles = 256;
     angles = new double[num_angles];
     for(int i = 0; i < num_angles; i++)
-        angles[i] = (rand()%36000)/100.0;
+        angles[i] = rand()%360;
 }
 
 int WaveletTurbulence::initShaders() {
@@ -73,9 +73,9 @@ void WaveletTurbulence::generateWavelet(){
             for (int x = 0; x < highResSize.x; x++) {
                 int wi  = z*highResSize.y*highResSize.x + y*highResSize.x + x;
                 int ti  = wi+dz+dy+dx;
-                wavelet[wi].x = 0.5*((w1[ti-dy] - w1[ti+dy]) - (w2[ti-dz] - w2[ti+dz]));
-                wavelet[wi].y = 0.5*((w3[ti-dz] - w3[ti+dz]) - (w1[ti-dx] - w1[ti+dx]));
-                wavelet[wi].z = 0.5*((w2[ti-dx] - w2[ti+dx]) - (w3[ti-dy] - w3[ti+dy]));
+                wavelet[wi].x = 0.5*((w1[ti+dy] - w1[ti-dy]) - (w2[ti+dz] - w2[ti-dz]));
+                wavelet[wi].y = 0.5*((w3[ti+dz] - w3[ti-dz]) - (w1[ti+dx] - w1[ti-dx]));
+                wavelet[wi].z = 0.5*((w2[ti+dx] - w2[ti-dx]) - (w3[ti+dy] - w3[ti-dy]));
             }
         }
     }
