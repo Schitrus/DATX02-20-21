@@ -1,12 +1,13 @@
 #version 310 es
 precision highp float;
 precision highp sampler3D;
-#define localSize 1024 // power of 2 and max 1024
+precision highp image2D;
+#define localSize 128 // power of 2 and max 1024
 layout(local_size_x = localSize) in;
 
 layout(rgba16f, binding = 0)  uniform writeonly image2D resultTexID;
 
-layout(binding = 0) uniform readonly sampler2D LMS;
+layout(binding = 0) uniform sampler2D LMS;
 
 layout(std430,binding = 1) buffer SSBO{
     vec4 max[localSize];
