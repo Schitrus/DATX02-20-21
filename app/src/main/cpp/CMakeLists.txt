@@ -27,18 +27,19 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        fire.cpp
-        renderer.cpp
-        simulator.cpp
-        ray_renderer.cpp
-        slab_operation.cpp
-        helper.cpp
-        file_loader.cpp
-        shader.cpp
-        simple_framebuffer.cpp
-        framebuffer.cpp
-        data_texture_pair.cpp
-        wavelet_turbulence.cpp
+        fire/fire.cpp
+        fire/rendering/renderer.cpp
+        fire/rendering/ray_renderer.cpp
+        fire/simulation/simulator.cpp
+        fire/simulation/simulation_operations.cpp
+        fire/simulation/wavelet_turbulence.cpp
+        fire/simulation/slab_operation.cpp
+        fire/util/helper.cpp
+        fire/util/file_loader.cpp
+        fire/util/shader.cpp
+        fire/util/simple_framebuffer.cpp
+        fire/util/framebuffer.cpp
+        fire/util/data_texture_pair.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

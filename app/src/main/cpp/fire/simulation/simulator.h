@@ -6,10 +6,10 @@
 #define DATX02_20_21_SIMULATOR_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <chrono>
 
-#include "slab_operation.h"
+#include "simulation_operations.h"
 #include "wavelet_turbulence.h"
 
 using std::chrono::time_point;
@@ -23,11 +23,12 @@ extern const float simulationScale;
 extern const ivec3 lowResSize;
 // size of high resolution textures. This also includes the border of the texture
 extern const ivec3 highResSize;
-// size of simulation space in meters. This does not include the border that is included in the resolution sizes
+// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 extern const vec3 simulationSize;
 
 class Simulator{
     SlabOperator* slab;
+    SimulationOperations* operations;
     WaveletTurbulence* wavelet;
 
     DataTexturePair* density;
@@ -43,6 +44,8 @@ class Simulator{
     // Time
     time_point<system_clock> start_time, last_time;
 
+    float stopTime;
+
 public:
 
     int init();
@@ -55,7 +58,7 @@ private:
 
     void initData();
 
-    // Performs one simulation step for velocity
+    // Performs one fire.simulation step for velocity
     void velocityStep(float dt);
 
     void waveletStep(float dt);

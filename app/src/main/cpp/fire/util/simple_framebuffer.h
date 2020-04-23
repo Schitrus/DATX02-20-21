@@ -5,7 +5,7 @@
 #ifndef DATX02_20_21_SIMPLE_FRAMEBUFFER_H
 #define DATX02_20_21_SIMPLE_FRAMEBUFFER_H
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 
 class SimpleFramebuffer {
     GLuint FBO;

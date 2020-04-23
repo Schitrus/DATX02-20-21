@@ -4,7 +4,7 @@
 
 #include "helper.h"
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -109,6 +109,11 @@ void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsi
 
     // Free the memoery you allocated earlier
     delete[] fileContent;
+}
+
+void bindData(GLuint dataTexture, GLenum textureSlot) {
+    glActiveTexture(textureSlot);
+    glBindTexture(GL_TEXTURE_3D, dataTexture);
 }
 
 void clearGLErrors(const char* tag) {

@@ -2,10 +2,10 @@
 // Created by Kalle on 2020-03-04.
 //
 #include "simulator.h"
-#include "helper.h"
+#include "fire/util/helper.h"
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <android/log.h>
 
 #include <chrono>
@@ -18,24 +18,30 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+#define MAX_TEMPERATURE
+
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 12;
 const int highResScale = lowResScale*5;
-const float simulationScale = 12.0f;
+const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 // size of high resolution textures. This also includes the border of the texture
 const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
-// size of simulation space in meters. This does not include the border that is included in the resolution sizes
+// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 const vec3 simulationSize = simulationScale * vec3(sizeRatio);
 
 
 int Simulator::init(){
 
     slab = new SlabOperator();
+    operations = new SimulationOperations();
     wavelet = new WaveletTurbulence();
 
     if (!slab->init())
+        return 0;
+
+    if(!operations->init(slab))
         return 0;
 
     if(!wavelet->init(slab))
@@ -56,7 +62,10 @@ void Simulator::update(){
 
     slab->prepare();
 
-    delta_time = 1/20.0f;
+    delta_time = 1/30.0f;
+    stopTime += delta_time;
+
+    if(stopTime<10.0f){
 
     velocityStep(delta_time);
 
@@ -67,6 +76,7 @@ void Simulator::update(){
     temperatureStep(delta_time);
 
     slab->finish();
+    }
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
@@ -107,8 +117,8 @@ void Simulator::initData() {
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
-    fillSphere(density_source, 0.8f, center, radius, highResSize);
-    fillSphere(temperature_source, 3000.0f, center, radius, highResSize);
+    fillSphere(density_source, 0.4f, center, radius, highResSize);
+    fillSphere(temperature_source, 3500.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
@@ -126,18 +136,16 @@ void Simulator::initData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    slab->buoyancy(lowerVelocity, temperature, dt, 1.0f);
-    //slab->addSource(lowerVelocity, velocitySource, dt);
-    updateAndApplyWind(dt);
+    operations->buoyancy(lowerVelocity, temperature, dt, 0.15f);
+
+    //updateAndApplyWind(dt);
     // Advect
-    slab->advection(lowerVelocity, lowerVelocity, dt);
+    operations->advection(lowerVelocity, lowerVelocity, dt);
 
-    slab->vorticity(lowerVelocity, 6.0f, dt);
-
-    //slab->diffuse(lowerVelocity, 20, 18e-6f, dt);
-    //slab->dissipate(lowerVelocity, 0.9f, dt);
+    operations->vorticity(lowerVelocity, 8.0f, dt);
+  
     // Project
-    slab->projection(lowerVelocity, 20);
+    operations->projection(lowerVelocity, 20);
 }
 
 void Simulator::waveletStep(float dt){
@@ -147,8 +155,6 @@ void Simulator::waveletStep(float dt){
     wavelet->calcEnergy(lowerVelocity);
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
-
-    //slab->vorticity(higherVelocity, 8.0f, dt);
 }
 
 void Simulator::updateAndApplyWind(float dt) {
@@ -157,30 +163,25 @@ void Simulator::updateAndApplyWind(float dt) {
 
     float windStrength = 12.0 + 11*sin(windAngle*2.14+123);
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
-    slab->addWind(lowerVelocity, windAngle, windStrength, dt);
+    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
 
-    slab->addSource(temperature, temperatureSource, dt);
+    operations->setSource(temperature, temperatureSource, dt);
 
-    slab->advection(higherVelocity, temperature, dt);
+    operations->fulladvection(higherVelocity, temperature, dt);
 
-    slab->heatDissipation(temperature, dt);
+    operations->heatDissipation(temperature, dt);
+
 }
 
 void Simulator::densityStep(float dt){
     // addForce
-    //slab->setSource(density, densitySource, dt);
-    slab->addSource(density, densitySource, dt);
+    operations->setSource(density, densitySource, dt);
 
     // Advect
-    slab->fulladvection(higherVelocity, density, dt);
-
-    slab->dissipate(density, 2.0f, dt);
-
-    // Diffuse
-    //slab->diffuse(density, 20, 1.0, dt);
+    operations->fulladvection(higherVelocity, density, dt);
 }
 
 void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {
@@ -215,9 +216,9 @@ void Simulator::fillExtensive(float *field, float density, vec3 minPos, vec3 max
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 ivec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 ivec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
@@ -236,9 +237,9 @@ void Simulator::fillIntensive(float *field, float value, vec3 minPos, vec3 maxPo
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 ivec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 ivec3 pos1 = vec3(x + 1, y + 1, z + 1)  / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
@@ -258,9 +259,9 @@ void Simulator::fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 m
     for (int z = 1; z < gridSize.z - 1; z++) {
         for (int y = 1; y < gridSize.y - 1; y++) {
             for (int x = 1; x < gridSize.x - 1; x++) {
-                //Lower corner of cell in simulation space
+                //Lower corner of cell in fire.simulation space
                 vec3 pos = vec3(x, y, z) / simulationScale;
-                //Upper corner of cell in simulation space
+                //Upper corner of cell in fire.simulation space
                 vec3 pos1 = vec3(x + 1, y + 1, z + 1) / simulationScale;
                 //Does this cell overlap with the fill area?
                 if(hasOverlap(pos, pos1, minPos, maxPos)) {
