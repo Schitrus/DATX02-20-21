@@ -63,9 +63,6 @@ void Simulator::update(){
     slab->prepare();
 
     delta_time = 1/30.0f;
-    stopTime += delta_time;
-
-    if(stopTime<10.0f){
 
     velocityStep(delta_time);
 
@@ -76,7 +73,7 @@ void Simulator::update(){
     temperatureStep(delta_time);
 
     slab->finish();
-    }
+
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){

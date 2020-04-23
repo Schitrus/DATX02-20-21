@@ -44,8 +44,6 @@ class Simulator{
     // Time
     time_point<system_clock> start_time, last_time;
 
-    float stopTime;
-
 public:
 
     int init();
