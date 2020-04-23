@@ -38,7 +38,7 @@ double perlin(vec3 position){
     //Loop through all corners
     for (int c = 0; c < 8; c++){
         ivec3 external_corner = seed * (external_position + corners[c]);
-        vec3 grad = grads[(external_corner.x*external_corner.x + external_corner.y*external_corner.y + external_corner.z*external_corner.z)%num_grads];
+        vec3 grad = grads[abs(external_corner.x*external_corner.x + external_corner.y*external_corner.y + external_corner.z*external_corner.z)%num_grads];
         dots[c] = dot(normalize(grad), internal_position - vec3(corners[c]));
     }
     //interpolate the values

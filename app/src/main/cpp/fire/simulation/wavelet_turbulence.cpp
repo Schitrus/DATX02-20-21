@@ -14,8 +14,8 @@
 #include "fire/util/wavelet.h"
 
 #define LOG_TAG "wavelet"
-#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
 int WaveletTurbulence::init(SlabOperator* slab) {
@@ -32,8 +32,7 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    band_min = 2;
-    band_max = 6;
+    LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
 
     vec3* w = wavelet(highResSize, band_min, band_max);
 

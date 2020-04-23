@@ -33,7 +33,7 @@ class WaveletTurbulence {
     DataTexturePair* energy;
     DataTexturePair* texture_coord;
 
-    unsigned int band_min, band_max;
+    float band_min, band_max;
 
 public:
     int init(SlabOperator* slab);

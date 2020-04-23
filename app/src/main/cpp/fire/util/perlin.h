@@ -8,9 +8,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <jni.h>
+#include <GLES3/gl31.h>
+#include <android/log.h>
+
 using namespace glm;
 
 #define PI 3.14159265359f
+
+#define LOG_TAG "perlin"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 extern ivec3 seed;
 

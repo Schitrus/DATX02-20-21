@@ -8,10 +8,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 #include "turbulence.h"
 
 using namespace glm;
 
-vec3* wavelet(ivec3 size, int min_band, int max_band);
+vec3* wavelet(ivec3 size, float min_band, float max_band);
 
 #endif //DATX02_20_21_WAVELET_H

@@ -8,7 +8,7 @@
 
 struct thread_turbulence{
     double* t;
-    int band, min_band, max_band;
+    float band, min_band, max_band;
     ivec3 position, size;
 };
 
@@ -17,9 +17,9 @@ typedef struct thread_turbulence turb_struct;
 void* threadTurbulence(void* args){
     turb_struct* turb = (turb_struct*)args;
     double* t = turb->t;
-    int band = turb->band;
-    int min_band = turb->min_band;
-    int max_band = turb->max_band;
+    float band = turb->band;
+    float min_band = turb->min_band;
+    float max_band = turb->max_band;
     ivec3 position = turb->position;
     ivec3 size = turb->size;
 
@@ -35,7 +35,7 @@ void* threadTurbulence(void* args){
 
 #define NUM_THREADS 16
 
-double* turbulence(ivec3 size, int min_band, int max_band) {
+double* turbulence(ivec3 size, float min_band, float max_band) {
 
     double* t = new double[size.x * size.y * size.z];
 
@@ -46,7 +46,7 @@ double* turbulence(ivec3 size, int min_band, int max_band) {
     for(int i = 0; i < size.x*size.y*size.z; i++)
         t[i] = 0.0f;
 
-    for(int band = min_band; band <= max_band; band++) {
+    for(float band = min_band; band <= max_band; band += 1.0) {
         initPerlin();
         for (int z = 0; z < size.z; z++) {
             LOG_INFO("GEN: %d%%", (int) round(100 * (float) ((band-min_band)*size.z + z) / ((max_band-min_band+1)*size.z)));

@@ -20,6 +20,6 @@
 
 using namespace glm;
 
-double* turbulence(ivec3 size, int min_band, int max_band);
+double* turbulence(ivec3 size, float min_band, float max_band);
 
 #endif //DATX02_20_21_TURBULENCE_H

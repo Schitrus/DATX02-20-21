@@ -4,7 +4,7 @@
 
 #include "wavelet.h"
 
-vec3* wavelet(ivec3 size, int min_band, int max_band){
+vec3* wavelet(ivec3 size, float min_band, float max_band){
 
     ivec3 tsize = size + ivec3(2.0);
 
@@ -21,9 +21,9 @@ vec3* wavelet(ivec3 size, int min_band, int max_band){
         for(int y = 0; y < size.y; y++){
             for(int x = 0; x < size.x; x++){
                 int wi  = (z+1)*tsize.y*tsize.x + (y+1)*tsize.x + (x+1);
-                w[z*size.y*size.x + y*size.x + x].x = 0.0*((w1[wi+dy] - w1[wi-dy]) - (w2[wi+dz] - w2[wi-dz]));
-                w[z*size.y*size.x + y*size.x + x].y = 0.0*((w3[wi+dz] - w3[wi-dz]) - (w1[wi+dx] - w1[wi-dx]));
-                w[z*size.y*size.x + y*size.x + x].z = 0.0*((w2[wi+dx] - w2[wi-dx]) - (w3[wi+dy] - w3[wi-dy]));
+                w[z*size.y*size.x + y*size.x + x].x = 0.5*((w1[wi+dy] - w1[wi-dy]) - (w2[wi+dz] - w2[wi-dz]));
+                w[z*size.y*size.x + y*size.x + x].y = 0.5*((w3[wi+dz] - w3[wi-dz]) - (w1[wi+dx] - w1[wi-dx]));
+                w[z*size.y*size.x + y*size.x + x].z = 0.5*((w2[wi+dx] - w2[wi-dx]) - (w3[wi+dy] - w3[wi-dy]));
             }
         }
     }
