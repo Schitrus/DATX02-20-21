@@ -22,9 +22,6 @@ void initPerlin() {
         float a2 = rand()%360 / 180.0f * PI;
         float a3 = rand()%360 / 180.0f * PI;
         grads[i] = normalize(vec3(sin(a1)*sin(a2)*a3 + cos(a1)*a2, cos(a1)*sin(a2)*a3 - sin(a1)*a2, cos(a2)*a3 + a1));
-        float tmp = grads[i].x;
-        grads[i].x = grads[i].z;
-        grads[i].z = tmp;
     }
 }
 

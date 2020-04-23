@@ -20,8 +20,8 @@ void* threadTurbulence(void* args){
     int band = turb->band;
     int min_band = turb->min_band;
     int max_band = turb->max_band;
-    vec3 position = turb->position;
-    vec3 size = turb->size;
+    ivec3 position = turb->position;
+    ivec3 size = turb->size;
 
     for(int y = 0; y < size.y; y++) {
         for (int x = 0; x < size.x; x++) {
@@ -68,9 +68,6 @@ double* turbulence(ivec3 size, int min_band, int max_band) {
         for(int i = 0; i < NUM_THREADS; i++)
             pthread_join(th[i], NULL);
     }
-
-    for(int i = 0; i < size.x*size.y*size.z; i++)
-        t[i] = 0.0f;
 
     LOG_INFO("GENERATING DONE");
 
