@@ -35,13 +35,6 @@ class WaveletTurbulence {
 
     unsigned int band_min, band_max;
 
-    vec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
-                       {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
-
-    int num_angles;
-
-    double* angles;
-
 public:
     int init(SlabOperator* slab);
 
@@ -55,10 +48,9 @@ public:
 private:
     int initShaders();
 
-    void generateAngles();
     void generateWavelet();
     double* generateTurbulence(vec3 size);
-    double perlin(vec3 position);
+
 
 };
 
