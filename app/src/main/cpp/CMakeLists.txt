@@ -20,6 +20,8 @@ endif (${ANDROID_PLATFORM_LEVEL} LESS 24)
 # Import the CMakeLists.txt for the glm library
 add_subdirectory(glm)
 
+include_directories(src/main/cpp/Eigen)
+
 add_library( # Sets the name of the library.
         fire-lib
 
@@ -43,6 +45,7 @@ add_library( # Sets the name of the library.
         fire/util/perlin.cpp
         fire/util/turbulence.cpp
         fire/util/wavelet.cpp
+        fire/util/eigen.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
