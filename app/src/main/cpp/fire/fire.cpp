@@ -40,6 +40,10 @@ void Fire::update(){
 }
 
 void Fire::touch(double dx, double dy){
+    if(dx == 0.0 && dy == 0.0) {
+        Settings newSettings = nextSettings();
+        simulator.changeSettings(newSettings);
+    }
     renderer.touch(dx, dy);
 }
 
