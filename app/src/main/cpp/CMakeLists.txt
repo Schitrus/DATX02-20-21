@@ -28,6 +28,7 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         fire/fire.cpp
+        fire/settings.cpp
         fire/rendering/renderer.cpp
         fire/rendering/ray_renderer.cpp
         fire/simulation/simulator.cpp
