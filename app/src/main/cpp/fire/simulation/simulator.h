@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <GLES3/gl31.h>
 #include <chrono>
+#include <fire/settings.h>
 
 #include "simulation_operations.h"
 #include "wavelet_turbulence.h"
@@ -26,10 +27,12 @@ extern const ivec3 highResSize;
 // size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 extern const vec3 simulationSize;
 
-class Simulator{
+class Simulator {
     SlabOperator* slab;
     SimulationOperations* operations;
     WaveletTurbulence* wavelet;
+
+    Settings settings;
 
     DataTexturePair* density;
     DataTexturePair* temperature;
@@ -46,7 +49,9 @@ class Simulator{
 
 public:
 
-    int init();
+    int init(Settings settings);
+
+    int changeSettings(Settings settings);
 
     void update();
 
@@ -55,6 +60,8 @@ public:
 private:
 
     void initData();
+
+    void clearData();
 
     // Performs one fire.simulation step for velocity
     void velocityStep(float dt);

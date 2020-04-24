@@ -13,6 +13,11 @@
 
 using namespace glm;
 
+DataTexturePair::~DataTexturePair() {
+    glDeleteTextures(1, &dataTexture);
+    glDeleteTextures(1, &resultTexture);
+}
+
 void DataTexturePair::initScalarData(bool isHighRes, float* data) {
     this->isHighRes = isHighRes;
     ivec3 size = getSize();

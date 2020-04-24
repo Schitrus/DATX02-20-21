@@ -10,15 +10,10 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-int SimulationOperations::init(SlabOperator* slab) {
+int SimulationOperations::init(SlabOperator* slab, Settings settings) {
     this->slab = slab;
     
-    createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
-    createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
-
-    divergence = createScalarDataPair(false, (float*)nullptr);
-
-    jacobi = createScalarDataPair(false, (float*)nullptr);
+    initTextures(settings);
 
     if(!initShaders()) {
         LOG_ERROR("Failed to compile simulation_operations shaders");
@@ -50,6 +45,26 @@ int SimulationOperations::initShaders() {
     return success;
 }
 
+void SimulationOperations::initTextures(Settings settings) {
+    createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
+    createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
+
+    divergence = createScalarDataPair(false, (float*)nullptr);
+
+    jacobi = createScalarDataPair(false, (float*)nullptr);
+}
+
+void SimulationOperations::clearTextures() {
+    delete divergence, delete jacobi;
+    glDeleteTextures(1, &diffusionBHRTexture);
+    glDeleteTextures(1, &diffusionBLRTexture);
+}
+
+int SimulationOperations::changeSettings(Settings settings) {
+    clearTextures();
+    initTextures(settings);
+    return 1;
+}
 
 void SimulationOperations::heatDissipation(DataTexturePair* temperature, float dt){
     temperatureShader.use();

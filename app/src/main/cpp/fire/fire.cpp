@@ -4,6 +4,7 @@
 
 #include "fire.h"
 #include "util/file_loader.h"
+#include "settings.h"
 #include <android/asset_manager_jni.h>
 
 #include <jni.h>
@@ -20,8 +21,9 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
     initFileLoader(assetManager);
 }
 
-int Fire::init(){
-    return renderer.init(assetManager) && simulator.init();
+int Fire::init() {
+    Settings settings = nextSettings();
+    return renderer.init(assetManager) && simulator.init(settings);
 }
 
 void Fire::resize(int width, int height){

@@ -11,6 +11,17 @@ const Settings OTHER_EXAMPLE = DEFAULT.withProjectIterations(34).withVorticitySc
 
 int index = -1;
 
+Settings nextSettings() {
+    index++;
+    if(index >= 3)
+        index = 0;
+    switch(index) {
+        case 1: return FEW_ITERATIONS;
+        case 2: return OTHER_EXAMPLE;
+        default: return DEFAULT;
+    }
+}
+
 Settings::Settings() {
     this->name = "Default";
     this->projectionIterations = 20;
@@ -50,15 +61,4 @@ Settings Settings::withVorticityScale(float vorticityScale) const {
     Settings newSetting = Settings(this);
     newSetting.vorticityScale = vorticityScale;
     return newSetting;
-}
-
-Settings getNext() {
-    index++;
-    if(index >= 3)
-        index = 0;
-    switch(index) {
-        case 1: return FEW_ITERATIONS;
-        case 2: return OTHER_EXAMPLE;
-        default: return DEFAULT;
-    }
 }

@@ -31,8 +31,7 @@ const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
 // size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
 const vec3 simulationSize = simulationScale * vec3(sizeRatio);
 
-
-int Simulator::init(){
+int Simulator::init(Settings settings) {
 
     slab = new SlabOperator();
     operations = new SimulationOperations();
@@ -47,11 +46,23 @@ int Simulator::init(){
     if(!wavelet->init(slab))
         return 0;
 
+    this->settings = settings;
     initData();
-
     start_time = NOW;
     last_time = start_time;
     return 1;
+}
+
+int Simulator::changeSettings(Settings settings) {
+
+    clearData();
+
+    this->settings = settings;
+    initData();
+    start_time = NOW;
+    last_time = start_time;
+
+    return operations->changeSettings(settings);
 }
 
 void Simulator::update(){
@@ -131,6 +142,13 @@ void Simulator::initData() {
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
 
+void Simulator::clearData() {
+    delete density, delete temperature, delete lowerVelocity, delete higherVelocity;
+    glDeleteTextures(1, &densitySource);
+    glDeleteTextures(1, &temperatureSource);
+    glDeleteTextures(1, &velocitySource);
+}
+
 void Simulator::velocityStep(float dt){
     // Source
     operations->buoyancy(lowerVelocity, temperature, dt, 0.15f);
@@ -139,10 +157,12 @@ void Simulator::velocityStep(float dt){
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 
-    operations->vorticity(lowerVelocity, 8.0f, dt);
+    if(settings.getVorticityScale() != 0.0f)
+        operations->vorticity(lowerVelocity, settings.getVorticityScale(), dt);
   
     // Project
-    operations->projection(lowerVelocity, 20);
+    if(settings.getProjectionIterations() != 0)
+        operations->projection(lowerVelocity, settings.getProjectionIterations());
 }
 
 void Simulator::waveletStep(float dt){

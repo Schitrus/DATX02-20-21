@@ -6,6 +6,7 @@
 #define DATX02_20_21_SIMULATION_OPERATIONS_H
 
 #include <GLES3/gl31.h>
+#include <fire/settings.h>
 
 #include "slab_operation.h"
 #include "fire/util/data_texture_pair.h"
@@ -25,9 +26,15 @@ class SimulationOperations {
     Shader vorticityShader;
 
 public:
-    int init(SlabOperator* slab);
+    int init(SlabOperator* slab, Settings settings);
 
     int initShaders();
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
+
+    int changeSettings(Settings settings);
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);

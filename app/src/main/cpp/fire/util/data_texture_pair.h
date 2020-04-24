@@ -16,6 +16,7 @@ class DataTexturePair {
     GLuint dataTexture, resultTexture;
 
 public:
+    ~DataTexturePair();
 
     // initiates the textures as scalar fields with the given data
     // it ignores any previous textures, so only call init once per pair!

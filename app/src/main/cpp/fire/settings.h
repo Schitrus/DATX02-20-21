@@ -2,6 +2,8 @@
 // Created by kirderf on 2020-04-23.
 //
 
+#include <string>
+
 #ifndef DATX02_20_21_SETTINGS_H
 #define DATX02_20_21_SETTINGS_H
 
@@ -21,12 +23,11 @@ public:
     float getVorticityScale();
     Settings withVorticityScale(float vorticityScale) const;
 
-
 private:
     Settings(const Settings* other);
 
 };
 
-Settings getNext();
+Settings nextSettings();
 
 #endif //DATX02_20_21_SETTINGS_H
