@@ -43,7 +43,9 @@ class WaveletTurbulence {
     double* angles;
 
 public:
-    int init(SlabOperator* slab);
+    int init(SlabOperator* slab, Settings settings);
+
+    int changeSettings(Settings settings);
 
     void advection(DataTexturePair* lowerVelocity, float dt);
 
@@ -55,8 +57,12 @@ public:
 private:
     int initShaders();
 
+    void initTextures(Settings settings);
+
+    void clearTextures();
+
     void generateAngles();
-    void generateWavelet();
+    void generateWavelet(Settings settings);
     double* generateTurbulence(vec3 size);
     double perlin(vec3 position);
 

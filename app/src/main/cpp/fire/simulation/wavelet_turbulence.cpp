@@ -18,7 +18,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperator* slab) {
+int WaveletTurbulence::init(SlabOperator* slab, Settings settings) {
 
     //srand(42);
 
@@ -26,15 +26,11 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     if(!initShaders())
         return 0;
 
-    texture_coord = createScalarDataPair(false, nullptr);
-    energy = createScalarDataPair(true, nullptr);
-
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
     //generateWavelet();
-
-    wavelet_turbulence = createVectorDataPair(true, nullptr);
+    initTextures(settings);
 
     return 1;
 }
@@ -55,7 +51,23 @@ int WaveletTurbulence::initShaders() {
     return success;
 }
 
-void WaveletTurbulence::generateWavelet(){
+void WaveletTurbulence::initTextures(Settings settings) {
+    texture_coord = createScalarDataPair(settings, false, nullptr);
+    energy = createScalarDataPair(settings, true, nullptr);
+    wavelet_turbulence = createVectorDataPair(settings, true, nullptr);
+}
+
+void WaveletTurbulence::clearTextures() {
+    delete texture_coord, delete energy, delete wavelet_turbulence;
+}
+
+int WaveletTurbulence::changeSettings(Settings settings) {
+    clearTextures();
+    initTextures(settings);
+    return 1;
+}
+
+void WaveletTurbulence::generateWavelet(Settings settings) {
 
     generateAngles();
 
@@ -80,7 +92,7 @@ void WaveletTurbulence::generateWavelet(){
         }
     }
 
-    wavelet_turbulence = createVectorDataPair(true, wavelet);
+    wavelet_turbulence = createVectorDataPair(settings, true, wavelet);
     delete[] wavelet;
     delete[] w1;
     delete[] w2;
@@ -227,4 +239,3 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     slab->interiorOperation(synthesisShader, higherVelocity, -1);
 
 }
-

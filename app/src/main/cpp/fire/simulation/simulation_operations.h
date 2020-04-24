@@ -28,12 +28,6 @@ class SimulationOperations {
 public:
     int init(SlabOperator* slab, Settings settings);
 
-    int initShaders();
-
-    void initTextures(Settings settings);
-
-    void clearTextures();
-
     int changeSettings(Settings settings);
 
     // Applies buoyancy forces to velocity, based on the temperature
@@ -54,8 +48,11 @@ public:
 
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
-    //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
+    // Performs diffusion on a low resolution unit
+    void velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt);
+
+    // Performs diffusion on a high resolution unit
+    void substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
     void projection(DataTexturePair* velocity, int iterationCount);
@@ -66,6 +63,12 @@ public:
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
 
 private:
+
+    int initShaders();
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
 
     // Performs a number of jacobi iterations with two field inputs
     void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,

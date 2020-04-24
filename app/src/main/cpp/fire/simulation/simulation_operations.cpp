@@ -49,9 +49,9 @@ void SimulationOperations::initTextures(Settings settings) {
     createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
     createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
 
-    divergence = createScalarDataPair(false, (float*)nullptr);
+    divergence = createScalarDataPair(settings, false, (float*)nullptr);
 
-    jacobi = createScalarDataPair(false, (float*)nullptr);
+    jacobi = createScalarDataPair(settings, false, (float*)nullptr);
 }
 
 void SimulationOperations::clearTextures() {
@@ -108,16 +108,26 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     slab->interiorOperation(buoyancyShader, velocity, -1);
 }
 
-void SimulationOperations::diffuse(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
 
-    GLuint diffusionBTexture = velocity->isUsingHighRes() ? diffusionBHRTexture : diffusionBLRTexture;
-    slab->copy(velocity, diffusionBTexture);
+    slab->copy(velocity, diffusionBLRTexture);
 
     float dx = 1.0f / velocity->toVoxelScaleFactor();
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    jacobiIteration(velocity, diffusionBTexture, iterationCount, alpha, beta, -1);
+    jacobiIteration(velocity, diffusionBLRTexture, iterationCount, alpha, beta, -1);
+}
+
+void SimulationOperations::substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
+
+    slab->copy(substance, diffusionBHRTexture);
+
+    float dx = 1.0f / substance->toVoxelScaleFactor();
+    float alpha = (dx*dx) / (kinematicViscosity * dt);
+    float beta = 6.0f + alpha; // For 3D grids
+
+    jacobiIteration(substance, diffusionBHRTexture, iterationCount, alpha, beta, -1);
 }
 
 void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRate, float dt){

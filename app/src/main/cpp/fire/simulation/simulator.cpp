@@ -40,10 +40,10 @@ int Simulator::init(Settings settings) {
     if (!slab->init())
         return 0;
 
-    if(!operations->init(slab))
+    if(!operations->init(slab, settings))
         return 0;
 
-    if(!wavelet->init(slab))
+    if(!wavelet->init(slab, settings))
         return 0;
 
     this->settings = settings;
@@ -62,7 +62,7 @@ int Simulator::changeSettings(Settings settings) {
     start_time = NOW;
     last_time = start_time;
 
-    return operations->changeSettings(settings);
+    return operations->changeSettings(settings) && wavelet->changeSettings(settings);
 }
 
 void Simulator::update(){
@@ -129,14 +129,14 @@ void Simulator::initData() {
     fillSphere(temperature_source, 3500.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
-    density = createScalarDataPair(true, density_field);
+    density = createScalarDataPair(settings, true, density_field);
     createScalar3DTexture(&densitySource, highResSize, density_source);
 
-    temperature = createScalarDataPair(true, temperature_field);
+    temperature = createScalarDataPair(settings, true, temperature_field);
     createScalar3DTexture(&temperatureSource, highResSize, temperature_source);
 
-    lowerVelocity = createVectorDataPair(false, velocity_field);
-    higherVelocity = createVectorDataPair(true, nullptr);
+    lowerVelocity = createVectorDataPair(settings, false, velocity_field);
+    higherVelocity = createVectorDataPair(settings, true, nullptr);
     createVector3DTexture(&velocitySource, lowResSize, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;

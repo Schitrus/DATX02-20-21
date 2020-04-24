@@ -18,16 +18,16 @@ DataTexturePair::~DataTexturePair() {
     glDeleteTextures(1, &resultTexture);
 }
 
-void DataTexturePair::initScalarData(bool isHighRes, float* data) {
-    this->isHighRes = isHighRes;
-    ivec3 size = getSize();
+void DataTexturePair::initScalarData(float scaleFactor, ivec3 size, float* data) {
+    this->scaleFactor = scaleFactor;
+    this->size = size;
     createScalar3DTexture(&dataTexture, size, data);
     createScalar3DTexture(&resultTexture, size, (float*)nullptr);
 }
 
-void DataTexturePair::initVectorData(bool isHighRes, vec3* data) {
-    this->isHighRes = isHighRes;
-    ivec3 size = getSize();
+void DataTexturePair::initVectorData(float scaleFactor, ivec3 size, vec3* data) {
+    this->scaleFactor = scaleFactor;
+    this->size = size;
     createVector3DTexture(&dataTexture, size, data);
     createVector3DTexture(&resultTexture, size, (vec3*)nullptr);
 }
@@ -40,10 +40,6 @@ void DataTexturePair::bindData(GLenum textureSlot) {
 void DataTexturePair::bindToFramebuffer(int depth) {
     // attach result texture to framebuffer
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, resultTexture, 0, depth);
-    /* okay, maybe not considering border fire.rendering
-    // since we are essentially overwriting the result texture, we should probably clear it (or does it actually matter?)
-    glClear(GL_COLOR_BUFFER_BIT);
-     */
 }
 
 void DataTexturePair::operationFinished() {
@@ -60,26 +56,26 @@ GLuint DataTexturePair::getResultTexture() {
     return resultTexture;
 }
 
-bool DataTexturePair::isUsingHighRes() {
-    return isHighRes;
-}
-
 ivec3 DataTexturePair::getSize() {
-    return isHighRes ? highResSize : lowResSize;
+    return size;
 }
 
 float DataTexturePair::toVoxelScaleFactor() {
-    return (isHighRes ? highResScale : lowResScale)/simulationScale;
+    return scaleFactor;
 }
 
-DataTexturePair* createScalarDataPair(bool isHighRes, float* data) {
+DataTexturePair* createScalarDataPair(Settings settings, bool isHighRes, float* data) {
+    float scaleFactor = (isHighRes ? highResScale : lowResScale)/simulationScale;
+    ivec3 size = isHighRes ? highResSize : lowResSize;
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initScalarData(isHighRes, data);
+    texturePair->initScalarData(scaleFactor, size, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(bool isHighRes, vec3* data) {
+DataTexturePair* createVectorDataPair(Settings settings, bool isHighRes, vec3* data) {
+    float scaleFactor = (isHighRes ? highResScale : lowResScale)/simulationScale;
+    ivec3 size = isHighRes ? highResSize : lowResSize;
     DataTexturePair* texturePair = new DataTexturePair();
-    texturePair->initVectorData(isHighRes, data);
+    texturePair->initVectorData(scaleFactor, size, data);
     return texturePair;
 }
