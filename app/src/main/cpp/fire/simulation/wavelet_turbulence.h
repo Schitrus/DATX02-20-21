@@ -11,7 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <android/log.h>
 #include "fire/util/shader.h"
 #include "fire/util/data_texture_pair.h"
 #include "slab_operation.h"

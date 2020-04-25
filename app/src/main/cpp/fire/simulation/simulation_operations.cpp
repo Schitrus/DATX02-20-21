@@ -3,8 +3,9 @@
 //
 
 #include "simulation_operations.h"
-#include "simulator.h"
 #include "fire/util/helper.h"
+
+#include <android/log.h>
 
 #define LOG_TAG "Simulation operations"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -46,12 +47,12 @@ int SimulationOperations::initShaders() {
 }
 
 void SimulationOperations::initTextures(Settings settings) {
-    createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
-    createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
+    createVector3DTexture(&diffusionBHRTexture, settings.getSize(Resolution::substance), (vec3*)nullptr);
+    createVector3DTexture(&diffusionBLRTexture, settings.getSize(Resolution::velocity), (vec3*)nullptr);
 
-    divergence = createScalarDataPair(settings, false, (float*)nullptr);
+    divergence = createScalarDataPair(nullptr, Resolution::velocity, settings);
 
-    jacobi = createScalarDataPair(settings, false, (float*)nullptr);
+    jacobi = createScalarDataPair(nullptr, Resolution::velocity, settings);
 }
 
 void SimulationOperations::clearTextures() {

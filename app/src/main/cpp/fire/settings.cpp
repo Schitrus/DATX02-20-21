@@ -3,7 +3,9 @@
 //
 
 #include <string>
+
 #include "settings.h"
+#include "fire/simulation/simulator.h"
 
 const Settings DEFAULT;
 const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(10).withName("Few Iterations");
@@ -61,4 +63,22 @@ Settings Settings::withVorticityScale(float vorticityScale) const {
     Settings newSetting = Settings(this);
     newSetting.vorticityScale = vorticityScale;
     return newSetting;
+}
+
+ivec3 Settings::getSize(Resolution res) {
+    switch(res) {
+        case Resolution::velocity: return lowResSize;
+        case Resolution::substance: return highResSize;
+    }
+}
+
+float Settings::getResToSimFactor(Resolution res) {
+    switch(res) {
+        case Resolution::velocity: return simulationScale / lowResScale;
+        case Resolution::substance: return simulationScale / highResScale;
+    }
+}
+
+vec3 Settings::getSimulationSize() {
+    return simulationSize;
 }

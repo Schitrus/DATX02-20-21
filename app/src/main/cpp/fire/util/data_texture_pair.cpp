@@ -9,7 +9,6 @@
 #include <glm/glm.hpp>
 
 #include "helper.h"
-#include "fire/simulation/simulator.h"
 
 using namespace glm;
 
@@ -64,17 +63,17 @@ float DataTexturePair::toVoxelScaleFactor() {
     return scaleFactor;
 }
 
-DataTexturePair* createScalarDataPair(Settings settings, bool isHighRes, float* data) {
-    float scaleFactor = (isHighRes ? highResScale : lowResScale)/simulationScale;
-    ivec3 size = isHighRes ? highResSize : lowResSize;
+DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings settings) {
+    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
+    ivec3 size = settings.getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initScalarData(scaleFactor, size, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(Settings settings, bool isHighRes, vec3* data) {
-    float scaleFactor = (isHighRes ? highResScale : lowResScale)/simulationScale;
-    ivec3 size = isHighRes ? highResSize : lowResSize;
+DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings settings) {
+    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
+    ivec3 size = settings.getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initVectorData(scaleFactor, size, data);
     return texturePair;

@@ -83,18 +83,18 @@ private:
     void clearField(vec3* field, vec3 value, ivec3 gridSize);
 
     // density is in unit/m^3
-    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos, ivec3 gridSize);
+    void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
 
     // value is in unit
-    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, ivec3 gridSize);
+    void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
 
-    void fillSphere(float* field, float value, vec3 center, float radius, vec3 size);
-    void fillSphere(vec3* field, vec3 value, vec3 center, float radius, vec3 size);
+    void fillSphere(float* field, float value, vec3 center, float radius, Resolution res, Settings settings);
+    void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings settingse);
 
     // fills the field with vectors pointing outward from the center,
     // and that scale with the distance from the center
     // scale is unit/meter from center
-    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos, ivec3 gridSize);
+    void fillOutgoingVector(vec3* field, float scale, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
 
     bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2);
 

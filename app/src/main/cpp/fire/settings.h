@@ -4,8 +4,14 @@
 
 #include <string>
 
+#include <glm/glm.hpp>
+
+using namespace glm;
+
 #ifndef DATX02_20_21_SETTINGS_H
 #define DATX02_20_21_SETTINGS_H
+
+enum class Resolution {velocity, substance};
 
 class Settings {
     std::string name;
@@ -22,6 +28,14 @@ public:
 
     float getVorticityScale();
     Settings withVorticityScale(float vorticityScale) const;
+
+    ivec3 getSize(Resolution res);
+
+    // Returns a scale factor that converts a unit from voxels to meters.
+    // Note that this will not be a perfect scaling factor since resolutions normally use 1-voxel borders, unlike the simulation unit.
+    float getResToSimFactor(Resolution res);
+
+    vec3 getSimulationSize();
 
 private:
     Settings(const Settings* other);
