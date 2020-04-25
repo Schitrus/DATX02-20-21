@@ -8,18 +8,20 @@
 #include "fire/simulation/simulator.h"
 
 const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f).withName("Default");
-const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(10).withName("Few Iterations");
-const Settings OTHER_EXAMPLE = DEFAULT.withProjectIterations(34).withVorticityScale(6.0f).withName("Example");
+const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(5).withName("Few Iterations");
+const Settings SMALL_RES = DEFAULT.withSize(ivec3(1, 4, 1), 6, 24, 24.0f).withName("Small Resolution");
+const Settings LARGE_RES = DEFAULT.withSize(ivec3(1, 4, 1), 24, 120, 24.0f).withName("Large Resolution");
 
 int index = -1;
 
 Settings nextSettings() {
     index++;
-    if(index >= 3)
+    if(index >= 4)
         index = 0;
     switch(index) {
         case 1: return FEW_ITERATIONS;
-        case 2: return OTHER_EXAMPLE;
+        case 2: return SMALL_RES;
+        case 3: return LARGE_RES;
         default: return DEFAULT;
     }
 }
