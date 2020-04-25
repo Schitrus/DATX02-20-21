@@ -149,6 +149,10 @@ void Simulator::velocityStep(float dt){
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 
+    // Diffuse
+    if(settings.getVelKinematicViscosity() != 0.0f)
+        operations->velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
+
     if(settings.getVorticityScale() != 0.0f)
         operations->vorticity(lowerVelocity, settings.getVorticityScale(), dt);
   

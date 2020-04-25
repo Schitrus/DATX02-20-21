@@ -22,17 +22,14 @@ class Settings {
 
     int projectionIterations;
     float vorticityScale;
+    float velocityKinematicViscosity;
+    int velocityDiffusionIterations;
 public:
     Settings();
 
+    // todo it'd be nice to display the name of the current settings
     std::string getName();
     Settings withName(std::string name) const;
-
-    int getProjectionIterations();
-    Settings withProjectIterations(int projectionIterations) const;
-
-    float getVorticityScale();
-    Settings withVorticityScale(float vorticityScale) const;
 
     ivec3 getSize(Resolution res);
 
@@ -43,6 +40,16 @@ public:
     vec3 getSimulationSize();
 
     Settings withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) const;
+
+    float getVelKinematicViscosity();
+    int getVelDiffusionIterations();
+    Settings withVelDiffusion(float viscosity, int iterations);
+
+    float getVorticityScale();
+    Settings withVorticityScale(float vorticityScale) const;
+
+    int getProjectionIterations();
+    Settings withProjectIterations(int projectionIterations) const;
 
 private:
     Settings(const Settings* other);
