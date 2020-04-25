@@ -16,17 +16,6 @@
 using std::chrono::time_point;
 using std::chrono::system_clock;
 
-extern const ivec3 sizeRatio;
-extern const int lowResScale;
-extern const int highResScale;
-extern const float simulationScale;
-// size of low resolution textures. This also includes the border of the texture
-extern const ivec3 lowResSize;
-// size of high resolution textures. This also includes the border of the texture
-extern const ivec3 highResSize;
-// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
-extern const vec3 simulationSize;
-
 class Simulator {
     SlabOperator* slab;
     SimulationOperations* operations;

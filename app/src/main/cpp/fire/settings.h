@@ -15,6 +15,11 @@ enum class Resolution {velocity, substance};
 
 class Settings {
     std::string name;
+
+    ivec3 velocityResSize, substanceResSize;
+    float velocityToSimFactor, substanceToSimFactor;
+    vec3 simulationSize;
+
     int projectionIterations;
     float vorticityScale;
 public:
@@ -36,6 +41,8 @@ public:
     float getResToSimFactor(Resolution res);
 
     vec3 getSimulationSize();
+
+    Settings withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) const;
 
 private:
     Settings(const Settings* other);

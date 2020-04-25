@@ -20,17 +20,6 @@
 
 #define MAX_TEMPERATURE
 
-const ivec3 sizeRatio = ivec3(1, 4, 1);
-const int lowResScale = 12;
-const int highResScale = lowResScale*5;
-const float simulationScale = 24.0f;
-// size of low resolution textures. This also includes the border of the texture
-const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
-// size of high resolution textures. This also includes the border of the texture
-const ivec3 highResSize = highResScale * sizeRatio + ivec3(2, 2, 2);
-// size of fire.simulation space in meters. This does not include the border that is included in the resolution sizes
-const vec3 simulationSize = simulationScale * vec3(sizeRatio);
-
 int Simulator::init(Settings settings) {
 
     slab = new SlabOperator();
