@@ -15,10 +15,10 @@ void main() {
 
     vec3 velocity_vector = texelFetch(velocity_field, position, 0).xyz;
 
-    float velocity = length(velocity_vector) * meterToVoxels * pow(2.0, -(5.0/3.0));
+    float velocity = length(velocity_vector) * pow(2.0, -(5.0/3.0));
 
     float energy = 0.5 * velocity * velocity;
 
-    outEnergy = energy;
+    outEnergy = energy * meterToVoxels;
 
 }

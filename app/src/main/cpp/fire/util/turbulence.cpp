@@ -23,10 +23,12 @@ void* threadTurbulence(void* args){
     ivec3 position = turb->position;
     ivec3 size = turb->size;
 
+    float len = max(max(size.x, size.y), size.z);
+
     for(int y = 0; y < size.y; y++) {
         for (int x = 0; x < size.x; x++) {
             int index = position.z * size.y * size.x + y * size.x + x;
-            t[index] += fabs(pow(2.0, -(band-min_band)) * perlin(float(pow(2.0, band)) * vec3((float)x/size.x, (float)y/size.y, (float)position.z/size.z)));
+            t[index] += fabs(pow(2.0, -(band-min_band)) * perlin(float(pow(2.0, band)) * vec3((float)x/len, (float)y/len, (float)position.z/len)));
         }
     }
 

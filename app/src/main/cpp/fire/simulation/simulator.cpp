@@ -23,7 +23,7 @@
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 12;
 const int highResScale = lowResScale*5;
-const float simulationScale = 12.0f;
+const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
 // size of high resolution textures. This also includes the border of the texture

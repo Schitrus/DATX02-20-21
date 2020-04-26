@@ -26,16 +26,13 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     if(!initShaders())
         return 0;
 
-    texture_coord = createScalarDataPair(false, nullptr);
+    texture_coord = createVectorDataPair(false, nullptr);
     energy = createScalarDataPair(false, nullptr);
 
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
-
-    band_min = 4;
-    band_max = 4;
 
     vec3* w = wavelet(highResSize, band_min, band_max);
 
@@ -83,7 +80,7 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     texture_coord->bindData(GL_TEXTURE2);
     energy->bindData(GL_TEXTURE3);
 
-    slab->interiorOperation(synthesisShader, higherVelocity, -1);
+    slab->fullOperation(synthesisShader, higherVelocity);
 
 }
 
