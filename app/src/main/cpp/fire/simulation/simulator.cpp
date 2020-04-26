@@ -65,7 +65,7 @@ void Simulator::update(){
     delta_time = 1/30.0f;
     stopTime += delta_time;
 
-    if(stopTime<10.0f){
+    //if(stopTime<10.0f){
 
     velocityStep(delta_time);
 
@@ -76,7 +76,7 @@ void Simulator::update(){
     temperatureStep(delta_time);
 
     slab->finish();
-    }
+    //}
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
@@ -138,6 +138,9 @@ void Simulator::velocityStep(float dt){
     // Source
     operations->buoyancy(lowerVelocity, temperature, dt, 0.15f);
 
+    //diffuse
+    //operations->diffuse(lowerVelocity, 20, 0.0000181, dt);
+
     //updateAndApplyWind(dt);
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
@@ -153,6 +156,8 @@ void Simulator::waveletStep(float dt){
     wavelet->advection(lowerVelocity, dt);
 
     wavelet->calcEnergy(lowerVelocity);
+
+    //wavelet->calcScattering();
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }
