@@ -16,13 +16,13 @@ void main() {
 
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
-    vec3 velocity         = texture(velocity_field, vec3(position)/gridSize).xyz;
+    vec3 velocity         = texture(velocity_field, (vec3(position) + vec3(0.5))/gridSize).xyz;
 
-    vec3 texture_coord    = texture(texture_field, vec3(position)/gridSize).xyz;
+    vec3 texture_coord    = texture(texture_field, (vec3(position) + vec3(0.5))/gridSize).xyz;
 
-    vec3 turbulence      = texture(turbulence_field, vec3(position)/gridSize).xyz;
+    vec3 turbulence      = texture(turbulence_field, texture_coord).xyz;
 
-    float energy_spectrum = texture(energy_field, vec3(position)/gridSize).x;
+    float energy_spectrum = texture(energy_field, (vec3(position) + vec3(0.5))/gridSize).x;
 
     outVelocity = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence;
 

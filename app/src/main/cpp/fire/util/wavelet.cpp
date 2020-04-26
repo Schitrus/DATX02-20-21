@@ -6,7 +6,7 @@
 
 vec3* wavelet(ivec3 size, float min_band, float max_band){
 
-    ivec3 tsize = size + ivec3(2.0);
+    ivec3 tsize = size + ivec3(2);
 
     double* w1 = turbulence(tsize, min_band, max_band);
     double* w2 = turbulence(tsize, min_band, max_band);

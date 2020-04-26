@@ -5,7 +5,7 @@
 #include "perlin.h"
 
 ivec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
-                   {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
+                    {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
 
 ivec3 seed;
 
@@ -14,8 +14,8 @@ int num_grads;
 vec3* grads;
 
 void initPerlin() {
-    seed = ivec3(rand()%10000, rand()%10000, rand()%10000);
-    num_grads = 256;
+    seed = ivec3(rand(), rand(), rand());
+    num_grads = 1024;
     grads = new vec3[num_grads];
     for(int i = 0; i < num_grads; i++) {
         float a1 = rand()%360 / 180.0f * PI;
@@ -39,7 +39,7 @@ double perlin(vec3 position){
     for (int c = 0; c < 8; c++){
         ivec3 external_corner = seed * (external_position + corners[c]);
         vec3 grad = grads[abs(external_corner.x*external_corner.x + external_corner.y*external_corner.y + external_corner.z*external_corner.z)%num_grads];
-        dots[c] = dot(normalize(grad), internal_position - vec3(corners[c]));
+        dots[c] = dot(grad, internal_position - vec3(corners[c]));
     }
     //interpolate the values
     //interpolate the values

@@ -20,7 +20,7 @@
 
 int WaveletTurbulence::init(SlabOperator* slab) {
 
-    //srand(42);
+    srand(42);
 
     this->slab = slab;
     if(!initShaders())
@@ -33,6 +33,9 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
+
+    band_min = 4;
+    band_max = 4;
 
     vec3* w = wavelet(highResSize, band_min, band_max);
 
