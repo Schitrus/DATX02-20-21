@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include "fire/util/wavelet.h"
+#include <fire/util/eigen.h>
 
 #define LOG_TAG "wavelet"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -69,6 +70,19 @@ void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
     lowerVelocity->bindData(GL_TEXTURE0);
     slab->fullOperation(energyShader, energy);
+}
+
+void WaveletTurbulence::calcScattering() {
+    Eigen::Matrix3f jacobian(3,3);
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j++){
+            jacobian(i,j) = 0.0f;
+        }
+    }
+    // as the convergence from low resolution to high resolution only scales
+    jacobian(0,0) = lowResSize.x;
+    jacobian(1,1) = lowResSize.y;
+    jacobian(2,2) = lowResSize.z;
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
