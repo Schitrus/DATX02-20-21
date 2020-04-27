@@ -157,7 +157,7 @@ void Simulator::waveletStep(float dt){
 
     wavelet->calcEnergy(lowerVelocity);
 
-    //wavelet->calcScattering();
+    wavelet->regenerate(lowerVelocity);
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }

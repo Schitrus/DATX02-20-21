@@ -24,10 +24,16 @@ class WaveletTurbulence {
 
     SlabOperator* slab;
 
+    vec3* advPos;
+    vec3* eigenValues;
+
+    GLuint eigenTexture;
+
     Shader turbulenceShader;
     Shader synthesisShader;
     Shader energyShader;
     Shader textureCoordShader;
+    Shader regenerateShader;
 
     DataTexturePair* wavelet_turbulence;
     DataTexturePair* energy;
@@ -42,6 +48,8 @@ public:
 
     void calcEnergy(DataTexturePair* lowerVelocity);
 
+    void regenerate(DataTexturePair* lowerVelocity);
+
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
 
     double turbulence(vec3 position, vec3 offset, vec3 size);
@@ -50,6 +58,8 @@ public:
 
 private:
     int initShaders();
+
+    vec3 calcEigen(vec3 x, vec3 y, vec3 z);
 
     void generateWavelet();
     double* generateTurbulence(vec3 size);
