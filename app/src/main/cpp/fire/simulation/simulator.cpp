@@ -21,8 +21,8 @@
 #define MAX_TEMPERATURE
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
-const int lowResScale = 12;
-const int highResScale = lowResScale*5;
+const int lowResScale = 6;
+const int highResScale = lowResScale*10;
 const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
@@ -145,7 +145,7 @@ void Simulator::velocityStep(float dt){
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 
-    operations->vorticity(lowerVelocity, 8.0f, dt);
+    operations->vorticity(lowerVelocity, 5.0f, dt);
   
     // Project
     operations->projection(lowerVelocity, 20);

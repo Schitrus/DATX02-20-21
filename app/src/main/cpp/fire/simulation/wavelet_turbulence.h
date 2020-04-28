@@ -26,8 +26,14 @@ class WaveletTurbulence {
 
     vec3* advPos;
     vec3* eigenValues;
+    vec3* jacobianX;
+    vec3* jacobianY;
+    vec3* jacobianZ;
 
     GLuint eigenTexture;
+    GLuint jacobianXTexture;
+    GLuint jacobianYTexture;
+    GLuint jacobianZTexture;
 
     Shader turbulenceShader;
     Shader synthesisShader;
@@ -64,8 +70,6 @@ private:
     void generateWavelet();
     double* generateTurbulence(vec3 size);
 
-
 };
-
 
 #endif //DATX02_20_21_WAVELET_TURBULENCE_H

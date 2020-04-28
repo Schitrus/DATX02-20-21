@@ -35,6 +35,9 @@ int WaveletTurbulence::init(SlabOperator* slab) {
 
     advPos = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     eigenValues = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
+    jacobianX = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
+    jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
+    jacobianZ= new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
@@ -98,6 +101,7 @@ void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
 }
 
 vec3 WaveletTurbulence::calcEigen(vec3 x, vec3 y, vec3 z){
+    //create a jacobian matrix with the eigen library
     Eigen::Matrix3f jacobian(3,3);
     vec3 tmp;
     vec3 v[] = {x,y,z};
@@ -120,7 +124,9 @@ vec3 WaveletTurbulence::calcEigen(vec3 x, vec3 y, vec3 z){
 
 
 void WaveletTurbulence::calcScattering() {
-    //calculate the jacobian for each position
+    //calculate the jacobian for each position in the grid
+    //the jacobian is structured as following:
+    // (newx, newy, newz)
     for (int d = 0; d < lowResSize.z; ++d) {
         for (int h = 0; h < lowResSize.y; ++h) {
             for (int w = 0; w < lowResSize.x; ++w) {
@@ -129,17 +135,24 @@ void WaveletTurbulence::calcScattering() {
                 vec3 newy = advPos[index + lowResSize.x] - advPos[index];
                 vec3 newz = advPos[index + lowResSize.x * lowResSize.y] - advPos[index];
                 eigenValues[index] = calcEigen(newx, newy, newz);
+                mat3 jacobian = inverse(mat3(newx, newy, newz));
+                jacobianX[index] = jacobian[0];
+                jacobianY[index] = jacobian[1];
+                jacobianZ[index] = jacobian[2];
             }
         }
     }
     createVector3DTexture(&eigenTexture, lowResSize, eigenValues);
+    createVector3DTexture(&jacobianXTexture, lowResSize, jacobianX);
+    createVector3DTexture(&jacobianYTexture, lowResSize, jacobianY);
+    createVector3DTexture(&jacobianZTexture, lowResSize, jacobianZ);
 }
 
 void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {
     regenerateShader.use();
 
-    textureCoordShader.uniform3f("gridSize", lowResSize);
-    textureCoordShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
+    regenerateShader.uniform3f("gridSize", lowResSize);
+    regenerateShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
 
     texture_coord->bindData(GL_TEXTURE0);
     bindData(eigenTexture, GL_TEXTURE1);
@@ -155,6 +168,9 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     wavelet_turbulence->bindData(GL_TEXTURE1);
     texture_coord->bindData(GL_TEXTURE2);
     energy->bindData(GL_TEXTURE3);
+    bindData(jacobianXTexture, GL_TEXTURE4);
+    bindData(jacobianYTexture, GL_TEXTURE5);
+    bindData(jacobianZTexture, GL_TEXTURE6);
 
     slab->fullOperation(synthesisShader, higherVelocity);
 }

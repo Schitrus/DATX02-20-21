@@ -6,6 +6,9 @@ layout(binding = 0) uniform sampler3D velocity_field;
 layout(binding = 1) uniform sampler3D turbulence_field;
 layout(binding = 2) uniform sampler3D texture_field;
 layout(binding = 3) uniform sampler3D energy_field;
+layout(binding = 4) uniform sampler3D jacobianX;
+layout(binding = 5) uniform sampler3D jacobianY;
+layout(binding = 6) uniform sampler3D jacobianZ;
 
 uniform vec3 gridSize;
 uniform int depth;
@@ -24,6 +27,11 @@ void main() {
 
     float energy_spectrum = texture(energy_field, (vec3(position) + vec3(0.5))/gridSize).x;
 
-    outVelocity = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence;
+    mat3 jacobiani;
+    jacobiani[0] = texture(jacobianX, (vec3(position) + vec3(0.5))/gridSize).xyz;
+    jacobiani[1] = texture(jacobianY, (vec3(position) + vec3(0.5))/gridSize).xyz;
+    jacobiani[2] = texture(jacobianZ, (vec3(position) + vec3(0.5))/gridSize).xyz;
+
+    outVelocity = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence * jacobiani;
 
 }

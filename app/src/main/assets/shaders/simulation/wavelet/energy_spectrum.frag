@@ -19,6 +19,6 @@ void main() {
 
     float energy = 0.5 * velocity * velocity;
 
-    outEnergy = energy * meterToVoxels;
+    outEnergy = energy;
 
 }
