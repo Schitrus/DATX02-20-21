@@ -27,7 +27,7 @@ void main() {
     // Texture coordinate for a texture without a border. Is the one type of coordinate that is the same for both types of texture resolutions
     vec3 tex_without_border_coords = (voxel_center - vec3(1))/(gridSize - vec3(2));
     // Texture coordinate for the temperature texture (with border)
-    vec3 temp_tex_coord = temp_border_width + tex_without_border_coords*(1 - 2*temp_border_width);
+    vec3 temp_tex_coord = temp_border_width + tex_without_border_coords*(vec3(1) - 2.0f*temp_border_width);
 
     float temperature = texture(temperature_field, temp_tex_coord).x;
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
