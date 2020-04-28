@@ -107,13 +107,13 @@ void Simulator::initData() {
     clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowResSize);
     clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowResSize);
 
-    float radius = 16;
+    float radius = 6.4f;
     float middleW = simulationSize.x / 2;
     float middleD = simulationSize.z / 2;
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
-    vec3 center = vec3(0.5f, 0.2f, 0.5f) * vec3(highResSize);
+    vec3 center = vec3(0.5f, 0.2f, 0.5f) * simulationSize;
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, Resolution::velocity, settings);
 
