@@ -37,7 +37,7 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     eigenValues = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianX = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianZ= new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
+    jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
@@ -118,7 +118,11 @@ vec3 WaveletTurbulence::calcEigen(vec3 x, vec3 y, vec3 z){
     std::complex<float> eig1 = eig.eigenvalues()[0];
     std::complex<float> eig2 = eig.eigenvalues()[1];
     std::complex<float> eig3 = eig.eigenvalues()[2];
-    vec3 eigenValues = vec3(eig1.real(), eig2.real(), eig3.real());
+
+    vec3 eigenReal = vec3(eig1.real(), eig2.real(), eig3.real());
+    vec3 eigenImag = vec3(eig1.imag(), eig2.imag(), eig3.imag());
+
+    vec3 eigenValues = sqrt(eigenReal * eigenReal + eigenImag * eigenImag);
 
     return eigenValues;
 }
@@ -155,9 +159,6 @@ void WaveletTurbulence::calcScattering() {
                 vec3 newx = calcPartialD(index, 1, lowResSize.x);
                 vec3 newy = calcPartialD(index, lowResSize.x, lowResSize.y);
                 vec3 newz = calcPartialD(index, lowResSize.x * lowResSize.y, lowResSize.z);
-                LOG_INFO("jacobi: ( %e, %e, %e )", newx.x, newy.x, newz.x);
-                LOG_INFO("        ( %e, %e, %e )", newx.y, newy.y, newz.y);
-                LOG_INFO("        ( %e, %e, %e )", newx.z, newy.z, newz.z);
                 eigenValues[index] = calcEigen(newx, newy, newz);
                 mat3 jacobianI = inverse(mat3(newx, newy, newz));
                 jacobianX[index] = jacobianI[0];
