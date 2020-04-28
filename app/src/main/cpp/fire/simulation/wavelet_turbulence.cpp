@@ -84,7 +84,8 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
         texture_coord->bindToFramebuffer(d);
         if(!slab->drawAllToTexture(textureCoordShader, d, texture_coord->getSize()))
             return;
-        glReadPixels(0, 0, lowResSize.x, lowResSize.y, GL_RGB, GL_FLOAT, data);
+        glReadPixels(0, 0, texture_coord->getSize().x, texture_coord->getSize().y, GL_RGBA, GL_FLOAT, data);
+
         for (int i = 0; i < lowResSize.x * lowResSize.y; ++i) {
             advPos[lowResSize.x * lowResSize.y * d + i] = data[i];
         }
@@ -122,23 +123,46 @@ vec3 WaveletTurbulence::calcEigen(vec3 x, vec3 y, vec3 z){
     return eigenValues;
 }
 
+vec3 WaveletTurbulence::calcPartialD(int index, int step, int axisSize){
+    // inspired by Theodore Kim & Nils Thürey, 2 of the authors of the paper "Wavelet Turbulence for Fluid Simulation"
+    // https://www.cs.cornell.edu/~tedkim/WTURB/source.html
+    vec3 center = advPos[index];
+    vec3 prev = (center - advPos[index - step]) * (float)axisSize;
+    vec3 next = (advPos[index + step] - center) * (float)axisSize;
+    vec3 dcenter = (next - prev) * (float)axisSize * 0.5f;
+
+    // calculate the smallest values of each vector, and return a new vector with these values
+    float d0 = (fabs(dcenter.x) < fabs(next.x)) ? dcenter.x : next.x;
+    d0 = (fabs(d0) < fabs(prev.x)) ? d0 : prev.x;
+
+    float d1 = (fabs(dcenter.y) < fabs(next.y)) ? dcenter.y : next.y;
+    d1 = (fabs(d1) < fabs(prev.y)) ? d1 : prev.y;
+
+    float d2 = (fabs(dcenter.z) < fabs(next.z)) ? dcenter.z : next.z;
+    d2 = (fabs(d2) < fabs(prev.z)) ? d2 : prev.z;
+
+    return vec3(d0, d1, d2);
+}
 
 void WaveletTurbulence::calcScattering() {
     //calculate the jacobian for each position in the grid
     //the jacobian is structured as following:
     // (newx, newy, newz)
-    for (int d = 0; d < lowResSize.z; ++d) {
-        for (int h = 0; h < lowResSize.y; ++h) {
-            for (int w = 0; w < lowResSize.x; ++w) {
-                int index = w * (h * d + h) + w;
-                vec3 newx = advPos[index+1] - advPos[index];
-                vec3 newy = advPos[index + lowResSize.x] - advPos[index];
-                vec3 newz = advPos[index + lowResSize.x * lowResSize.y] - advPos[index];
+    for (int d = 1; d < lowResSize.z-1; d++) {
+        for (int h = 1; h < lowResSize.y-1; h++) {
+            for (int w = 1; w < lowResSize.x-1; w++) {
+                int index = lowResSize.x * (lowResSize.y * d + h) + w;
+                vec3 newx = calcPartialD(index, 1, lowResSize.x);
+                vec3 newy = calcPartialD(index, lowResSize.x, lowResSize.y);
+                vec3 newz = calcPartialD(index, lowResSize.x * lowResSize.y, lowResSize.z);
+                LOG_INFO("jacobi: ( %e, %e, %e )", newx.x, newy.x, newz.x);
+                LOG_INFO("        ( %e, %e, %e )", newx.y, newy.y, newz.y);
+                LOG_INFO("        ( %e, %e, %e )", newx.z, newy.z, newz.z);
                 eigenValues[index] = calcEigen(newx, newy, newz);
-                mat3 jacobian = inverse(mat3(newx, newy, newz));
-                jacobianX[index] = jacobian[0];
-                jacobianY[index] = jacobian[1];
-                jacobianZ[index] = jacobian[2];
+                mat3 jacobianI = inverse(mat3(newx, newy, newz));
+                jacobianX[index] = jacobianI[0];
+                jacobianY[index] = jacobianI[1];
+                jacobianZ[index] = jacobianI[2];
             }
         }
     }

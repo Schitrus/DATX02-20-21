@@ -65,6 +65,8 @@ public:
 private:
     int initShaders();
 
+    vec3 calcPartialD(int index, int step, int axisSize);
+
     vec3 calcEigen(vec3 x, vec3 y, vec3 z);
 
     void generateWavelet();
