@@ -27,6 +27,10 @@ android {
             version "3.10.2"
         }
     }
+    compileOptions {
+        targetCompatibility = 1.8
+        sourceCompatibility = 1.8
+    }
 }
 
 dependencies {

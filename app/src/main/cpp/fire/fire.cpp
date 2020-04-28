@@ -40,15 +40,16 @@ void Fire::update(){
 }
 
 void Fire::touch(double dx, double dy){
-    if(dx == 0.0 && dy == 0.0) {
-        Settings newSettings = nextSettings();
-        simulator.changeSettings(newSettings);
-    }
     renderer.touch(dx, dy);
 }
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){
     renderer.scale(scaleFactor, scaleX, scaleY);
+}
+
+void Fire::onClick() {
+    Settings newSettings = nextSettings();
+    simulator.changeSettings(newSettings);
 }
 
 
@@ -89,5 +90,9 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
 
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->scale(scaleFactor, scaleX, scaleY);
+}
+
+JC(void) Java_com_pbf_FireListener_onClick(JCT){
+    fire->onClick();
 }
 
