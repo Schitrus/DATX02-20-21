@@ -13,12 +13,18 @@ using namespace glm;
 
 enum class Resolution {velocity, substance};
 
+enum class SourceMode {set, add};
+
 class Settings {
     std::string name;
 
     ivec3 velocityResSize, substanceResSize;
     float velocityToSimFactor, substanceToSimFactor;
     vec3 simulationSize;
+
+    SourceMode sourceMode;
+    float temperatureSourceDensity;
+    float smokeSourceDensity;
 
     int projectionIterations;
     float vorticityScale;
@@ -40,14 +46,20 @@ public:
     Settings withName(std::string name) const;
 
     ivec3 getSize(Resolution res);
-
     // Returns a scale factor that converts a unit from voxels to meters.
     // Note that this will not be a perfect scaling factor since resolutions normally use 1-voxel borders, unlike the simulation unit.
     float getResToSimFactor(Resolution res);
-
     vec3 getSimulationSize();
-
     Settings withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) const;
+
+    SourceMode getSourceMode();
+    Settings withSourceMode(SourceMode mode) const;
+
+    float getTempSourceDensity();
+    Settings withTempSourceDensity(float density) const;
+
+    float getSmokeSourceDensity();
+    Settings withSmokeSourceDensity(float density) const;
 
     float getVelKinematicViscosity();
     int getVelDiffusionIterations();

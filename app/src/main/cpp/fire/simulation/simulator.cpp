@@ -118,8 +118,8 @@ void Simulator::initData() {
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, Resolution::velocity, settings);
 
-    fillSphere(density_source, 0.4f, center, radius, Resolution::substance, settings);
-    fillSphere(temperature_source, 3500.0f, center, radius, Resolution::substance, settings);
+    fillSphere(density_source, settings.getSmokeSourceDensity(), center, radius, Resolution::substance, settings);
+    fillSphere(temperature_source, settings.getTempSourceDensity(), center, radius, Resolution::substance, settings);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, Resolution::velocity, settings);
 
     density = createScalarDataPair(density_field, Resolution::substance, settings);
@@ -186,7 +186,9 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 
 void Simulator::temperatureStep(float dt) {
     // Force
-    operations->setSource(temperature, temperatureSource, dt);
+    if(settings.getSourceMode() == SourceMode::set)
+        operations->setSource(temperature, temperatureSource, dt);
+    else operations->addSource(temperature, temperatureSource, dt);
 
     // Advection
     operations->fulladvection(higherVelocity, temperature, dt);
@@ -202,7 +204,9 @@ void Simulator::temperatureStep(float dt) {
 
 void Simulator::densityStep(float dt){
     // addForce
-    operations->setSource(density, densitySource, dt);
+    if(settings.getSourceMode() == SourceMode::set)
+        operations->setSource(density, densitySource, dt);
+    else operations->addSource(density, densitySource, dt);
 
     // Advect
     operations->fulladvection(higherVelocity, density, dt);

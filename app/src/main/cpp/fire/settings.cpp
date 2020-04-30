@@ -8,6 +8,7 @@
 #include "fire/simulation/simulator.h"
 
 const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f)
+        .withSourceMode(SourceMode::set).withTempSourceDensity(3500.0f).withSmokeSourceDensity(0.4f)
         .withVorticityScale(8.0f).withProjectIterations(20).withBuoyancyScale(0.15f).withName("Default");
 const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(5).withName("Few Iterations");
 const Settings SMALL_RES = DEFAULT.withSize(ivec3(1, 4, 1), 6, 24, 24.0f).withName("Small Resolution");
@@ -36,6 +37,10 @@ Settings nextSettings() {
 }
 
 Settings::Settings() {
+    sourceMode = SourceMode::add;
+    temperatureSourceDensity = 0.0f;
+    smokeSourceDensity = 0.0f;
+
     projectionIterations = 0;
     vorticityScale = 0.0f;
     velocityKinematicViscosity = 0.0f;
@@ -113,6 +118,36 @@ Settings Settings::withSize(ivec3 sizeRatio, int velocityScale, int substanceSca
     return newSetting;
 }
 #pragma clang diagnostic pop
+
+SourceMode Settings::getSourceMode() {
+    return sourceMode;
+}
+
+Settings Settings::withSourceMode(SourceMode mode) const {
+    Settings newSetting = Settings(this);
+    newSetting.sourceMode = mode;
+    return newSetting;
+}
+
+float Settings::getTempSourceDensity() {
+    return temperatureSourceDensity;
+}
+
+Settings Settings::withTempSourceDensity(float density) const {
+    Settings newSetting = Settings(this);
+    newSetting.temperatureSourceDensity = density;
+    return newSetting;
+}
+
+float Settings::getSmokeSourceDensity() {
+    return smokeSourceDensity;
+}
+
+Settings Settings::withSmokeSourceDensity(float density) const {
+    Settings newSetting = Settings(this);
+    newSetting.smokeSourceDensity = density;
+    return newSetting;
+}
 
 float Settings::getVelKinematicViscosity() {
     return velocityKinematicViscosity;
