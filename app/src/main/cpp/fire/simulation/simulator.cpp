@@ -143,7 +143,8 @@ void Simulator::clearData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    operations->buoyancy(lowerVelocity, temperature, dt, 0.15f);
+    if(settings.getBuoyancyScale() != 0.0f)
+        operations->buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
 
     //updateAndApplyWind(dt);
     // Advect
@@ -153,6 +154,7 @@ void Simulator::velocityStep(float dt){
     if(settings.getVelKinematicViscosity() != 0.0f)
         operations->velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
 
+    // Vorticity
     if(settings.getVorticityScale() != 0.0f)
         operations->vorticity(lowerVelocity, settings.getVorticityScale(), dt);
   

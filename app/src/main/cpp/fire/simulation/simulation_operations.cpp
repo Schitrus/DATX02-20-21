@@ -94,7 +94,7 @@ void SimulationOperations::setSource(DataTexturePair* data, GLuint& source, floa
     slab->fullOperation(setSourceShader, data);
 }
 
-void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale){
+void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
     buoyancyShader.uniform1f("scale", scale);

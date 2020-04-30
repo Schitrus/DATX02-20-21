@@ -24,6 +24,7 @@ class Settings {
     float vorticityScale;
     float velocityKinematicViscosity;
     int velocityDiffusionIterations;
+    float buoyancyScale;
 public:
     Settings();
 
@@ -50,6 +51,9 @@ public:
 
     int getProjectionIterations();
     Settings withProjectIterations(int projectionIterations) const;
+
+    float getBuoyancyScale();
+    Settings withBuoyancyScale(float buoyancyScale) const;
 
 private:
     Settings(const Settings* other);

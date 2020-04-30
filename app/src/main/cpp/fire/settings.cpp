@@ -8,7 +8,7 @@
 #include "fire/simulation/simulator.h"
 
 const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f)
-        .withVorticityScale(8.0f).withProjectIterations(20).withName("Default");
+        .withVorticityScale(8.0f).withProjectIterations(20).withBuoyancyScale(0.15f).withName("Default");
 const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(5).withName("Few Iterations");
 const Settings SMALL_RES = DEFAULT.withSize(ivec3(1, 4, 1), 6, 24, 24.0f).withName("Small Resolution");
 const Settings LARGE_RES = DEFAULT.withSize(ivec3(1, 4, 1), 24, 120, 24.0f).withName("Large Resolution");
@@ -28,16 +28,27 @@ Settings nextSettings() {
 }
 
 Settings::Settings() {
-    this->projectionIterations = 0;
-    this->vorticityScale = 0.0f;
-    this->velocityKinematicViscosity = 0.0f;
-    this->velocityDiffusionIterations = 0;
+    projectionIterations = 0;
+    vorticityScale = 0.0f;
+    velocityKinematicViscosity = 0.0f;
+    velocityDiffusionIterations = 0;
+    buoyancyScale = 0;
 }
 
 Settings::Settings(const Settings* other) {
     this->name = other->name;
-    this->projectionIterations = other->projectionIterations;
-    this->vorticityScale = other->vorticityScale;
+
+    velocityResSize = other->velocityResSize;
+    substanceResSize = other->substanceResSize;
+    velocityToSimFactor = other->velocityToSimFactor;
+    substanceToSimFactor = other->substanceToSimFactor;
+    simulationSize = other->simulationSize;
+
+    projectionIterations = other->projectionIterations;
+    vorticityScale = other->vorticityScale;
+    velocityKinematicViscosity = other->velocityKinematicViscosity;
+    velocityDiffusionIterations = other->velocityDiffusionIterations;
+    buoyancyScale = other->buoyancyScale;
 }
 
 std::string Settings::getName() {
@@ -113,5 +124,15 @@ int Settings::getProjectionIterations() {
 Settings Settings::withProjectIterations(int projectionIterations) const {
     Settings newSetting = Settings(this);
     newSetting.projectionIterations = projectionIterations;
+    return newSetting;
+}
+
+float Settings::getBuoyancyScale() {
+    return buoyancyScale;
+}
+
+Settings Settings::withBuoyancyScale(float buoyancyScale) const {
+    Settings newSetting = Settings(this);
+    newSetting.buoyancyScale = buoyancyScale;
     return newSetting;
 }
