@@ -49,7 +49,8 @@ void Fire::scale(float scaleFactor, double scaleX, double scaleY){
 
 void Fire::onClick() {
     Settings newSettings = nextSettings();
-    LOG_INFO("Changing settings to %s", newSettings.getName());
+    std::string name = newSettings.getName();
+    LOG_INFO("Changing settings to %s", name.data());
     simulator.changeSettings(newSettings);
 }
 
