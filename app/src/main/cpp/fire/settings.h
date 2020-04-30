@@ -26,6 +26,10 @@ class Settings {
     int velocityDiffusionIterations;
     float buoyancyScale;
     float windScale;
+
+    float smokeKinematicViscosity;
+    int smokeDiffusionIterations;
+    float smokeDissipation;
 public:
     Settings();
 
@@ -58,6 +62,14 @@ public:
 
     float getWindScale();
     Settings withWindScale(float windScale) const;
+
+    float getSmokeKinematicViscosity();
+    int getSmokeDiffusionIterations();
+    Settings withSmokeDiffusion(float viscosity, int iterations);
+
+    float getSmokeDissipation();
+    Settings withSmokeDissipation(float smokeDissipation) const;
+
 private:
     Settings(const Settings* other);
 

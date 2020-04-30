@@ -199,6 +199,14 @@ void Simulator::densityStep(float dt){
 
     // Advect
     operations->fulladvection(higherVelocity, density, dt);
+
+    // Diffuse
+    if(settings.getSmokeKinematicViscosity() != 0.0f)
+        operations->substanceDiffusion(density, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
+
+    // Dissipate
+    if(settings.getSmokeDissipation() != 0.0f)
+        operations->dissipate(density, settings.getSmokeDissipation(), dt);
 }
 
 void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {
