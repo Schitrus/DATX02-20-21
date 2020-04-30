@@ -12,17 +12,25 @@ const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f)
 const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(5).withName("Few Iterations");
 const Settings SMALL_RES = DEFAULT.withSize(ivec3(1, 4, 1), 6, 24, 24.0f).withName("Small Resolution");
 const Settings LARGE_RES = DEFAULT.withSize(ivec3(1, 4, 1), 24, 120, 24.0f).withName("Large Resolution");
+const Settings DIFFUSION = DEFAULT.withSmokeDiffusion(1.0f, 10).withTempDiffusion(1.0f, 10).withName("Little bit of Diffusion");
+const Settings MORE_DIFFUSION = DIFFUSION.withVelDiffusion(5.0f, 20).withName("More diffusion");
+const Settings WIND = DEFAULT.withWindScale(1.0f).withName("Wind");
+const Settings STORM = DEFAULT.withWindScale(100.0f).withSmokeDissipation(0.2f).withBuoyancyScale(0.3f).withName("Storm");
 
 int index = -1;
 
 Settings nextSettings() {
     index++;
-    if(index >= 4)
+    if(index >= 8)
         index = 0;
     switch(index) {
         case 1: return FEW_ITERATIONS;
         case 2: return SMALL_RES;
         case 3: return LARGE_RES;
+        case 4: return DIFFUSION;
+        case 5: return MORE_DIFFUSION;
+        case 6: return WIND;
+        case 7: return STORM;
         default: return DEFAULT;
     }
 }
