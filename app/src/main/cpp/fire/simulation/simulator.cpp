@@ -192,6 +192,8 @@ void Simulator::temperatureStep(float dt) {
     operations->fulladvection(higherVelocity, temperature, dt);
 
     // Diffusion
+    if(settings.getTempKinematicViscosity() != 0.0f)
+        operations->substanceDiffusion(temperature, settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
 
     // Dissipation
     operations->heatDissipation(temperature, dt);

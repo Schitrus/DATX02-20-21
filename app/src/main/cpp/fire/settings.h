@@ -51,7 +51,7 @@ public:
 
     float getVelKinematicViscosity();
     int getVelDiffusionIterations();
-    Settings withVelDiffusion(float viscosity, int iterations);
+    Settings withVelDiffusion(float viscosity, int iterations) const;
 
     float getVorticityScale();
     Settings withVorticityScale(float vorticityScale) const;
@@ -67,14 +67,14 @@ public:
 
     float getSmokeKinematicViscosity();
     int getSmokeDiffusionIterations();
-    Settings withSmokeDiffusion(float viscosity, int iterations);
+    Settings withSmokeDiffusion(float viscosity, int iterations) const;
 
     float getSmokeDissipation();
     Settings withSmokeDissipation(float smokeDissipation) const;
 
     float getTempKinematicViscosity();
     int getTempDiffusionIterations();
-    Settings withTempDiffusion(float viscosity, int iterations);
+    Settings withTempDiffusion(float viscosity, int iterations) const;
 
 
 private:

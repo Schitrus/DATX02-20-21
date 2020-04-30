@@ -114,7 +114,7 @@ int Settings::getVelDiffusionIterations() {
     return velocityDiffusionIterations;
 }
 
-Settings Settings::withVelDiffusion(float viscosity, int iterations) {
+Settings Settings::withVelDiffusion(float viscosity, int iterations) const {
     Settings newSetting = Settings(this);
     newSetting.velocityKinematicViscosity = viscosity;
     newSetting.velocityDiffusionIterations = iterations;
@@ -169,7 +169,7 @@ int Settings::getSmokeDiffusionIterations() {
     return smokeDiffusionIterations;
 }
 
-Settings Settings::withSmokeDiffusion(float viscosity, int iterations) {
+Settings Settings::withSmokeDiffusion(float viscosity, int iterations) const {
     Settings newSetting = Settings(this);
     newSetting.smokeKinematicViscosity = viscosity;
     newSetting.smokeDiffusionIterations = iterations;
@@ -186,11 +186,15 @@ Settings Settings::withSmokeDissipation(float smokeDissipation) const {
     return newSetting;
 }
 
+float Settings::getTempKinematicViscosity() {
+    return tempKinematicViscosity;
+}
+
 int Settings::getTempDiffusionIterations() {
     return tempDiffusionIterations;
 }
 
-Settings Settings::withTempDiffusion(float viscosity, int iterations) {
+Settings Settings::withTempDiffusion(float viscosity, int iterations) const {
     Settings newSetting = Settings(this);
     newSetting.tempKinematicViscosity = viscosity;
     newSetting.tempDiffusionIterations = iterations;
