@@ -146,7 +146,9 @@ void Simulator::velocityStep(float dt){
     if(settings.getBuoyancyScale() != 0.0f)
         operations->buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
 
-    //updateAndApplyWind(dt);
+    if(settings.getWindScale() != 0.0f)
+        updateAndApplyWind(settings.getWindScale(), dt);
+
     // Advect
     operations->advection(lowerVelocity, lowerVelocity, dt);
 
@@ -172,11 +174,11 @@ void Simulator::waveletStep(float dt){
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }
 
-void Simulator::updateAndApplyWind(float dt) {
+void Simulator::updateAndApplyWind(float scale, float dt) {
 
     windAngle += dt*0.5f;
 
-    float windStrength = 12.0 + 11*sin(windAngle*2.14+123);
+    float windStrength = scale*(12.0f + 11*sin(windAngle*2.14f + 123));
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     operations->addWind(lowerVelocity, windAngle, windStrength, dt);
 }

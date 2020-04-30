@@ -57,7 +57,7 @@ private:
 
     void waveletStep(float dt);
 
-    void updateAndApplyWind(float dt);
+    void updateAndApplyWind(float scale, float dt);
 
     void temperatureStep( float dt);
 

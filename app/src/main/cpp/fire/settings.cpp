@@ -32,7 +32,8 @@ Settings::Settings() {
     vorticityScale = 0.0f;
     velocityKinematicViscosity = 0.0f;
     velocityDiffusionIterations = 0;
-    buoyancyScale = 0;
+    buoyancyScale = 0.0f;
+    windScale = 0.0f;
 }
 
 Settings::Settings(const Settings* other) {
@@ -49,6 +50,7 @@ Settings::Settings(const Settings* other) {
     velocityKinematicViscosity = other->velocityKinematicViscosity;
     velocityDiffusionIterations = other->velocityDiffusionIterations;
     buoyancyScale = other->buoyancyScale;
+    windScale = other->windScale;
 }
 
 std::string Settings::getName() {
@@ -134,5 +136,15 @@ float Settings::getBuoyancyScale() {
 Settings Settings::withBuoyancyScale(float buoyancyScale) const {
     Settings newSetting = Settings(this);
     newSetting.buoyancyScale = buoyancyScale;
+    return newSetting;
+}
+
+float Settings::getWindScale() {
+    return windScale;
+}
+
+Settings Settings::withWindScale(float windScale) const {
+    Settings newSetting = Settings(this);
+    newSetting.windScale = windScale;
     return newSetting;
 }

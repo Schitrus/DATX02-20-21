@@ -49,6 +49,7 @@ void Fire::scale(float scaleFactor, double scaleX, double scaleY){
 
 void Fire::onClick() {
     Settings newSettings = nextSettings();
+    LOG_INFO("Changing settings to %s", newSettings.getName());
     simulator.changeSettings(newSettings);
 }
 

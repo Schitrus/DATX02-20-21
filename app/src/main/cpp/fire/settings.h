@@ -25,6 +25,7 @@ class Settings {
     float velocityKinematicViscosity;
     int velocityDiffusionIterations;
     float buoyancyScale;
+    float windScale;
 public:
     Settings();
 
@@ -55,6 +56,8 @@ public:
     float getBuoyancyScale();
     Settings withBuoyancyScale(float buoyancyScale) const;
 
+    float getWindScale();
+    Settings withWindScale(float windScale) const;
 private:
     Settings(const Settings* other);
 
