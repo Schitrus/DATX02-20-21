@@ -64,6 +64,10 @@ Settings::Settings(const Settings* other) {
     substanceToSimFactor = other->substanceToSimFactor;
     simulationSize = other->simulationSize;
 
+    sourceMode = other->sourceMode;
+    temperatureSourceDensity = other->temperatureSourceDensity;
+    smokeSourceDensity = other->smokeSourceDensity;
+
     projectionIterations = other->projectionIterations;
     vorticityScale = other->vorticityScale;
     velocityKinematicViscosity = other->velocityKinematicViscosity;
