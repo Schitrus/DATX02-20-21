@@ -38,6 +38,8 @@ Settings::Settings() {
     smokeKinematicViscosity = 0.0f;
     smokeDiffusionIterations = 0;
     smokeDissipation = 0.0f;
+    tempKinematicViscosity = 0.0f;
+    tempDiffusionIterations = 0;
 }
 
 Settings::Settings(const Settings* other) {
@@ -59,6 +61,8 @@ Settings::Settings(const Settings* other) {
     smokeKinematicViscosity = other->smokeKinematicViscosity;
     smokeDiffusionIterations = other->smokeDiffusionIterations;
     smokeDissipation = other->smokeDissipation;
+    tempKinematicViscosity = other->tempKinematicViscosity;
+    tempDiffusionIterations = other->tempDiffusionIterations;
 }
 
 std::string Settings::getName() {
@@ -179,5 +183,16 @@ float Settings::getSmokeDissipation() {
 Settings Settings::withSmokeDissipation(float smokeDissipation) const {
     Settings newSetting = Settings(this);
     newSetting.smokeDissipation = smokeDissipation;
+    return newSetting;
+}
+
+int Settings::getTempDiffusionIterations() {
+    return tempDiffusionIterations;
+}
+
+Settings Settings::withTempDiffusion(float viscosity, int iterations) {
+    Settings newSetting = Settings(this);
+    newSetting.tempKinematicViscosity = viscosity;
+    newSetting.tempDiffusionIterations = iterations;
     return newSetting;
 }

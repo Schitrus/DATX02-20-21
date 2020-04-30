@@ -217,19 +217,6 @@ void SimulationOperations::subtractGradient(DataTexturePair* velocity, float dx)
 
     slab->interiorOperation(gradientShader, velocity, -1);
 }
-/*
-void SimulationOperations::substanceMovementStep(GLuint &target, GLuint& result, float dissipationRate, float dh, float dt){
-
-    advection(target, result, dt);
-
-    // Usually there is also a diffusion step for fluid fire.simulation here.
-    // However we assume that all fluids we simulate has a diffusion term of zero,
-    // removing the need of this fire.simulation step
-
-    if(dissipationRate != 0)
-        dissipate(target, result, dissipationRate, dt);
-}
-*/
 
 void SimulationOperations::addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt) {
     windShader.use();

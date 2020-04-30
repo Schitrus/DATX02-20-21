@@ -63,10 +63,6 @@ private:
 
     void densityStep(float dt);
 
-    // Performs the usual steps for moving substances using the fluid velocity field
-    // It will not perform the "add force" step, as that depends entirely on the individual substance
-    void substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt);
-
     void clearField(float* field, float value, ivec3 gridSize);
 
     void clearField(vec3* field, vec3 value, ivec3 gridSize);

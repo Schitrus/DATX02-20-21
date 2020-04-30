@@ -18,8 +18,6 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-#define MAX_TEMPERATURE
-
 int Simulator::init(Settings settings) {
 
     slab = new SlabOperator();
@@ -113,7 +111,10 @@ void Simulator::initData() {
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
     vec3 end = vec3(middleW + radius, 3 + radius, middleD + radius);
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "err_typecheck_invalid_operands"
     vec3 center = vec3(0.5f, 0.2f, 0.5f) * simulationSize;
+#pragma clang diagnostic pop
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, Resolution::velocity, settings);
 
@@ -184,11 +185,15 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 }
 
 void Simulator::temperatureStep(float dt) {
-
+    // Force
     operations->setSource(temperature, temperatureSource, dt);
 
+    // Advection
     operations->fulladvection(higherVelocity, temperature, dt);
 
+    // Diffusion
+
+    // Dissipation
     operations->heatDissipation(temperature, dt);
 
 }
@@ -207,10 +212,6 @@ void Simulator::densityStep(float dt){
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
         operations->dissipate(density, settings.getSmokeDissipation(), dt);
-}
-
-void Simulator::substanceMovementStep(DataTexturePair *data, float dissipationRate, float dt) {
-    //todo use this for temperature and density when advection has been seperated from the heat dissipation part in the temperature shader
 }
 
 void Simulator::clearField(float* field, float value, ivec3 gridSize) {

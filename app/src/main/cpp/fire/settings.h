@@ -30,6 +30,8 @@ class Settings {
     float smokeKinematicViscosity;
     int smokeDiffusionIterations;
     float smokeDissipation;
+    float tempKinematicViscosity;
+    int tempDiffusionIterations;
 public:
     Settings();
 
@@ -69,6 +71,11 @@ public:
 
     float getSmokeDissipation();
     Settings withSmokeDissipation(float smokeDissipation) const;
+
+    float getTempKinematicViscosity();
+    int getTempDiffusionIterations();
+    Settings withTempDiffusion(float viscosity, int iterations);
+
 
 private:
     Settings(const Settings* other);
