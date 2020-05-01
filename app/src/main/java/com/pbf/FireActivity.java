@@ -1,13 +1,16 @@
 package com.pbf;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.text.Layout;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.SeekBar;
 
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.datx02_20_21.R;
 
@@ -19,36 +22,40 @@ public class FireActivity extends Activity {
         System.loadLibrary("fire-lib");
     }
 
+    private ConstraintLayout mainLayout;
     private FireView fire;
-    private SeekBar seekBar;
+    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FrameLayout fl = new FrameLayout(getApplicationContext());
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        );
+        mainLayout = findViewById(R.id.mainLayout);
 
-        //seekBar = (SeekBar) findViewById(R.id.seekBar);
+        settingsButton = findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new SettingsButtonClickListener());
+
         fire = new FireView(getApplication());
-        seekBar = new SeekBar(this);
 
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
 
         init(getResources().getAssets(), dimension.x, dimension.y);
-        fl.addView(fire);
-        fl.addView(seekBar);
+        mainLayout.addView(fire, 0);
 
-        setContentView(fl);
+        setContentView(mainLayout);
 
         //setContentView(fire);
+    }
 
+    private class SettingsButtonClickListener implements View.OnClickListener {
 
+        @Override
+        public void onClick(View view) {
+            Intent intent  = new Intent(FireActivity.this, SettingsActivity.class);
+            FireActivity.this.startActivity(intent);
+        }
     }
 
     public native void init(AssetManager mgr, int width, int height);
