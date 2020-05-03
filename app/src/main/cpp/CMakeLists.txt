@@ -35,6 +35,7 @@ add_library( # Sets the name of the library.
         fire/simulation/simulation_operations.cpp
         fire/simulation/wavelet_turbulence.cpp
         fire/simulation/slab_operation.cpp
+        fire/simulation/field_initialization.cpp
         fire/util/helper.cpp
         fire/util/file_loader.cpp
         fire/util/shader.cpp

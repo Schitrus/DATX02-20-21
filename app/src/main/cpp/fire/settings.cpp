@@ -38,6 +38,7 @@ Settings nextSettings() {
 
 Settings::Settings() {
     sourceMode = SourceMode::add;
+    sourceType = SourceType::singleSphere;
     temperatureSourceDensity = 0.0f;
     smokeSourceDensity = 0.0f;
 
@@ -65,6 +66,7 @@ Settings::Settings(const Settings* other) {
     simulationSize = other->simulationSize;
 
     sourceMode = other->sourceMode;
+    sourceType = other->sourceType;
     temperatureSourceDensity = other->temperatureSourceDensity;
     smokeSourceDensity = other->smokeSourceDensity;
 
@@ -130,6 +132,16 @@ SourceMode Settings::getSourceMode() {
 Settings Settings::withSourceMode(SourceMode mode) const {
     Settings newSetting = Settings(this);
     newSetting.sourceMode = mode;
+    return newSetting;
+}
+
+SourceType Settings::getSourceType() {
+    return sourceType;
+}
+
+Settings Settings::withSourceType(SourceType type) const {
+    Settings newSetting = Settings(this);
+    newSetting.sourceType = type;
     return newSetting;
 }
 
