@@ -16,11 +16,8 @@ float* createScalarField(float value, ivec3 gridSize);
 // creates a field array to use for texture creation, that need to be deleted after use
 vec3* createVectorField(vec3 value, ivec3 gridSize);
 
-// density is in unit/m^3
-void fillExtensive(float* field, float density, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
-
 // value is in unit
-void fillIntensive(float* field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
+void fillField(float* field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings settings);
 
 void fillSphere(float* field, float value, vec3 center, float radius, Resolution res, Settings settings);
 void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings settingse);

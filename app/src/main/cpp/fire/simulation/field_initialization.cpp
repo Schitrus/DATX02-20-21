@@ -14,7 +14,6 @@ void initSourceField(float* field, float value, Resolution res, Settings setting
         fillSphere(field, value, center, radius, res, settings);
     }
 }
-#pragma clang diagnostic pop
 
 float* createScalarField(float value, ivec3 gridSize) {
     float* field = new float[gridSize.x * gridSize.y * gridSize.z];
@@ -42,33 +41,7 @@ vec3* createVectorField(vec3 value, ivec3 gridSize) {
     return field;
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "err_typecheck_invalid_operands"
-void fillExtensive(float *field, float density, vec3 minPos, vec3 maxPos, Resolution res, Settings settings) {
-    int border = 1;
-    ivec3 gridSize = settings.getSize(res);
-    float toSimulationScale = settings.getResToSimFactor(res);
-    for (int z = 0; z < gridSize.z - 2 * border; z++) {
-        for (int y = 0; y < gridSize.y - 2 * border; y++) {
-            for (int x = 0; x < gridSize.x - 2 * border; x++) {
-                //Lower corner of cell in simulation space (no border)
-                vec3 pos = vec3(x, y, z) * toSimulationScale;
-                //Upper corner of cell in simulation space (no border)
-                vec3 pos1 = vec3(x + 1, y + 1, z + 1) * toSimulationScale;
-                //Does this cell overlap with the fill area?
-                if(hasOverlap(pos, pos1, minPos, maxPos)) {
-                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
-
-                    //Index of position in texture space (with border)
-                    int index = gridSize.x * (gridSize.y * (z + border) + y + border) + x + border;
-                    field[index] = density*overlappedVolume;
-                }
-            }
-        }
-    }
-}
-
-void fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings settings) {
+void fillField(float *field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings settings) {
     int border = 1;
     ivec3 gridSize = settings.getSize(res);
     float toSimulationScale = settings.getResToSimFactor(res);
@@ -87,7 +60,9 @@ void fillIntensive(float *field, float value, vec3 minPos, vec3 maxPos, Resoluti
 
                     //Index of position in texture space (with border)
                     int index = gridSize.x * (gridSize.y * (z + border) + y + border) + x + border;
-                    field[index] = value*(overlappedVolume/cellVolume);
+                    if(settings.getSourceMode() == SourceMode::add)
+                        field[index] = value*(overlappedVolume/cellVolume);
+                    else field[index] = value;
                 }
             }
         }
@@ -116,7 +91,9 @@ void fillOutgoingVector(vec3 *field, float scale, vec3 minPos, vec3 maxPos, Reso
                     vec3 vector = pos - center;
                     //Index of position in texture space (with border)
                     int index = gridSize.x * (gridSize.y * (z + border) + y + border) + x + border;
-                    field[index] = vector*(scale*overlappedVolume/cellVolume);
+                    if(settings.getSourceMode() == SourceMode::add)
+                        field[index] = vector*(scale*overlappedVolume/cellVolume);
+                    else field[index] = vector;
                 }
             }
         }
