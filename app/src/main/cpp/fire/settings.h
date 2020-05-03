@@ -21,7 +21,7 @@ enum class SourceMode {set, add};
 
 // The type of source to place
 // singleSphere places a single force in the center of the simulation
-enum class SourceType {singleSphere};
+enum class SourceType {singleSphere, dualSpheres};
 
 class Settings {
     std::string name;

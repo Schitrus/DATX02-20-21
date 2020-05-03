@@ -12,6 +12,13 @@ void initSourceField(float* field, float value, Resolution res, Settings setting
         vec3 center = vec3(0.5f, 0.2f, 0.5f) * settings.getSimulationSize();
 
         fillSphere(field, value, center, radius, res, settings);
+    } else if(settings.getSourceType() == SourceType::dualSpheres) {
+        float radius = 6.4f;
+        vec3 center1 = vec3(0.3f, 0.2f, 0.5f) * settings.getSimulationSize();
+        vec3 center2 = vec3(0.7f, 0.2f, 0.5f) * settings.getSimulationSize();
+
+        fillSphere(field, value, center1, radius, res, settings);
+        fillSphere(field, value, center2, radius, res, settings);
     }
 }
 
