@@ -19,7 +19,7 @@ void main() {
     vec2 uv_position = floor(gl_FragCoord.xy) / (gridSize.xy - 1.0f);
 
     vec2 center = vec2(0.5, 0.5);
-    ivec3 direction = ivec3((center - uv_position) * 2.0f, (depth == 0 ? 1 : -1));
+    ivec3 direction = ivec3((uv_position - center) * 2.0f, (depth == 0 ? 1 : -1));
 
     vec3 data = 0.5f * scale * (texelFetch(data_field, position + ivec3(direction.xy, 0),   0).xyz
                               + texelFetch(data_field, position + ivec3(0, 0, direction.z), 0).xyz);
@@ -31,5 +31,5 @@ void main() {
         data += texelFetch(data_field, position + ivec3 (0, 0, direction.z), 0).xyz;
         data *= scale * 1.0f/3.0f;
     }
-    outData = vec3(0.0f);
+    outData = data;
 }

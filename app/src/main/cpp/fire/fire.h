@@ -6,16 +6,12 @@
 #define DATX02_20_21_FIRE_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
-#include "renderer.h"
-#include "simulator.h"
-
-#define LOG_TAG "FIRE"
-#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#include "rendering/renderer.h"
+#include "simulation/simulator.h"
 
 /*
  Did you ever hear the tragedy of Darth Plagueis The Wise?

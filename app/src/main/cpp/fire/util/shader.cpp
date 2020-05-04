@@ -5,31 +5,37 @@
 #include "shader.h"
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <android/log.h>
 #include <string>
 
 #include "helper.h"
-#include "file_loader.h"
+#include "fire/util/file_loader.h"
 
 #define LOG_TAG "shader"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-int Shader::load(const char* vertex_path, const char* fragment_path){
+int Shader::load(const char *vertex_path, const char *fragment_path) {
     shader_program = createProgram(vertex_path, fragment_path);
     return shader_program != 0;
 }
 
-void Shader::use(){
-    if(program() != 0)
-        glUseProgram(program());
-    else LOG_ERROR("Tried to use a shader that isn't initiated!");
+int Shader::load(const char *compute_path) {
+    shader_program = createProgram(compute_path);
+    return shader_program != 0;
 }
 
-GLuint Shader::program(){
+void Shader::use() {
+    if (program() != 0)
+        glUseProgram(program());
+    else
+        LOG_ERROR("Tried to use a shader that isn't initiated!");
+}
+
+GLuint Shader::program() {
     return shader_program;
 }
 
@@ -54,7 +60,7 @@ GLuint Shader::createShader(GLenum type, const char *src) {
             if (infoLog) {
                 glGetShaderInfoLog(shader, infoLogLen, NULL, infoLog);
                 LOG_ERROR("Could not compile %s shader:\n%s\n",
-                      type == GL_VERTEX_SHADER ? "vertex" : "fragment",
+                          type == GL_VERTEX_SHADER ? "vertex" : "fragment",
                           infoLog);
                 free(infoLog);
             }
@@ -65,14 +71,71 @@ GLuint Shader::createShader(GLenum type, const char *src) {
     return shader;
 }
 
+GLuint Shader::createProgram(const char *compute_path) {
+    GLuint compute_shader = 0;
+    GLuint shaderProgram = 0;
+    GLint linked = GL_FALSE;
+
+    // shader
+    const char *computeSrc;
+
+    std::string compute;
+
+    compute = loadFileFromAssets(compute_path);
+    computeSrc = compute.c_str();
+
+    LOG_INFO("Creating compute shader: %s", compute_path);
+
+    compute_shader = createShader(GL_COMPUTE_SHADER, computeSrc);
+    if (!compute_shader) {
+        glDeleteShader(compute_shader);
+        return 0;
+    }
+
+    // program
+    LOG_INFO("Creating Program: %s", compute_path);
+    clearGLErrors("shader program creation");
+    shader_program = glCreateProgram();
+    if (!shader_program) {
+        checkGLError("shader program creation");
+        glDeleteShader(compute_shader);
+        return 0;
+    }
+    glAttachShader(shader_program, compute_shader);
+
+
+    glLinkProgram(shader_program);
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &linked);
+    if (!linked) {
+        LOG_ERROR("Could not link program");
+        GLint infoLogLen = 0;
+        glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &infoLogLen);
+        if (infoLogLen) {
+            GLchar *infoLog = (GLchar *) malloc(infoLogLen);
+            if (infoLog) {
+                glGetProgramInfoLog(shader_program, infoLogLen, NULL, infoLog);
+                LOG_ERROR("Could not link program:\n%s\n", infoLog);
+                free(infoLog);
+            }
+        }
+        glDeleteProgram(shader_program);
+        glDeleteShader(compute_shader);
+        return 0;
+    }
+
+    glDeleteShader(compute_shader);
+    return shader_program;
+
+}
+
 GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path) {
     GLuint vertex_shader = 0;
     GLuint fragment_shader = 0;
     GLuint shaderProgram = 0;
     GLint linked = GL_FALSE;
 
-    const char* vertexSrc;
-    const char* fragmentSrc;
+    const char *vertexSrc;
+    const char *fragmentSrc;
 
     std::string vertex;
     std::string fragment;
@@ -82,7 +145,7 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
 
     LOG_INFO("Creating Vertex shader: %s", vertex_path);
     vertex_shader = createShader(GL_VERTEX_SHADER, vertexSrc);
-    if (!vertex_shader){
+    if (!vertex_shader) {
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
         return 0;
@@ -137,19 +200,22 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
 }
 
 void Shader::uniform1i(const GLchar *name, GLint value) {
-    if(program() != 0)
+    if (program() != 0)
         glUniform1i(glGetUniformLocation(program(), name), value);
-    else LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
+    else
+        LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
 }
 
 void Shader::uniform1f(const GLchar *name, GLfloat value) {
-    if(program() != 0)
+    if (program() != 0)
         glUniform1f(glGetUniformLocation(program(), name), value);
-    else LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
+    else
+        LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
 }
 
-void Shader::uniform3f(const GLchar *name, GLfloat value1, GLfloat value2, GLfloat value3) {
-    if(program() != 0)
-        glUniform3f(glGetUniformLocation(program(), name), value1, value2, value3);
-    else LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
+void Shader::uniform3f(const GLchar *name, ivec3 vector) {
+    if (program() != 0)
+        glUniform3f(glGetUniformLocation(program(), name), vector.x, vector.y, vector.z);
+    else
+        LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
 }

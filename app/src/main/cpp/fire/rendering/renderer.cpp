@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <utility>
 
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
 
 /*
@@ -44,6 +44,7 @@ void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
 
 void Renderer::touch(double dx, double dy){
     // TODO implement
+    rayRenderer.touch(dx, dy);
 }
 
 void Renderer::setData(GLuint density, GLuint temperature, int width, int height, int depth){

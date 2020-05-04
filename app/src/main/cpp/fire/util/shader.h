@@ -6,12 +6,18 @@
 #define DATX02_20_21_SHADER_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
+
+#include <glm/glm.hpp>
+
+using namespace glm;
 
 class Shader {
     GLuint shader_program;
 public:
     int load(const char* vertex_path, const char* fragment_path);
+
+    int load(const char* compute_path);
 
     void use();
 
@@ -21,9 +27,11 @@ public:
 
     void uniform1f(const GLchar *name, GLfloat value);
 
-    void uniform3f(const GLchar *name, GLfloat value1, GLfloat value2, GLfloat value3);
+    void uniform3f(const GLchar *name, ivec3 vector);
 private:
     GLuint createShader(GLenum type, const char* src);
+
+    GLuint createProgram(const char *compute_path);
 
     GLuint createProgram(const char* vertex_path, const char* fragment_path);
 

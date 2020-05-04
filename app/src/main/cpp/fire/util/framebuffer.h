@@ -6,18 +6,20 @@
 #define DATX02_20_21_FRAMEBUFFER_H
 
 #include <jni.h>
-#include <gles3/gl31.h>
+#include <GLES3/gl31.h>
 
 #include "simple_framebuffer.h"
 
 class Framebuffer {
     int width, height;
+    GLuint format,inFormat;
 
     SimpleFramebuffer FBO;
     GLuint RBO;
     GLuint colorTextureTarget;
 public:
     void create(int width, int height);
+    void create(int width, int height, GLuint outFormat, GLuint inFormat);
 
     void clear();
 
