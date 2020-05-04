@@ -1,20 +1,23 @@
 package com.pbf;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-
+import android.transition.AutoTransition;
+import android.transition.Slide;
+import android.transition.TransitionManager;
+import android.view.Gravity;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.datx02_20_21.R;
 
-public class FireActivity extends Activity {
+public class FireActivity extends FragmentActivity {
 
 
     // Used to load the 'fire-lib' library on application startup.
@@ -23,8 +26,9 @@ public class FireActivity extends Activity {
     }
 
     private ConstraintLayout mainLayout;
+    private ConstraintLayout constraintLayout;
+    private ToggleButton settingsButton;
     private FireView fire;
-    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +37,10 @@ public class FireActivity extends Activity {
 
         mainLayout = findViewById(R.id.mainLayout);
 
-        settingsButton = findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(new SettingsButtonClickListener());
+        constraintLayout = findViewById(R.id.constraintLayout);
+
+        settingsButton = findViewById(R.id.toggleSettingsButton);
+        settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
 
         fire = new FireView(getApplication());
 
@@ -42,6 +48,7 @@ public class FireActivity extends Activity {
         getWindowManager().getDefaultDisplay().getSize(dimension);
 
         init(getResources().getAssets(), dimension.x, dimension.y);
+        // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(fire, 0);
 
         setContentView(mainLayout);
@@ -49,12 +56,79 @@ public class FireActivity extends Activity {
         //setContentView(fire);
     }
 
-    private class SettingsButtonClickListener implements View.OnClickListener {
+    private class SettingsButtonToggleListener implements CompoundButton.OnCheckedChangeListener {
+
+        private final int DURATION_IN_MILLISECONDS = 250;
+        private final int MARGIN = 8;
 
         @Override
-        public void onClick(View view) {
-            Intent intent  = new Intent(FireActivity.this, SettingsActivity.class);
-            FireActivity.this.startActivity(intent);
+        public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+            if(checked){
+                //moveButtonDown();
+                addFragment();
+                rotateButtonCounterCW();
+            }
+            else{
+                //moveButtonUp();
+                removeFragment();
+                rotateButtonCW();
+            }
+        }
+
+        private void addFragment(){
+            Fragment settingsFragment = new SettingsFragment();
+            Slide slideTransition = new Slide(Gravity.TOP);
+            slideTransition.setDuration(DURATION_IN_MILLISECONDS);
+            settingsFragment.setEnterTransition(slideTransition);
+            settingsFragment.setExitTransition(slideTransition);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.settingsContainer, settingsFragment)
+                    .commit();
+        }
+
+        private void removeFragment(){
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+        }
+
+        // Rotate Button 180 degress counter-clockwise
+        private void rotateButtonCounterCW(){
+            settingsButton.animate().setDuration(DURATION_IN_MILLISECONDS).rotation(180);
+        }
+
+        // Rotate Button 180 degress clockwise
+        private void rotateButtonCW(){
+            settingsButton.animate().setDuration(DURATION_IN_MILLISECONDS).rotation(0);
+        }
+
+        private void moveButtonDown(){
+            constrainButtonTopToView(R.id.scrollViewContainer, ConstraintSet.BOTTOM);
+        }
+
+        private void moveButtonUp(){
+           constrainButtonTopToView(R.id.constraintLayout, ConstraintSet.TOP);
+        }
+
+        private void constrainButtonTopToView(int viewID, int side){
+            beginTransition();
+
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(
+                    R.id.toggleSettingsButton,
+                    ConstraintSet.TOP,
+                    viewID,
+                    side,
+                    MARGIN
+            );
+            constraintSet.applyTo(constraintLayout);
+        }
+
+        private void beginTransition(){
+            AutoTransition autoTransition = new AutoTransition();
+            autoTransition.setDuration(DURATION_IN_MILLISECONDS);
+            TransitionManager.beginDelayedTransition(constraintLayout, autoTransition);
         }
     }
 
