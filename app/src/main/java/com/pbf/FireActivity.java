@@ -25,6 +25,7 @@ public class FireActivity extends FragmentActivity {
         System.loadLibrary("fire-lib");
     }
 
+    private SettingsFragment settingsFragment;
     private ConstraintLayout mainLayout;
     private ConstraintLayout constraintLayout;
     private ToggleButton settingsButton;
@@ -34,6 +35,8 @@ public class FireActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        settingsFragment = new SettingsFragment();
 
         mainLayout = findViewById(R.id.mainLayout);
 
@@ -76,13 +79,12 @@ public class FireActivity extends FragmentActivity {
         }
 
         private void addFragment(){
-            Fragment settingsFragment = new SettingsFragment();
             Slide slideTransition = new Slide(Gravity.TOP);
             slideTransition.setDuration(DURATION_IN_MILLISECONDS);
             settingsFragment.setEnterTransition(slideTransition);
             settingsFragment.setExitTransition(slideTransition);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.settingsContainer, settingsFragment)
+                    .replace(R.id.settingsContainer, settingsFragment)
                     .commit();
         }
 
