@@ -135,6 +135,10 @@ vec3 WaveletTurbulence::calcPartialD(int index, int step, int axisSize){
     vec3 next = (advPos[index + step] - center) * (float)axisSize;
     vec3 dcenter = (next - prev) * (float)axisSize * 0.5f;
 
+    //LOG_INFO("prev( %e, %e, %e )", prev.x, prev.y, prev.z);
+    //LOG_INFO("next( %e, %e, %e )", next.x, next.y, next.z);
+    //LOG_INFO("dcenter( %e, %e, %e )", dcenter.x, dcenter.y, dcenter.z);
+
     // calculate the smallest values of each vector, and return a new vector with these values
     float d0 = (fabs(dcenter.x) < fabs(next.x)) ? dcenter.x : next.x;
     d0 = (fabs(d0) < fabs(prev.x)) ? d0 : prev.x;
@@ -144,6 +148,8 @@ vec3 WaveletTurbulence::calcPartialD(int index, int step, int axisSize){
 
     float d2 = (fabs(dcenter.z) < fabs(next.z)) ? dcenter.z : next.z;
     d2 = (fabs(d2) < fabs(prev.z)) ? d2 : prev.z;
+
+    //LOG_INFO("vec3( %e, %e, %e )", d0, d1, d2);
 
     return vec3(d0, d1, d2);
 }
@@ -159,11 +165,25 @@ void WaveletTurbulence::calcScattering() {
                 vec3 newx = calcPartialD(index, 1, lowResSize.x);
                 vec3 newy = calcPartialD(index, lowResSize.x, lowResSize.y);
                 vec3 newz = calcPartialD(index, lowResSize.x * lowResSize.y, lowResSize.z);
-                eigenValues[index] = calcEigen(newx, newy, newz);
-                mat3 jacobianI = inverse(mat3(newx, newy, newz));
-                jacobianX[index] = jacobianI[0];
-                jacobianY[index] = jacobianI[1];
-                jacobianZ[index] = jacobianI[2];
+               // LOG_INFO("regular jacobian: (%e,%e,%e)", newx.x, newy.x, newz.x);
+                //LOG_INFO("                  (%e,%e,%e)", newx.y, newy.y, newz.y);
+                //LOG_INFO("                  (%e,%e,%e)", newx.z, newy.z, newz.z);
+                mat3 jacobian = mat3(newx, newy, newz);
+                if (determinant(jacobian) != 0) {
+                    eigenValues[index] = calcEigen(newx, newy, newz);
+                    mat3 jacobianI = inverse(jacobian);
+                    //LOG_INFO("inverse jacobian: (%e,%e,%e)", jacobianI[0][0],jacobianI[1][0],jacobianI[2][0]);
+                    //LOG_INFO("                  (%e,%e,%e)", jacobianI[0][1],jacobianI[1][1],jacobianI[2][1]);
+                    //LOG_INFO("                  (%e,%e,%e)", jacobianI[0][2],jacobianI[1][2],jacobianI[2][2]);
+                    jacobianX[index] = jacobianI[0];
+                    jacobianY[index] = jacobianI[1];
+                    jacobianZ[index] = jacobianI[2];
+                } else{
+                    eigenValues[index] = vec3(0.1f,10.0f,10.0f);
+                    jacobianX[index] = vec3(1.0f,0,0);
+                    jacobianY[index] = vec3(0,1.0f,0);
+                    jacobianZ[index] = vec3(0,0,1.0f);
+                }
             }
         }
     }

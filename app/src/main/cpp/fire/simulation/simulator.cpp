@@ -22,7 +22,7 @@
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
 const int lowResScale = 6;
-const int highResScale = lowResScale*10;
+const int highResScale = lowResScale*5;
 const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
@@ -105,7 +105,7 @@ void Simulator::initData() {
     clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowResSize);
     clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowResSize);
 
-    float radius = 16;
+    float radius = 12;
     float middleW = simulationSize.x / 2;
     float middleD = simulationSize.z / 2;
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
