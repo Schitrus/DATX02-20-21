@@ -162,9 +162,7 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 
 void Simulator::temperatureStep(float dt) {
     // Force
-    if(settings.getSourceMode() == SourceMode::set)
-        operations->setSource(temperature, temperatureSource, dt);
-    else operations->addSource(temperature, temperatureSource, dt);
+    handleSource(temperature, temperatureSource, dt);
 
     // Advection
     operations->fulladvection(higherVelocity, temperature, dt);
@@ -180,9 +178,7 @@ void Simulator::temperatureStep(float dt) {
 
 void Simulator::densityStep(float dt){
     // addForce
-    if(settings.getSourceMode() == SourceMode::set)
-        operations->setSource(density, densitySource, dt);
-    else operations->addSource(density, densitySource, dt);
+    handleSource(density, densitySource, dt);
 
     // Advect
     operations->fulladvection(higherVelocity, density, dt);
@@ -194,4 +190,10 @@ void Simulator::densityStep(float dt){
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
         operations->dissipate(density, settings.getSmokeDissipation(), dt);
+}
+
+void Simulator::handleSource(DataTexturePair *substance, GLuint source, float dt) {
+    if(settings.getSourceMode() == SourceMode::set)
+        operations->setSource(substance, source, dt);
+    else operations->addSource(substance, source, dt);
 }

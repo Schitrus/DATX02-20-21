@@ -62,6 +62,8 @@ private:
     void temperatureStep( float dt);
 
     void densityStep(float dt);
+
+    void handleSource(DataTexturePair* substance, GLuint source, float dt);
 };
 
 #endif //DATX02_20_21_SIMULATOR_H
