@@ -39,6 +39,11 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
+    createVector3DTexture(&eigenTexture, lowResSize, nullptr);
+    createVector3DTexture(&jacobianXTexture, lowResSize, nullptr);
+    createVector3DTexture(&jacobianYTexture, lowResSize, nullptr);
+    createVector3DTexture(&jacobianZTexture, lowResSize, nullptr);
+
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
@@ -84,7 +89,7 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
         texture_coord->bindToFramebuffer(d);
         if(!slab->drawAllToTexture(textureCoordShader, d, texture_coord->getSize()))
             return;
-        glReadPixels(0, 0, texture_coord->getSize().x, texture_coord->getSize().y, GL_RGBA, GL_FLOAT, data);
+        glReadPixels(0, 0, texture_coord->getSize().x, texture_coord->getSize().y, GL_RGB, GL_FLOAT, data);
 
         for (int i = 0; i < lowResSize.x * lowResSize.y; ++i) {
             advPos[lowResSize.x * lowResSize.y * d + i] = data[i];
@@ -154,6 +159,11 @@ vec3 WaveletTurbulence::calcPartialD(int index, int step, int axisSize){
     return vec3(d0, d1, d2);
 }
 
+void updateTexture(GLuint id, vec3 size, vec3* data){
+    glBindTexture(GL_TEXTURE_3D, id);  // todo RGB16F is not considered color-renderable in the gles 3.2 specification. Consider switching to RGBA16F
+    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, size.x, size.y, size.z, 0, GL_RGB, GL_FLOAT, data);
+}
+
 void WaveletTurbulence::calcScattering() {
     //calculate the jacobian for each position in the grid
     //the jacobian is structured as following:
@@ -187,10 +197,12 @@ void WaveletTurbulence::calcScattering() {
             }
         }
     }
-    createVector3DTexture(&eigenTexture, lowResSize, eigenValues);
-    createVector3DTexture(&jacobianXTexture, lowResSize, jacobianX);
-    createVector3DTexture(&jacobianYTexture, lowResSize, jacobianY);
-    createVector3DTexture(&jacobianZTexture, lowResSize, jacobianZ);
+
+    updateTexture(eigenTexture, lowResSize, eigenValues);
+    updateTexture(jacobianXTexture, lowResSize, jacobianX);
+    updateTexture(jacobianYTexture, lowResSize, jacobianY);
+    updateTexture(jacobianZTexture, lowResSize, jacobianZ);
+
 }
 
 void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {

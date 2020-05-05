@@ -21,7 +21,7 @@
 #define MAX_TEMPERATURE
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
-const int lowResScale = 6;
+const int lowResScale = 10;
 const int highResScale = lowResScale*5;
 const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
