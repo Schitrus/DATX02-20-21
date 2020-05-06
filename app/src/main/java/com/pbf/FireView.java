@@ -28,6 +28,7 @@ public class FireView extends GLSurfaceView {
 
         listener = new FireListener(inputTaskQueue, context);
         setOnTouchListener(listener);
+        setOnClickListener(listener);
     }
 
 }

@@ -26,23 +26,38 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
     public boolean onTouch(View v, MotionEvent event) {
         touchX = event.getX();
         touchY = event.getY();
-        double deltaX = touchX - oldX;
-        double deltaY = touchY - oldY;
+        final double deltaX = touchX - oldX;
+        final double deltaY = touchY - oldY;
         oldX = touchX;
         oldY = touchY;
         float oldscale = scaleFactor;
         scaleDetector.onTouchEvent(event);
         if (oldscale != scaleFactor)
             lastScale = scaleDetector.getEventTime();
-        if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE)
-            taskQueue.add(() -> touch(deltaX, deltaY));
+        if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE) {
+            taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
+                @Override
+                public void run() {
+                    touch(deltaX, deltaY);
+                }
+            });
+        }
+
+        if(deltaX == 0.0 && deltaY == 0.0)
+            v.performClick();
 
         return true;
     }
 
     @Override
     public void onClick(View v) {
-        taskQueue.add(this::onClick);
+
+        taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
+            @Override
+            public void run() {
+                onClick();
+            }
+        });
     }
 
     private class ScaleListener
