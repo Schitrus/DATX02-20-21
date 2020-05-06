@@ -30,6 +30,7 @@ class Settings {
     ivec3 velocityResSize, substanceResSize;
     float velocityToSimFactor, substanceToSimFactor;
     vec3 simulationSize;
+    float dt;
 
     SourceMode sourceMode;
     SourceType sourceType;
@@ -66,6 +67,13 @@ public:
     vec3 getSimulationSize();
     // Sets the size of the simulation and resolutions
     Settings withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) const;
+
+    // Returns the fixed delta time, or 0 if the delta time shouldn't be fixed
+    float getDeltaTime();
+
+    // Sets the fixed delta time of the simulation
+    // If the delta time is 0, real time will be used as delta time
+    Settings withDeltaTime(float dt) const;
 
     // Returns the mode that determines how sources are applied to fields
     SourceMode getSourceMode();

@@ -7,7 +7,7 @@
 #include "settings.h"
 #include "fire/simulation/simulator.h"
 
-const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f)
+const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f).withDeltaTime(1/30.0f)
         .withSourceMode(SourceMode::set).withTempSourceDensity(3500.0f).withSmokeSourceDensity(0.4f)
         .withVorticityScale(8.0f).withProjectIterations(20).withBuoyancyScale(0.15f).withName("Default");
 const Settings FEW_ITERATIONS = DEFAULT.withProjectIterations(5).withName("Few Iterations");
@@ -37,6 +37,8 @@ Settings nextSettings() {
 }
 
 Settings::Settings() {
+    dt = 0.0f;
+
     sourceMode = SourceMode::add;
     sourceType = SourceType::singleSphere;
     temperatureSourceDensity = 0.0f;
@@ -64,6 +66,7 @@ Settings::Settings(const Settings* other) {
     velocityToSimFactor = other->velocityToSimFactor;
     substanceToSimFactor = other->substanceToSimFactor;
     simulationSize = other->simulationSize;
+    dt = other->dt;
 
     sourceMode = other->sourceMode;
     sourceType = other->sourceType;
@@ -124,6 +127,16 @@ Settings Settings::withSize(ivec3 sizeRatio, int velocityScale, int substanceSca
     return newSetting;
 }
 #pragma clang diagnostic pop
+
+float Settings::getDeltaTime() {
+    return dt;
+}
+
+Settings Settings::withDeltaTime(float dt) const {
+    Settings newSetting = Settings(this);
+    newSetting.dt = dt;
+    return newSetting;
+}
 
 SourceMode Settings::getSourceMode() {
     return sourceMode;

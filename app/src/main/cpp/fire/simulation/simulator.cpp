@@ -58,10 +58,10 @@ void Simulator::update(){
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
     last_time = NOW;
+    if(settings.getDeltaTime() != 0.0f)
+        delta_time = settings.getDeltaTime();
 
     slab->prepare();
-
-    delta_time = 1/30.0f;
 
     velocityStep(delta_time);
 
