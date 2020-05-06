@@ -21,6 +21,7 @@ public class FireView extends GLSurfaceView {
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
 
+        // A queue used to send tasks from the listener to the renderer, to make sure that all calls to the native library happens on the same thread and with a gl-context
         Queue<Runnable> inputTaskQueue = new ConcurrentLinkedQueue<>();
 
         renderer = new FireRenderer(inputTaskQueue, context);
