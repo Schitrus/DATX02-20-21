@@ -16,7 +16,7 @@ const Settings LARGE_RES = DEFAULT.withSize(ivec3(1, 4, 1), 24, 120, 24.0f).with
 const Settings DIFFUSION = DEFAULT.withSmokeDiffusion(1.0f, 10).withTempDiffusion(1.0f, 10).withName("Little bit of Diffusion");
 const Settings MORE_DIFFUSION = DIFFUSION.withVelDiffusion(5.0f, 20).withName("More diffusion");
 const Settings WIND = DEFAULT.withWindScale(1.0f).withName("Wind");
-const Settings STORM = DEFAULT.withWindScale(100.0f).withSmokeDissipation(0.2f).withBuoyancyScale(0.3f).withName("Storm");
+const Settings STORM = DEFAULT.withWindScale(10.0f).withSize(ivec3(1, 1, 1), 18, 90, 48.0f).withSmokeSourceDensity(0.8f).withSmokeDissipation(0.1f).withBuoyancyScale(0.3f).withName("Storm");
 
 int index = -1;
 
