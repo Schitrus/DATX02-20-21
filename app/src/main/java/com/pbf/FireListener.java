@@ -17,6 +17,8 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
     private float scaleFactor = 1.0f;
     private ScaleGestureDetector scaleDetector;
     private long lastScale = 0;
+    private long lastClick = 0;
+
     FireListener(Queue<Runnable> taskQueue, Context context) {
         this.taskQueue = taskQueue;
         scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -52,12 +54,15 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-        taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
-            @Override
-            public void run() {
-                onClick();
-            }
-        });
+        if(System.currentTimeMillis() > lastClick + 100) {
+            lastClick = System.currentTimeMillis();
+            taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
+                @Override
+                public void run() {
+                    onClick();
+                }
+            });
+        }
     }
 
     private class ScaleListener
