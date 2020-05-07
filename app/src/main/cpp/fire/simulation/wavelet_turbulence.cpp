@@ -44,7 +44,7 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
-    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+    band_max = glm::log2(min(min((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
 
