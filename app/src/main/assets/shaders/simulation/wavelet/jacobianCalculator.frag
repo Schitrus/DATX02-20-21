@@ -31,7 +31,7 @@ void main() {
         //fetch texture coords for estimatation of the partial derivative
         dprev = (center - prev) * gridSize.x;
         dnext = (next - center) * gridSize.x;
-        dcenter = (dnext - dprev) * gridSize.x;
+        dcenter = (next - prev) * gridSize.x;
     } else if (axis == 1){
         // fetch the previous value as well as the next value on the y-axis
         next = texture(advected_field, ((vec3(position) + dy) + vec3(0.5))/gridSize).xyz;
@@ -39,7 +39,7 @@ void main() {
         //fetch texture coords for estimatation of the partial derivative
         dprev = (center - prev) * gridSize.y;
         dnext = (next - center) * gridSize.y;
-        dcenter = (dnext - dprev) * gridSize.y;
+        dcenter = (next - prev) * gridSize.y;
     } else {
         // fetch the previous value as well as the next value on the z-axis
         next = texture(advected_field, ((vec3(position) + dz) + vec3(0.5))/gridSize).xyz;
@@ -47,7 +47,7 @@ void main() {
         //fetch texture coords for estimatation of the partial derivative
         dprev = (center - prev) * gridSize.z;
         dnext = (next - center) * gridSize.z;
-        dcenter = (dnext - dprev) * gridSize.z;
+        dcenter = (next - prev) * gridSize.z;
     }
 
     // calculate the smallest values of each vector, and return a new vector with these values

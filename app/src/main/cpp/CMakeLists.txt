@@ -20,8 +20,6 @@ endif (${ANDROID_PLATFORM_LEVEL} LESS 24)
 # Import the CMakeLists.txt for the glm library
 add_subdirectory(glm)
 
-include_directories(src/main/cpp/Eigen)
-
 add_library( # Sets the name of the library.
         fire-lib
 
