@@ -96,7 +96,7 @@ void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
 void WaveletTurbulence::calcJacobianCol(int axis, DataTexturePair* colTexture){
     jacobianShader.use();
     jacobianShader.uniform3f("gridSize", lowResSize);
-    jacobianShader.uniform1f("axis", axis);
+    jacobianShader.uniform1i("axis", axis);
 
     texture_coord->bindData(GL_TEXTURE0);
 
@@ -113,8 +113,8 @@ void WaveletTurbulence::calcScattering() {
 
     // calc the eigen value for each grid cell
     eigenShader.use();
-    jacobianShader.uniform3f("gridSize", lowResSize);
-    jacobianShader.uniform1f("maxIterations", 20);
+    eigenShader.uniform3f("gridSize", lowResSize);
+    eigenShader.uniform1i("maxIterations", 20);
 
     jacobianXTexture->bindData(GL_TEXTURE0);
     jacobianYTexture->bindData(GL_TEXTURE1);

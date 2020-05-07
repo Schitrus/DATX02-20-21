@@ -18,29 +18,35 @@ void main() {
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
     vec3 center, next, prev, dprev, dnext, dcenter;
 
+    vec3 dx = vec3(1.0f, 0.0f, 0.0f);
+    vec3 dy = vec3(0.0f, 1.0f, 0.0f);
+    vec3 dz = vec3(0.0f, 0.0f, 1.0f);
+
+    center = texture(advected_field, (vec3(position)  + vec3(0.5))/gridSize).xyz;
+
     if(axis == 0){
         // fetch the previous value as well as the next value on the x-axis
-        next = texture(advected_field, ((vec3(position) + (vec3(1.0f, 0.0f, 0.0f))) + vec3(0.5))/gridSize).xyz;
-        prev = texture(advected_field, ((vec3(position) - (vec3(1.0f, 0.0f, 0.0f))) + vec3(0.5))/gridSize).xyz;
+        next = texture(advected_field, ((vec3(position) + dx) + vec3(0.5))/gridSize).xyz;
+        prev = texture(advected_field, ((vec3(position) - dx) + vec3(0.5))/gridSize).xyz;
         //fetch texture coords for estimatation of the partial derivative
-        dprev = (texture(advected_field, center).xyz - texture(advected_field, prev).xyz) * gridSize.x;
-        dnext = (texture(advected_field, next).xyz - texture(advected_field, center).xyz) * gridSize.x;
+        dprev = (center - prev) * gridSize.x;
+        dnext = (next - center) * gridSize.x;
         dcenter = (dnext - dprev) * gridSize.x;
     } else if (axis == 1){
         // fetch the previous value as well as the next value on the y-axis
-        next = texture(advected_field, ((vec3(position) + (vec3(0.0f, 1.0f, 0.0f))) + vec3(0.5))/gridSize).xyz;
-        prev = texture(advected_field, ((vec3(position) - (vec3(0.0f, 1.0f, 0.0f))) + vec3(0.5))/gridSize).xyz;
+        next = texture(advected_field, ((vec3(position) + dy) + vec3(0.5))/gridSize).xyz;
+        prev = texture(advected_field, ((vec3(position) - dy) + vec3(0.5))/gridSize).xyz;
         //fetch texture coords for estimatation of the partial derivative
-        dprev = (texture(advected_field, center).xyz - texture(advected_field, prev).xyz) * gridSize.y;
-        dnext = (texture(advected_field, next).xyz - texture(advected_field, center).xyz) * gridSize.y;
+        dprev = (center - prev) * gridSize.y;
+        dnext = (next - center) * gridSize.y;
         dcenter = (dnext - dprev) * gridSize.y;
     } else {
         // fetch the previous value as well as the next value on the z-axis
-        next = texture(advected_field, ((vec3(position) + (vec3(0.0f, 0.0f, 1.0f))) + vec3(0.5))/gridSize).xyz;
-        prev = texture(advected_field, ((vec3(position) - (vec3(0.0f, 0.0f, 1.0f))) + vec3(0.5))/gridSize).xyz;
+        next = texture(advected_field, ((vec3(position) + dz) + vec3(0.5))/gridSize).xyz;
+        prev = texture(advected_field, ((vec3(position) - dz) + vec3(0.5))/gridSize).xyz;
         //fetch texture coords for estimatation of the partial derivative
-        dprev = (texture(advected_field, center).xyz - texture(advected_field, prev).xyz) * gridSize.z;
-        dnext = (texture(advected_field, next).xyz - texture(advected_field, center).xyz) * gridSize.z;
+        dprev = (center - prev) * gridSize.z;
+        dnext = (next - center) * gridSize.z;
         dcenter = (dnext - dprev) * gridSize.z;
     }
 

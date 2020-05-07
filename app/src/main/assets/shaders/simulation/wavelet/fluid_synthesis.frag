@@ -35,7 +35,7 @@ void main() {
     vec3 wavelet = velocity;
 
     if (determinant(jacobian) != 0.0f){
-        wavelet = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence * inverse(jacobian);;
+        wavelet = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence * inverse(jacobian);
     }
     outVelocity = wavelet;
 
