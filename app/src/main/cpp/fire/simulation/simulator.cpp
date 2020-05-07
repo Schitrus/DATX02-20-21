@@ -117,8 +117,8 @@ void Simulator::initData() {
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
-    fillSphere(density_source, 0.5f, center, radius, highResSize);
-    fillSphere(temperature_source, 3500.0f, center, radius, highResSize);
+    fillSphere(density_source, 0.45f, center, radius, highResSize);
+    fillSphere(temperature_source, 3600.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 
     density = createScalarDataPair(true, density_field);
