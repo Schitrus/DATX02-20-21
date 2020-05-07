@@ -42,12 +42,7 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     jacobianX = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-/*
-    createVector3DTexture(&eigenTexture, lowResSize, nullptr);
-    createVector3DTexture(&jacobianXTexture, lowResSize, nullptr);
-    createVector3DTexture(&jacobianYTexture, lowResSize, nullptr);
-    createVector3DTexture(&jacobianZTexture, lowResSize, nullptr);
-*/
+
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 

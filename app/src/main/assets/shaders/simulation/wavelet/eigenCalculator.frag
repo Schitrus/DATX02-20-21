@@ -30,10 +30,13 @@ void main() {
     vec3 eigenValues = vec3(0.1f, 10.0f, 0.1f);
 
     // if jacobian is not singular, perform the QR algorithm
+    // https://en.wikipedia.org/wiki/QR_decomposition
+    // https://en.wikipedia.org/wiki/QR_algorithm
     if(determinant(A) != 0.0f){
         mat3 Q;
         mat3 R;
         for(i = 0; i < maxIterations; i++){
+            // Gram–Schmidt process
             vec3 u1 = A[0];
             vec3 u2 = A[1] - (dot(u1,A[1])/ dot(u1,u1) * u1);                                       // a[1] - proj_u1(a[1])
             vec3 u3 = A[2] - (dot(u1,A[2])/ dot(u1,u1) * u1) - (dot(u2,A[2])/ dot(u2,u2) * u2);     // a[2] - proj_u1(a[2]) - proj_u2(a[2])
