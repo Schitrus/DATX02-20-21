@@ -4,12 +4,16 @@
 
 #include <android/log.h>
 #include "framebuffer.h"
+#include "helper.h"
 
 #define LOG_TAG "framebuffer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 void Framebuffer::create(int width, int height, GLuint inFormat ,GLuint format){
+    LOG_INFO("Creating a complete framebuffer with size %d x %d", width, height);
+    clearGLErrors("framebuffer creation");
+
     this->width = width;
     this->height = height;
     this -> inFormat = inFormat;
@@ -38,6 +42,7 @@ void Framebuffer::create(int width, int height, GLuint inFormat ,GLuint format){
     // now actually attach it
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
+    checkGLError("framebuffer creation");
 
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -60,7 +65,7 @@ void Framebuffer::clear() {
 void Framebuffer::resize(int width, int height){
     this->width = width;
     this->height = height;
-    bind();
+    FBO.bind();
     // Allocate a texture
     glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
     glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
@@ -75,8 +80,9 @@ GLuint Framebuffer::texture(){
     return colorTextureTarget;
 }
 
-void Framebuffer::bind() {
+bool Framebuffer::bind(const char *tag) {
     FBO.bind();
+    return checkFramebufferStatus(GL_FRAMEBUFFER, tag);
 }
 
 void Framebuffer::unbind() {
