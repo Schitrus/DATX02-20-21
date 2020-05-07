@@ -27,11 +27,16 @@ void main() {
 
     float energy_spectrum = texture(energy_field, (vec3(position) + vec3(0.5))/gridSize).x;
 
-    mat3 jacobiani;
-    jacobiani[0] = texture(jacobianX, (vec3(position) + vec3(0.5))/gridSize).xyz;
-    jacobiani[1] = texture(jacobianY, (vec3(position) + vec3(0.5))/gridSize).xyz;
-    jacobiani[2] = texture(jacobianZ, (vec3(position) + vec3(0.5))/gridSize).xyz;
+    mat3 jacobian;
+    jacobian[0] = texture(jacobianX, (vec3(position) + vec3(0.5))/gridSize).xyz;
+    jacobian[1] = texture(jacobianY, (vec3(position) + vec3(0.5))/gridSize).xyz;
+    jacobian[2] = texture(jacobianZ, (vec3(position) + vec3(0.5))/gridSize).xyz;
 
-    outVelocity = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence * jacobiani;
+    vec3 wavelet = velocity;
+
+    if (determinant(jacobian) != 0.0f){
+        wavelet = velocity + pow(2.0, (-5.0/6.0)) * energy_spectrum * turbulence * inverse(jacobian);;
+    }
+    outVelocity = wavelet;
 
 }

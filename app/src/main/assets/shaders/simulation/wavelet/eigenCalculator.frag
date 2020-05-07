@@ -9,7 +9,7 @@ layout(binding = 1) uniform sampler3D m3;
 
 uniform int depth;
 uniform vec3 gridSize;
-uniform int maxSteps;
+uniform int maxIterations;
 
 // Result data from the advection
 out vec3 outTextureCoord;
@@ -33,10 +33,10 @@ void main() {
     if(determinant(A) != 0.0f){
         mat3 Q;
         mat3 R;
-        for(i = 0; i < maxSteps; i++){
+        for(i = 0; i < maxIterations; i++){
             vec3 u1 = A[0];
             vec3 u2 = A[1] - (dot(u1,A[1])/ dot(u1,u1) * u1);                                       // a[1] - proj_u1(a[1])
-            vec3 u3 = A[2] - (dot(u1,A[2])/ dot(u1,u1) * u1) - (dot(u2,A[2])/ dot(u2,u2) * u2);    // a[2] - proj_u1(a[2]) - proj_u2(a[2])
+            vec3 u3 = A[2] - (dot(u1,A[2])/ dot(u1,u1) * u1) - (dot(u2,A[2])/ dot(u2,u2) * u2);     // a[2] - proj_u1(a[2]) - proj_u2(a[2])
             Q = mat3(u1/length(u1), u2/length(u2), u3/length(u3));
             R = transpose(Q) * A;
             A = R*Q;

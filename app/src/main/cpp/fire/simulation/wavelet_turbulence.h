@@ -30,11 +30,6 @@ class WaveletTurbulence {
     vec3* jacobianY;
     vec3* jacobianZ;
 
-    GLuint eigenTexture;
-    GLuint jacobianXTexture;
-    GLuint jacobianYTexture;
-    GLuint jacobianZTexture;
-
     Shader turbulenceShader;
     Shader synthesisShader;
     Shader energyShader;
@@ -46,6 +41,11 @@ class WaveletTurbulence {
     DataTexturePair* wavelet_turbulence;
     DataTexturePair* energy;
     DataTexturePair* texture_coord;
+
+    DataTexturePair* eigenTexture;
+    DataTexturePair* jacobianXTexture;
+    DataTexturePair* jacobianYTexture;
+    DataTexturePair* jacobianZTexture;
 
     float band_min, band_max;
 
@@ -63,6 +63,8 @@ public:
     double turbulence(vec3 position, vec3 offset, vec3 size);
 
     void calcScattering();
+
+    void calcScattering2();
 
 private:
     int initShaders();
