@@ -5,11 +5,11 @@
 #include "wavelet_turbulence.h"
 
 #include "slab_operation.h"
-#include "simulator.h"
 
 #include <stdio.h>
 
 #include <stdlib.h>
+#include <android/log.h>
 
 #include <pthread.h>
 
@@ -18,7 +18,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperator* slab) {
+int WaveletTurbulence::init(SlabOperator* slab, Settings settings) {
 
     //srand(42);
 
@@ -26,15 +26,9 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     if(!initShaders())
         return 0;
 
-    texture_coord = createScalarDataPair(false, nullptr);
-    energy = createScalarDataPair(true, nullptr);
-
-    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
-    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
     //generateWavelet();
-
-    wavelet_turbulence = createVectorDataPair(true, nullptr);
+    initTextures(settings);
 
     return 1;
 }
@@ -55,9 +49,32 @@ int WaveletTurbulence::initShaders() {
     return success;
 }
 
-void WaveletTurbulence::generateWavelet(){
+void WaveletTurbulence::initTextures(Settings settings) {
+    ivec3 lowResSize = settings.getSize(Resolution::velocity);
+    ivec3 highResSize = settings.getSize(Resolution::substance);
+    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
+    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+
+    texture_coord = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    energy = createScalarDataPair(nullptr, Resolution::substance, settings);
+    wavelet_turbulence = createVectorDataPair(nullptr, Resolution::substance, settings);
+}
+
+void WaveletTurbulence::clearTextures() {
+    delete texture_coord, delete energy, delete wavelet_turbulence;
+}
+
+int WaveletTurbulence::changeSettings(Settings settings) {
+    clearTextures();
+    initTextures(settings);
+    return 1;
+}
+
+void WaveletTurbulence::generateWavelet(Settings settings) {
 
     generateAngles();
+
+    ivec3 highResSize = settings.getSize(Resolution::substance);
 
     double* w1 = generateTurbulence(highResSize + ivec3(2.0));
     double* w2 = generateTurbulence(highResSize + ivec3(2.0));
@@ -80,7 +97,7 @@ void WaveletTurbulence::generateWavelet(){
         }
     }
 
-    wavelet_turbulence = createVectorDataPair(true, wavelet);
+    wavelet_turbulence = createVectorDataPair(wavelet, Resolution::substance, settings);
     delete[] wavelet;
     delete[] w1;
     delete[] w2;
@@ -199,7 +216,7 @@ double WaveletTurbulence::perlin(vec3 position){
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
     textureCoordShader.use();
 
-    textureCoordShader.uniform3f("gridSize", lowResSize);
+    textureCoordShader.uniform3f("gridSize", lowerVelocity->getSize());
     textureCoordShader.uniform1f("dt", dt);
     textureCoordShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
 
@@ -217,7 +234,7 @@ void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
     synthesisShader.use();
-    synthesisShader.uniform3f("gridSize", highResSize);
+    synthesisShader.uniform3f("gridSize", higherVelocity->getSize());
 
     lowerVelocity->bindData(GL_TEXTURE0);
     wavelet_turbulence->bindData(GL_TEXTURE1);
@@ -227,4 +244,3 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     slab->interiorOperation(synthesisShader, higherVelocity, -1);
 
 }
-

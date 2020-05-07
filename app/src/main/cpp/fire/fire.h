@@ -45,6 +45,8 @@ public:
 
     void touch(double dx, double dy);
     void scale(float scaleFactor, double scaleX, double scaleY);
+
+    void onClick();
 };
 
 Fire* fire;
@@ -65,5 +67,6 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
+JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
 #endif //DATX02_20_21_FIRE_H

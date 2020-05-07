@@ -3,6 +3,9 @@ package com.pbf;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class FireView extends GLSurfaceView {
 
     public FireRenderer renderer;
@@ -18,11 +21,15 @@ public class FireView extends GLSurfaceView {
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
 
-        renderer = new FireRenderer(context);
+        // A queue used to send tasks from the listener to the renderer, to make sure that all calls to the native library happens on the same thread and with a gl-context
+        Queue<Runnable> inputTaskQueue = new ConcurrentLinkedQueue<>();
+
+        renderer = new FireRenderer(inputTaskQueue, context);
         setRenderer(renderer);
 
-        listener = new FireListener(context);
+        listener = new FireListener(inputTaskQueue, context);
         setOnTouchListener(listener);
+        setOnClickListener(listener);
     }
 
 }
