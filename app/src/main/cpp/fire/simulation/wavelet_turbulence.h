@@ -41,6 +41,7 @@ class WaveletTurbulence {
     Shader textureCoordShader;
     Shader regenerateShader;
     Shader eigenShader;
+    Shader jacobianShader;
 
     DataTexturePair* wavelet_turbulence;
     DataTexturePair* energy;
