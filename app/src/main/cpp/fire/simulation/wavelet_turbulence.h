@@ -62,18 +62,13 @@ public:
 
     double turbulence(vec3 position, vec3 offset, vec3 size);
 
-    void calcScattering();
 
-    void calcScattering2();
+    void calcScattering();
 
 private:
     int initShaders();
 
-    vec3 calcPartialD(int index, int step, int axisSize);
-
-    vec3 calcEigen(vec3 x, vec3 y, vec3 z);
-
-    vec3 QR(mat3 jacobian);
+    void calcJacobianCol(int axis, DataTexturePair* colTexture);
 
     void generateWavelet();
     double* generateTurbulence(vec3 size);
