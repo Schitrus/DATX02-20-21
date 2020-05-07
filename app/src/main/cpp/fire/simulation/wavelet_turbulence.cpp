@@ -79,22 +79,19 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 
     //slab->fullOperation(textureCoordShader, texture_coord);
 
-    vec3* data = new vec3[lowResSize.x * lowResSize.y];
-
-    for (int i = 0; i < lowResSize.x * lowResSize.y; ++i) {
-        data[i] = vec3(0.0f,0.0f,0.0f);
-    }
+    vec4* data = new vec4[lowResSize.x * lowResSize.y];
 
     for (int d = 0; d < texture_coord->getSize().z; d++) {
         texture_coord->bindToFramebuffer(d);
         if(!slab->drawAllToTexture(textureCoordShader, d, texture_coord->getSize()))
             return;
-        glReadPixels(0, 0, texture_coord->getSize().x, texture_coord->getSize().y, GL_RGB, GL_FLOAT, data);
+        glReadPixels(0, 0, texture_coord->getSize().x, texture_coord->getSize().y, GL_RGBA, GL_FLOAT, data);
 
         for (int i = 0; i < lowResSize.x * lowResSize.y; ++i) {
-            advPos[lowResSize.x * lowResSize.y * d + i] = data[i];
+            advPos[lowResSize.x * lowResSize.y * d + i] = vec3(data[i].x, data[i].y, data[i].z);
         }
     }
+    delete[] data;
     texture_coord->operationFinished();
     calcScattering();
 }
@@ -164,6 +161,25 @@ void updateTexture(GLuint id, vec3 size, vec3* data){
     glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, size.x, size.y, size.z, 0, GL_RGB, GL_FLOAT, data);
 }
 
+
+vec3 WaveletTurbulence::QR(mat3 jacobian){
+
+    mat3 Q;
+    mat3 R;
+    mat3 A = jacobian;
+    for (int i = 0; i < 24; i++) {
+        vec3 u1 = A[0];
+        vec3 u2 = A[1] - (dot(u1,A[1])/ dot(u1,u1) * u1);
+        vec3 u3 = A[2] - (dot(u1,A[2])/ dot(u1,u1) * u1) - (dot(u2,A[2])/ dot(u2,u2) * u2) ;
+        Q = mat3(u1/length(u1), u2/length(u2), u3/length(u3));
+        R = transpose(Q) * A;
+        A = R*Q;
+    }
+    //Diagonal is the eigenvector
+    return vec3(A[0][0], A[1][1],A[2][2]);
+
+}
+
 void WaveletTurbulence::calcScattering() {
     //calculate the jacobian for each position in the grid
     //the jacobian is structured as following:
@@ -175,12 +191,14 @@ void WaveletTurbulence::calcScattering() {
                 vec3 newx = calcPartialD(index, 1, lowResSize.x);
                 vec3 newy = calcPartialD(index, lowResSize.x, lowResSize.y);
                 vec3 newz = calcPartialD(index, lowResSize.x * lowResSize.y, lowResSize.z);
-               // LOG_INFO("regular jacobian: (%e,%e,%e)", newx.x, newy.x, newz.x);
+                //LOG_INFO("regular jacobian: (%e,%e,%e)", newx.x, newy.x, newz.x);
                 //LOG_INFO("                  (%e,%e,%e)", newx.y, newy.y, newz.y);
                 //LOG_INFO("                  (%e,%e,%e)", newx.z, newy.z, newz.z);
                 mat3 jacobian = mat3(newx, newy, newz);
                 if (determinant(jacobian) != 0) {
                     eigenValues[index] = calcEigen(newx, newy, newz);
+                    LOG_INFO("eigen: %e, %e, %e", eigenValues[index].x, eigenValues[index].y, eigenValues[index].z);
+                    LOG_INFO("qr: %e, %e, %e", QR(jacobian).x, QR(jacobian).y, QR(jacobian).z);
                     mat3 jacobianI = inverse(jacobian);
                     //LOG_INFO("inverse jacobian: (%e,%e,%e)", jacobianI[0][0],jacobianI[1][0],jacobianI[2][0]);
                     //LOG_INFO("                  (%e,%e,%e)", jacobianI[0][1],jacobianI[1][1],jacobianI[2][1]);

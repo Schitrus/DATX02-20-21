@@ -21,8 +21,8 @@
 #define MAX_TEMPERATURE
 
 const ivec3 sizeRatio = ivec3(1, 4, 1);
-const int lowResScale = 10;
-const int highResScale = lowResScale*5;
+const int lowResScale = 6;
+const int highResScale = lowResScale*10;
 const float simulationScale = 24.0f;
 // size of low resolution textures. This also includes the border of the texture
 const ivec3 lowResSize = lowResScale * sizeRatio + ivec3(2, 2, 2);
@@ -105,7 +105,7 @@ void Simulator::initData() {
     clearField(velocity_field, vec3(0.0f, 0.0f, 0.0f), lowResSize);
     clearField(velocity_source, vec3(0.0f, 0.0f, 0.0f), lowResSize);
 
-    float radius = 12;
+    float radius = 15;
     float middleW = simulationSize.x / 2;
     float middleD = simulationSize.z / 2;
     vec3 start = vec3(middleW - radius, 3 - radius, middleD - radius);
@@ -117,7 +117,7 @@ void Simulator::initData() {
 
     //fillOutgoingVector(velocity_source, 10.0f, start, end, lowResSize);
 
-    fillSphere(density_source, 0.4f, center, radius, highResSize);
+    fillSphere(density_source, 0.5f, center, radius, highResSize);
     fillSphere(temperature_source, 3500.0f, center, radius, highResSize);
     //fillSphere(velocity_source, vec3(8.0f, 1.0f, 2.0f), center, 4.0f*radius, lowResSize);
 

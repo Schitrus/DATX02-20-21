@@ -40,6 +40,7 @@ class WaveletTurbulence {
     Shader energyShader;
     Shader textureCoordShader;
     Shader regenerateShader;
+    Shader eigenShader;
 
     DataTexturePair* wavelet_turbulence;
     DataTexturePair* energy;
@@ -68,6 +69,8 @@ private:
     vec3 calcPartialD(int index, int step, int axisSize);
 
     vec3 calcEigen(vec3 x, vec3 y, vec3 z);
+
+    vec3 QR(mat3 jacobian);
 
     void generateWavelet();
     double* generateTurbulence(vec3 size);
