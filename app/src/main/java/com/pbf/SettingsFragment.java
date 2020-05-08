@@ -21,6 +21,8 @@ public class SettingsFragment extends Fragment {
     private static final int ITERATIONS_MAX = 100;
     private static final int BUOYANCY_MIN = 1;
     private static final int BUOYANCY_MAX = 10;
+    private static final int VISCOSITY_MIN = 1;
+    private static final int VISCOSITY_MAX = 10;
 
     private SeekBar vorticityBar;
     private TextView vorticityValueText;
@@ -30,6 +32,9 @@ public class SettingsFragment extends Fragment {
 
     private SeekBar buoyancyBar;
     private TextView buoyancyValueText;
+
+    private SeekBar viscosityBar;
+    private TextView viscosityValueText;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -43,6 +48,7 @@ public class SettingsFragment extends Fragment {
         initVorticityBar(v);
         initIterationsBar(v);
         initBuoyancyBar(v);
+        initViscosityBar(v);
     }
 
     private void initVorticityBar(View v){
@@ -69,6 +75,15 @@ public class SettingsFragment extends Fragment {
 
         buoyancyBar.setOnSeekBarChangeListener(
                 new SliderBarListener(buoyancyBar, buoyancyValueText, BUOYANCY_MIN, BUOYANCY_MAX)
+        );
+    }
+
+    private void initViscosityBar(View v){
+        viscosityBar = v.findViewById(R.id.viscosityBar);
+        viscosityValueText = v.findViewById(R.id.viscosityValueText);
+
+        viscosityBar.setOnSeekBarChangeListener(
+                new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX)
         );
     }
 

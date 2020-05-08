@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded_corners">
 
+        <!-- Divider -->
         <TextView
             android:id="@+id/settingsHeader"
             android:layout_width="wrap_content"
@@ -24,6 +25,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Vorticity layout -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="430dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="#1D000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/settingsHeader" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/vorticityConstraintLayout"
             android:layout_width="match_parent"
@@ -69,17 +80,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Divider -->
-        <View
-            android:id="@+id/divider"
-            android:layout_width="430dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:background="#1D000000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsHeader" />
 
         <!-- Divider -->
         <View
@@ -203,6 +203,62 @@
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buoyancyConstraintLayout" />
+
+        <!-- Viscosity layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/viscosityConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/divider4">
+
+            <TextView
+                android:id="@+id/viscosityText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/viscosityText"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <SeekBar
+                android:id="@+id/viscosityBar"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="64dp"
+                android:theme="@style/AppTheme"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/viscosityValueText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/sliderDefaultValue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider5"
+            android:layout_width="430dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#1D000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viscosityConstraintLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

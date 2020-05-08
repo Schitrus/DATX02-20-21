@@ -6,4 +6,5 @@
     <string name="buoyancyText">Buoyancy</string>
     <string name="sliderDefaultValue">1</string>
     <string name="show_settings">Show settings</string>
+    <string name="viscosityText">Viscosity</string>
 </resources>
