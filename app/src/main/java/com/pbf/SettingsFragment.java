@@ -15,14 +15,16 @@ import com.example.datx02_20_21.R;
 
 public class SettingsFragment extends Fragment {
 
-    private static final int VORTICITY_MIN = 1;
+    private static final int VORTICITY_MIN = 0;
     private static final int VORTICITY_MAX = 10;
     private static final int ITERATIONS_MIN = 1;
     private static final int ITERATIONS_MAX = 100;
-    private static final int BUOYANCY_MIN = 1;
+    private static final int BUOYANCY_MIN = 0;
     private static final int BUOYANCY_MAX = 10;
     private static final int VISCOSITY_MIN = 1;
     private static final int VISCOSITY_MAX = 10;
+    private static final int WIND_MIN = 0;
+    private static final int WIND_MAX = 10;
 
     private SeekBar vorticityBar;
     private TextView vorticityValueText;
@@ -35,6 +37,9 @@ public class SettingsFragment extends Fragment {
 
     private SeekBar viscosityBar;
     private TextView viscosityValueText;
+
+    private SeekBar windBar;
+    private TextView windValueText;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -49,6 +54,7 @@ public class SettingsFragment extends Fragment {
         initIterationsBar(v);
         initBuoyancyBar(v);
         initViscosityBar(v);
+        initWindBar(v);
     }
 
     private void initVorticityBar(View v){
@@ -84,6 +90,15 @@ public class SettingsFragment extends Fragment {
 
         viscosityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX)
+        );
+    }
+
+    private void initWindBar(View v){
+        windBar = v.findViewById(R.id.windBar);
+        windValueText = v.findViewById(R.id.windValueText);
+
+        windBar.setOnSeekBarChangeListener(
+                new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX)
         );
     }
 
