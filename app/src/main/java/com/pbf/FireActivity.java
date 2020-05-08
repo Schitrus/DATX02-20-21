@@ -89,9 +89,11 @@ public class FireActivity extends FragmentActivity {
         }
 
         private void removeFragment(){
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
+            //for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+              //  getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            //}
+
+            getSupportFragmentManager().beginTransaction().remove(settingsFragment).commit();
         }
 
         // Rotate Button 180 degress counter-clockwise
