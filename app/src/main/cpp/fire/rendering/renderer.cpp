@@ -26,8 +26,8 @@
  But I believe Aang can save the world.
 */
 
-int Renderer::init(AAssetManager* assetManager){
-    return rayRenderer.init(assetManager);
+int Renderer::init() {
+    return rayRenderer.init();
 }
 
 void Renderer::resize(int width, int height){

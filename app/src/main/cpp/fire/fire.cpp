@@ -23,7 +23,7 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 
 int Fire::init() {
     Settings settings = nextSettings();
-    return renderer.init(assetManager) && simulator.init(settings);
+    return renderer.init() && simulator.init(settings);
 }
 
 void Fire::resize(int width, int height){

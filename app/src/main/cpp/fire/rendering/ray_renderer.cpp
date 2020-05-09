@@ -34,14 +34,12 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-int RayRenderer::init(AAssetManager *assetManager) {
+int RayRenderer::init() {
 
     clearGLErrors("render initialization");
 
     start_time = NOW;
     last_time = start_time;
-
-    this->assetManager = assetManager;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -160,11 +158,6 @@ void RayRenderer::setData(GLuint density, GLuint temperature, int width, int hei
     boundingScale = tex;
 
     resizeSim();
-}
-
-void RayRenderer::load3DTexture(const char *fileName) {
-    ::load3DTexture(assetManager, fileName, 256, 256, 178, &densityTexID);
-    boundingScale = vec3(1, 1, 0.7);
 }
 
 void RayRenderer::initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO) {

@@ -16,7 +16,7 @@ class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
 public:
-    int init(AAssetManager* assetManager);
+    int init();
     void resize(int width, int height);
     void update();
 
