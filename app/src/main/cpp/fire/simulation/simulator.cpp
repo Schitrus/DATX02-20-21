@@ -63,7 +63,7 @@ void Simulator::update(){
 
     waveletStep(delta_time);
 
-    densityStep(delta_time);
+    smokeDensityStep(delta_time);
 
     temperatureStep(delta_time);
 
@@ -73,7 +73,7 @@ void Simulator::update(){
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
     temperatureData = temperature->getDataTexture();
-    densityData = density->getDataTexture();
+    densityData = smokeDensity->getDataTexture();
     ivec3 highResSize = settings.getSize(Resolution::substance);
     width = highResSize.x;
     height = highResSize.y;
@@ -94,7 +94,7 @@ void Simulator::initData() {
     initSourceField(density_source, settings.getSmokeSourceDensity(), Resolution::substance, settings);
     initSourceField(temperature_source, settings.getTempSourceDensity(), Resolution::substance, settings);
 
-    density = createScalarDataPair(density_field, Resolution::substance, settings);
+    smokeDensity = createScalarDataPair(density_field, Resolution::substance, settings);
     createScalar3DTexture(&densitySource, highResSize, density_source);
 
     temperature = createScalarDataPair(temperature_field, Resolution::substance, settings);
@@ -108,7 +108,7 @@ void Simulator::initData() {
 }
 
 void Simulator::clearData() {
-    delete density, delete temperature, delete lowerVelocity, delete higherVelocity;
+    delete smokeDensity, delete temperature, delete lowerVelocity, delete higherVelocity;
     glDeleteTextures(1, &densitySource);
     glDeleteTextures(1, &temperatureSource);
     glDeleteTextures(1, &velocitySource);
@@ -172,20 +172,20 @@ void Simulator::temperatureStep(float dt) {
 
 }
 
-void Simulator::densityStep(float dt){
+void Simulator::smokeDensityStep(float dt){
     // addForce
-    handleSource(density, densitySource, dt);
+    handleSource(smokeDensity, densitySource, dt);
 
     // Advect
-    operations.fulladvection(higherVelocity, density, dt);
+    operations.fulladvection(higherVelocity, smokeDensity, dt);
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)
-        operations.substanceDiffusion(density, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
+        operations.substanceDiffusion(smokeDensity, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
 
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
-        operations.dissipate(density, settings.getSmokeDissipation(), dt);
+        operations.dissipate(smokeDensity, settings.getSmokeDissipation(), dt);
 }
 
 void Simulator::handleSource(DataTexturePair *substance, GLuint source, float dt) {

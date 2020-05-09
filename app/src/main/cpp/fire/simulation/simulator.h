@@ -23,7 +23,7 @@ class Simulator {
 
     Settings settings;
 
-    DataTexturePair* density;
+    DataTexturePair* smokeDensity;
     DataTexturePair* temperature;
     DataTexturePair* lowerVelocity;
     DataTexturePair* higherVelocity;
@@ -61,7 +61,7 @@ private:
 
     void temperatureStep( float dt);
 
-    void densityStep(float dt);
+    void smokeDensityStep(float dt);
 
     void handleSource(DataTexturePair* substance, GLuint source, float dt);
 };
