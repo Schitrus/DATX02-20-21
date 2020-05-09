@@ -31,6 +31,8 @@ class WaveletTurbulence {
     vec3* jacobianZ;
 
     Shader turbulenceShader;
+    Shader waveletShader;
+
     Shader synthesisShader;
     Shader energyShader;
     Shader textureCoordShader;
@@ -60,8 +62,13 @@ public:
 
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
 
+    vec3* generateGradients(int num_gradients);
+
     double turbulence(vec3 position, vec3 offset, vec3 size);
 
+    void wave();
+
+    DataTexturePair* noise(float band_min, float band_max);
 
     void calcScattering();
 

@@ -41,23 +41,15 @@ int WaveletTurbulence::init(SlabOperator* slab) {
     jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
-    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
-    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
-
-    LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
-
-    vec3* w = wavelet(highResSize, band_min, band_max);
-
-    wavelet_turbulence = createVectorDataPair(true, w);
-
-    delete[] w;
+    wave();
 
     return 1;
 }
 
 int WaveletTurbulence::initShaders() {
     bool success = true;
-    //success &= turbulenceShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/turbulence.frag");
+    success &= turbulenceShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/turbulence.frag");
+    success &= waveletShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/wavelet.frag");
     success &= synthesisShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/fluid_synthesis.frag");
     success &= textureCoordShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/advection.frag");
     success &= energyShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/energy_spectrum.frag");
@@ -65,6 +57,79 @@ int WaveletTurbulence::initShaders() {
     success &= eigenShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/eigenCalculator.frag");
     success &= jacobianShader.load("shaders/simulation/wavelet/turbulence.vert", "shaders/simulation/wavelet/jacobianCalculator.frag");
     return success;
+}
+
+void WaveletTurbulence::wave(){
+
+    slab->prepare();
+
+    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
+    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+
+    LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
+
+    DataTexturePair* w1 = noise(band_min, band_max);
+    DataTexturePair* w2 = noise(band_min, band_max);
+    DataTexturePair* w3 = noise(band_min, band_max);
+
+    wavelet_turbulence = createVectorDataPair(true, nullptr);
+
+    waveletShader.use();
+
+    waveletShader.uniform3f("gridSize", highResSize);
+
+    w1->bindData(GL_TEXTURE0);
+    w2->bindData(GL_TEXTURE1);
+    w3->bindData(GL_TEXTURE2);
+
+    slab->interiorOperation(waveletShader, wavelet_turbulence, 0);
+
+    slab->finish();
+
+}
+
+DataTexturePair* WaveletTurbulence::noise(float band_min, float band_max){
+    DataTexturePair* noiseTexture = createScalarDataPair(true, nullptr);
+
+    turbulenceShader.use();
+
+    turbulenceShader.uniform3f("gridSize", highResSize);
+    int num_gradients = 1024;
+    turbulenceShader.uniform1i("num_gradients", num_gradients);
+
+    for(float band = band_min; band <= band_max; band += 1.0) {
+        ivec3 seed = ivec3(rand(), rand(), rand());
+        vec3* gradients = generateGradients(num_gradients);
+
+        GLuint gradient_texture;
+        createVector3DTexture(&gradient_texture, ivec3(num_gradients, 1, 1), gradients);
+
+        turbulenceShader.uniform1i("seed1", seed.x);
+        turbulenceShader.uniform1i("seed2", seed.y);
+        turbulenceShader.uniform1i("seed3", seed.z);
+        turbulenceShader.uniform1f("band", band);
+        turbulenceShader.uniform1f("min_band", band_min);
+
+        noiseTexture->bindData(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gradient_texture);
+
+        slab->fullOperation(turbulenceShader, noiseTexture);
+
+    }
+
+    return noiseTexture;
+}
+
+vec3* WaveletTurbulence::generateGradients(int num_gradients){
+    vec3* gradients = new vec3[num_gradients];
+    for(int i = 0; i < num_gradients; i++) {
+        float a1 = rand()%360 / 180.0f * PI;
+        float a2 = rand()%360 / 180.0f * PI;
+        float a3 = rand()%360 / 180.0f * PI;
+        gradients[i] = normalize(vec3(sin(a1)*sin(a2)*a3 + cos(a1)*a2, cos(a1)*sin(a2)*a3 - sin(a1)*a2, cos(a2)*a3 + a1));
+    }
+    return gradients;
 }
 
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
