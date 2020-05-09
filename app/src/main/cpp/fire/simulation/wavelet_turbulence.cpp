@@ -18,7 +18,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperation* slab, Settings settings) {
+int WaveletTurbulence::init(SlabOperation slab, Settings settings) {
 
     //srand(42);
 
@@ -222,14 +222,14 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 
     lowerVelocity->bindData(GL_TEXTURE0);
 
-    slab->fullOperation(textureCoordShader, texture_coord);
+    slab.fullOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.use();
     energyShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
     lowerVelocity->bindData(GL_TEXTURE0);
-    slab->fullOperation(energyShader, energy);
+    slab.fullOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
@@ -241,6 +241,6 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     texture_coord->bindData(GL_TEXTURE2);
     energy->bindData(GL_TEXTURE3);
 
-    slab->interiorOperation(synthesisShader, higherVelocity, -1);
+    slab.interiorOperation(synthesisShader, higherVelocity, -1);
 
 }

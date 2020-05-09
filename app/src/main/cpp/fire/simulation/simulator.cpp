@@ -21,17 +21,13 @@
 
 int Simulator::init(Settings settings) {
 
-    slab = new SlabOperation();
-    operations = new SimulationOperations();
-    wavelet = new WaveletTurbulence();
-
-    if (!slab->init())
+    if (!slab.init())
         return 0;
 
-    if(!operations->init(slab, settings))
+    if(!operations.init(slab, settings))
         return 0;
 
-    if(!wavelet->init(slab, settings))
+    if(!wavelet.init(slab, settings))
         return 0;
 
     this->settings = settings;
@@ -50,7 +46,7 @@ int Simulator::changeSettings(Settings settings) {
     start_time = NOW;
     last_time = start_time;
 
-    return operations->changeSettings(settings) && wavelet->changeSettings(settings);
+    return operations.changeSettings(settings) && wavelet.changeSettings(settings);
 }
 
 void Simulator::update(){
@@ -61,7 +57,7 @@ void Simulator::update(){
     if(settings.getDeltaTime() != 0.0f)
         delta_time = settings.getDeltaTime();
 
-    slab->prepare();
+    slab.prepare();
 
     velocityStep(delta_time);
 
@@ -71,7 +67,7 @@ void Simulator::update(){
 
     temperatureStep(delta_time);
 
-    slab->finish();
+    slab.finish();
 
 }
 
@@ -121,34 +117,34 @@ void Simulator::clearData() {
 void Simulator::velocityStep(float dt){
     // Source
     if(settings.getBuoyancyScale() != 0.0f)
-        operations->buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
+        operations.buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
 
     if(settings.getWindScale() != 0.0f)
         updateAndApplyWind(settings.getWindScale(), dt);
 
     // Advect
-    operations->advection(lowerVelocity, lowerVelocity, dt);
+    operations.advection(lowerVelocity, lowerVelocity, dt);
 
     // Diffuse
     if(settings.getVelKinematicViscosity() != 0.0f)
-        operations->velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
+        operations.velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
 
     // Vorticity
     if(settings.getVorticityScale() != 0.0f)
-        operations->vorticity(lowerVelocity, settings.getVorticityScale(), dt);
+        operations.vorticity(lowerVelocity, settings.getVorticityScale(), dt);
   
     // Project
     if(settings.getProjectionIterations() != 0)
-        operations->projection(lowerVelocity, settings.getProjectionIterations());
+        operations.projection(lowerVelocity, settings.getProjectionIterations());
 }
 
 void Simulator::waveletStep(float dt){
     // Advect texture coordinates
-    wavelet->advection(lowerVelocity, dt);
+    wavelet.advection(lowerVelocity, dt);
 
-    wavelet->calcEnergy(lowerVelocity);
+    wavelet.calcEnergy(lowerVelocity);
 
-    wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
+    wavelet.fluidSynthesis(lowerVelocity, higherVelocity);
 }
 
 void Simulator::updateAndApplyWind(float scale, float dt) {
@@ -157,7 +153,7 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 
     float windStrength = scale*(12.0f + 11*sin(windAngle*2.14f + 123));
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
-    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
+    operations.addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
@@ -165,14 +161,14 @@ void Simulator::temperatureStep(float dt) {
     handleSource(temperature, temperatureSource, dt);
 
     // Advection
-    operations->fulladvection(higherVelocity, temperature, dt);
+    operations.fulladvection(higherVelocity, temperature, dt);
 
     // Diffusion
     if(settings.getTempKinematicViscosity() != 0.0f)
-        operations->substanceDiffusion(temperature, settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
+        operations.substanceDiffusion(temperature, settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
 
     // Dissipation
-    operations->heatDissipation(temperature, dt);
+    operations.heatDissipation(temperature, dt);
 
 }
 
@@ -181,19 +177,19 @@ void Simulator::densityStep(float dt){
     handleSource(density, densitySource, dt);
 
     // Advect
-    operations->fulladvection(higherVelocity, density, dt);
+    operations.fulladvection(higherVelocity, density, dt);
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)
-        operations->substanceDiffusion(density, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
+        operations.substanceDiffusion(density, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
 
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
-        operations->dissipate(density, settings.getSmokeDissipation(), dt);
+        operations.dissipate(density, settings.getSmokeDissipation(), dt);
 }
 
 void Simulator::handleSource(DataTexturePair *substance, GLuint source, float dt) {
     if(settings.getSourceMode() == SourceMode::set)
-        operations->setSource(substance, source, dt);
-    else operations->addSource(substance, source, dt);
+        operations.setSource(substance, source, dt);
+    else operations.addSource(substance, source, dt);
 }
