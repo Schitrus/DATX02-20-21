@@ -12,7 +12,7 @@
 #include "fire/util/simple_framebuffer.h"
 #include "fire/util/data_texture_pair.h"
 
-class SlabOperator {
+class SlabOperation {
 
     // Framebuffer
     SimpleFramebuffer* FBO;

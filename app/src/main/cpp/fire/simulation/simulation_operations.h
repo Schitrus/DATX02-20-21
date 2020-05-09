@@ -13,7 +13,7 @@
 #include "fire/util/shader.h"
 
 class SimulationOperations {
-    SlabOperator* slab;
+    SlabOperation* slab;
 
     GLuint diffusionBLRTexture, diffusionBHRTexture;
     DataTexturePair* divergence;
@@ -26,7 +26,7 @@ class SimulationOperations {
     Shader vorticityShader;
 
 public:
-    int init(SlabOperator* slab, Settings settings);
+    int init(SlabOperation* slab, Settings settings);
 
     int changeSettings(Settings settings);
 

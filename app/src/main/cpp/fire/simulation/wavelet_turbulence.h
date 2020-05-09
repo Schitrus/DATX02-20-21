@@ -21,7 +21,7 @@ using namespace glm;
 
 class WaveletTurbulence {
 
-    SlabOperator* slab;
+    SlabOperation* slab;
 
     Shader turbulenceShader;
     Shader synthesisShader;
@@ -42,7 +42,7 @@ class WaveletTurbulence {
     double* angles;
 
 public:
-    int init(SlabOperator* slab, Settings settings);
+    int init(SlabOperation* slab, Settings settings);
 
     int changeSettings(Settings settings);
 

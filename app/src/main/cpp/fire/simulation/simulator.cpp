@@ -21,7 +21,7 @@
 
 int Simulator::init(Settings settings) {
 
-    slab = new SlabOperator();
+    slab = new SlabOperation();
     operations = new SimulationOperations();
     wavelet = new WaveletTurbulence();
 

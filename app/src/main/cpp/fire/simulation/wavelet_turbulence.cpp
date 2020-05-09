@@ -18,7 +18,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperator* slab, Settings settings) {
+int WaveletTurbulence::init(SlabOperation* slab, Settings settings) {
 
     //srand(42);
 

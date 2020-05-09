@@ -17,7 +17,7 @@ using std::chrono::time_point;
 using std::chrono::system_clock;
 
 class Simulator {
-    SlabOperator* slab;
+    SlabOperation* slab;
     SimulationOperations* operations;
     WaveletTurbulence* wavelet;
 

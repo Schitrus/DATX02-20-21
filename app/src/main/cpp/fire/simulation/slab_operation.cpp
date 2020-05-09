@@ -28,7 +28,7 @@ using namespace glm;
 
 #define PI 3.14159265359f
 
-int SlabOperator::init() {
+int SlabOperation::init() {
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -47,7 +47,7 @@ int SlabOperator::init() {
 
 }
 
-void SlabOperator::initLine() {
+void SlabOperation::initLine() {
     glGenVertexArrays(1, &boundaryVAO);
     // Bind the vertex array object
     // The following calls will affect this vertex array object.
@@ -84,7 +84,7 @@ void SlabOperator::initLine() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void SlabOperator::initQuad() {
+void SlabOperation::initQuad() {
 
     glGenVertexArrays(1, &interiorVAO);
     // Bind the vertex array object
@@ -143,7 +143,7 @@ void SlabOperator::initQuad() {
 
 }
 
-int SlabOperator::initShaders() {
+int SlabOperation::initShaders() {
     bool success = true;
     // Boundaries
     success &= boundaryShader.load("shaders/simulation/slab.vert", "shaders/simulation/boundary.frag");
@@ -154,7 +154,7 @@ int SlabOperator::initShaders() {
     return success;
 }
 
-void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
+void SlabOperation::setBoundary(DataTexturePair* data, int scale) {
     // Input data used in all steps
     data->bindData(GL_TEXTURE0);
     ivec3 gridSize = data->getSize();
@@ -190,7 +190,7 @@ void SlabOperator::setBoundary(DataTexturePair* data, int scale) {
     data->operationFinished();
 }
 
-bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
+bool SlabOperation::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth){
     data->bindToFramebuffer(depth);
 
     ivec3 gridSize = data->getSize();
@@ -205,7 +205,7 @@ bool SlabOperator::drawFrontOrBackBoundary(DataTexturePair* data, int scale, int
     return drawInteriorToTexture(FABInteriorShader, depth, gridSize);
 }
 
-void SlabOperator::prepare() {
+void SlabOperation::prepare() {
 
     // Setup GPU
     FBO->bind();
@@ -215,11 +215,11 @@ void SlabOperator::prepare() {
     glDisable(GL_BLEND);
 }
 
-void SlabOperator::finish() {
+void SlabOperation::finish() {
     FBO->unbind();
 }
 
-void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data, int boundaryScale) {
+void SlabOperation::interiorOperation(Shader shader, DataTexturePair* data, int boundaryScale) {
     ivec3 size = data->getSize();
     for(int depth = 1; depth < size.z - 1; depth++) {
 
@@ -232,7 +232,7 @@ void SlabOperator::interiorOperation(Shader shader, DataTexturePair* data, int b
     setBoundary(data, boundaryScale);
 }
 
-void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
+void SlabOperation::fullOperation(Shader shader, DataTexturePair* data) {
     ivec3 size = data->getSize();
     for(int depth = 0; depth < size.z; depth++) {
 
@@ -243,7 +243,7 @@ void SlabOperator::fullOperation(Shader shader, DataTexturePair* data) {
     data->operationFinished();
 }
 
-void SlabOperator::copy(DataTexturePair *source, GLuint target) {
+void SlabOperation::copy(DataTexturePair *source, GLuint target) {
     copyShader.use();
     source->bindData(GL_TEXTURE0);
 
@@ -256,7 +256,7 @@ void SlabOperator::copy(DataTexturePair *source, GLuint target) {
     }
 }
 
-bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawAllToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
@@ -269,7 +269,7 @@ bool SlabOperator::drawAllToTexture(Shader shader, int depth, ivec3 size) {
     return checkGLError("slab operation");
 }
 
-bool SlabOperator::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
@@ -282,7 +282,7 @@ bool SlabOperator::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
     return checkGLError("slab operation");
 }
 
-bool SlabOperator::drawBoundaryToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawBoundaryToTexture(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
