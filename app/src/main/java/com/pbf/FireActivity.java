@@ -4,8 +4,10 @@ import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.transition.AutoTransition;
+import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.Gravity;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
@@ -81,8 +83,14 @@ public class FireActivity extends FragmentActivity {
         private void addFragment(){
             Slide slideTransition = new Slide(Gravity.TOP);
             slideTransition.setDuration(DURATION_IN_MILLISECONDS);
-            settingsFragment.setEnterTransition(slideTransition);
-            settingsFragment.setExitTransition(slideTransition);
+            Fade fadeTransition = new Fade();
+            fadeTransition.setDuration(DURATION_IN_MILLISECONDS);
+
+            TransitionSet transitionSet = new TransitionSet();
+            transitionSet.addTransition(slideTransition).addTransition(fadeTransition);
+            
+            settingsFragment.setEnterTransition(transitionSet);
+            settingsFragment.setExitTransition(transitionSet);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.settingsContainer, settingsFragment)
                     .commit();
