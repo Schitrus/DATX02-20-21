@@ -14,7 +14,7 @@ public class FireActivity extends Activity {
         System.loadLibrary("fire-lib");
     }
 
-    private FireView fire;
+    private FireView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +26,9 @@ public class FireActivity extends Activity {
 
         init(getResources().getAssets(), dimension.x, dimension.y);
 
-        fire = new FireView(getApplication());
+        view = new FireView(getApplication());
 
-        setContentView(fire);
+        setContentView(view);
 
     }
 
