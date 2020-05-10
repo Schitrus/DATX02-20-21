@@ -42,9 +42,6 @@ add_library( # Sets the name of the library.
         fire/util/simple_framebuffer.cpp
         fire/util/framebuffer.cpp
         fire/util/data_texture_pair.cpp
-        fire/util/perlin.cpp
-        fire/util/turbulence.cpp
-        fire/util/wavelet.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

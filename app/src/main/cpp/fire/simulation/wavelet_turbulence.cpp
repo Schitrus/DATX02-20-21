@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <android/log.h>
 
-#include "fire/util/wavelet.h"
 #include <fire/util/helper.h>
 
 #define LOG_TAG "wavelet"
@@ -52,9 +51,13 @@ void WaveletTurbulence::initTextures(Settings settings) {
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    texture_coord = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    texture_coord = createVectorDataPair(nullptr, Resolution::velocity, settings);
     energy = createScalarDataPair(nullptr, Resolution::velocity, settings);
+
     wavelet_turbulence = createVectorDataPair(nullptr, Resolution::substance, settings);
+    noiseTexture1 = createScalarDataPair(nullptr, Resolution::substance, settings);
+    noiseTexture2 = createScalarDataPair(nullptr, Resolution::substance, settings);
+    noiseTexture3 = createScalarDataPair(nullptr, Resolution::substance, settings);
 
     jacobianXTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
     jacobianYTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
@@ -67,11 +70,16 @@ void WaveletTurbulence::initTextures(Settings settings) {
     jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
     jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
 
-    wave();
+    GenerateWavelet();
 }
 
 void WaveletTurbulence::clearTextures() {
-    delete texture_coord, delete energy, delete wavelet_turbulence;
+    delete texture_coord, delete energy, delete wavelet_turbulence,
+    delete noiseTexture1, delete noiseTexture2, delete noiseTexture3,
+    delete jacobianXTexture, delete jacobianYTexture, delete jacobianZTexture,
+    delete eigenTexture;
+
+    delete[] advPos, delete[] eigenValues, delete[] jacobianX, delete[] jacobianY, delete[] jacobianZ;
 }
 
 int WaveletTurbulence::changeSettings(Settings settings) {
@@ -80,23 +88,23 @@ int WaveletTurbulence::changeSettings(Settings settings) {
     return 1;
 }
 
-void WaveletTurbulence::wave(){
+void WaveletTurbulence::GenerateWavelet(){
 
     slab->prepare();
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
 
-    DataTexturePair* w1 = noise(band_min, band_max);
-    DataTexturePair* w2 = noise(band_min, band_max);
-    DataTexturePair* w3 = noise(band_min, band_max);
+    noise(noiseTexture1, band_min, band_max);
+    noise(noiseTexture2, band_min, band_max);
+    noise(noiseTexture3, band_min, band_max);
 
     waveletShader.use();
 
     waveletShader.uniform3f("gridSize", wavelet_turbulence->getSize());
 
-    w1->bindData(GL_TEXTURE0);
-    w2->bindData(GL_TEXTURE1);
-    w3->bindData(GL_TEXTURE2);
+    noiseTexture1->bindData(GL_TEXTURE0);
+    noiseTexture2->bindData(GL_TEXTURE1);
+    noiseTexture3->bindData(GL_TEXTURE2);
 
     slab->interiorOperation(waveletShader, wavelet_turbulence, 0);
 
@@ -104,8 +112,7 @@ void WaveletTurbulence::wave(){
 
 }
 
-DataTexturePair* WaveletTurbulence::noise(float band_min, float band_max){
-    DataTexturePair* noiseTexture = createScalarDataPair(nullptr, Resolution::substance, settings);
+void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, float band_max){
 
     turbulenceShader.use();
 
@@ -133,8 +140,6 @@ DataTexturePair* WaveletTurbulence::noise(float band_min, float band_max){
         slab->fullOperation(turbulenceShader, noiseTexture);
 
     }
-
-    return noiseTexture;
 }
 
 vec3* WaveletTurbulence::generateGradients(int num_gradients){

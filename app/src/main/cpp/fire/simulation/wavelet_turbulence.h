@@ -43,6 +43,10 @@ class WaveletTurbulence {
     DataTexturePair* energy;
     DataTexturePair* texture_coord;
 
+    DataTexturePair* noiseTexture1;
+    DataTexturePair* noiseTexture2;
+    DataTexturePair* noiseTexture3;
+
     DataTexturePair* eigenTexture;
     DataTexturePair* jacobianXTexture;
     DataTexturePair* jacobianYTexture;
@@ -67,9 +71,9 @@ public:
 
     double turbulence(vec3 position, vec3 offset, vec3 size);
 
-    void wave();
+    void GenerateWavelet();
 
-    DataTexturePair* noise(float band_min, float band_max);
+    void noise(DataTexturePair* noiseTexture, float band_min, float band_max);
 
     void calcScattering();
 

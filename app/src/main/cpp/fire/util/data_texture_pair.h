@@ -12,13 +12,20 @@
 
 using namespace glm;
 
+enum TextureType { SCALAR, VECTOR };
+
 class DataTexturePair {
     float scaleFactor;
     ivec3 size;
     GLuint dataTexture, resultTexture;
 
+    TextureType type;
+
 public:
     ~DataTexturePair();
+
+    // Clears the data in the textures to zero values;
+    void clearData();
 
     // initiates the textures as scalar fields with the given data
     // it ignores any previous textures, so only call init once per pair!
