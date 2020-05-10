@@ -166,7 +166,7 @@ void SlabOperation::setBoundary(DataTexturePair* data, int scale) {
     for(int depth = 1; depth < gridSize.z - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        if(!drawBoundaryToTexture(boundaryShader, depth, gridSize))
+        if(!drawLayerBoundary(boundaryShader, depth, gridSize))
             return;
     }
 
@@ -175,7 +175,7 @@ void SlabOperation::setBoundary(DataTexturePair* data, int scale) {
     for(int depth = 1; depth < gridSize.z - 1; depth++){
         data->bindToFramebuffer(depth);
 
-        if(!drawInteriorToTexture(copyShader, depth, gridSize))
+        if(!drawLayerInterior(copyShader, depth, gridSize))
             return;
     }
 
@@ -197,12 +197,12 @@ bool SlabOperation::drawFrontOrBackBoundary(DataTexturePair* data, int scale, in
     FABBoundaryShader.use();
     FABBoundaryShader.uniform3f("gridSize", gridSize);
     FABBoundaryShader.uniform1f("scale", scale);
-    if(!drawBoundaryToTexture(FABBoundaryShader,  depth, gridSize))
+    if(!drawLayerBoundary(FABBoundaryShader, depth, gridSize))
         return false;
 
     FABInteriorShader.use();
     FABInteriorShader.uniform1f("scale", scale);
-    return drawInteriorToTexture(FABInteriorShader, depth, gridSize);
+    return drawLayerInterior(FABInteriorShader, depth, gridSize);
 }
 
 void SlabOperation::prepare() {
@@ -224,7 +224,7 @@ void SlabOperation::interiorOperation(Shader shader, DataTexturePair* data, int 
     for(int depth = 1; depth < size.z - 1; depth++) {
 
         data->bindToFramebuffer(depth);
-        if(!drawInteriorToTexture(shader, depth, size))
+        if(!drawLayerInterior(shader, depth, size))
             return;
     }
     data->operationFinished();
@@ -237,7 +237,7 @@ void SlabOperation::fullOperation(Shader shader, DataTexturePair* data) {
     for(int depth = 0; depth < size.z; depth++) {
 
         data->bindToFramebuffer(depth);
-        if(!drawAllToTexture(shader, depth, size))
+        if(!drawLayer(shader, depth, size))
             return;
     }
     data->operationFinished();
@@ -251,12 +251,12 @@ void SlabOperation::copy(DataTexturePair *source, GLuint target) {
     for(int depth = 0; depth < size.z; depth++){
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, 0, depth);
 
-        if(!drawAllToTexture(copyShader, depth, size))
+        if(!drawLayer(copyShader, depth, size))
             return;
     }
 }
 
-bool SlabOperation::drawAllToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawLayer(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
@@ -269,7 +269,7 @@ bool SlabOperation::drawAllToTexture(Shader shader, int depth, ivec3 size) {
     return checkGLError("slab operation");
 }
 
-bool SlabOperation::drawInteriorToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawLayerInterior(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
@@ -282,7 +282,7 @@ bool SlabOperation::drawInteriorToTexture(Shader shader, int depth, ivec3 size) 
     return checkGLError("slab operation");
 }
 
-bool SlabOperation::drawBoundaryToTexture(Shader shader, int depth, ivec3 size) {
+bool SlabOperation::drawLayerBoundary(Shader shader, int depth, ivec3 size) {
     if(!checkFramebufferStatus(GL_FRAMEBUFFER, "fire.simulation"))
         return false;
     clearGLErrors("slab operation");
