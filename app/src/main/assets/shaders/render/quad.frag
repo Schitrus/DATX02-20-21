@@ -61,7 +61,7 @@ void main() {
 
     vec4 color = texture(LMS, texCoord).rgba;
 
-    color.rgb = XYZ_to_RGB(color.rgb, max_LMS.xyz);
+    color.rgb = max(pow(XYZ_to_RGB(color.rgb, max_LMS.xyz), vec3(1.8, 2.2, 2.2)), vec3(0.2));
 
     outColor = color;
 }

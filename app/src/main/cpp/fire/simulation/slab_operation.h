@@ -55,6 +55,10 @@ public:
     // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
 
+    // Sets the depth uniform on the shader and then draws both the interior and boundary
+    // Returns true if the operation succeeded without an error
+    bool drawAllToTexture(Shader shader, int depth, ivec3 size);
+
 private:
     void initLine();
     void initQuad();
@@ -63,10 +67,6 @@ private:
     void setBoundary(DataTexturePair* data, int scale);
 
     bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
-
-    // Sets the depth uniform on the shader and then draws both the interior and boundary
-    // Returns true if the operation succeeded without an error
-    bool drawAllToTexture(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the interior
     // Returns true if the operation succeeded without an error
