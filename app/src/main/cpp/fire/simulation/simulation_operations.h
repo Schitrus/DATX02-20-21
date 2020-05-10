@@ -35,9 +35,7 @@ public:
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly
-    void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
-
-    void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
+    void advection(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt);
 
     // Performs heat dissipation on the given temperature field
     void heatDissipation(DataTexturePair* temperature, float dt);

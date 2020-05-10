@@ -123,7 +123,7 @@ void Simulator::velocityStep(float dt){
         updateAndApplyWind(settings.getWindScale(), dt);
 
     // Advect
-    operations.advection(lowerVelocity, lowerVelocity, dt);
+    operations.advection(lowerVelocity, lowerVelocity, true, dt);
 
     // Diffuse
     if(settings.getVelKinematicViscosity() != 0.0f)
@@ -161,7 +161,7 @@ void Simulator::temperatureStep(float dt) {
     handleSource(temperature, temperatureSource, dt);
 
     // Advection
-    operations.fulladvection(higherVelocity, temperature, dt);
+    operations.advection(higherVelocity, temperature, false, dt);
 
     // Diffusion
     if(settings.getTempKinematicViscosity() != 0.0f)
@@ -177,7 +177,7 @@ void Simulator::smokeDensityStep(float dt){
     handleSource(smokeDensity, densitySource, dt);
 
     // Advect
-    operations.fulladvection(higherVelocity, smokeDensity, dt);
+    operations.advection(higherVelocity, smokeDensity, false, dt);
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)

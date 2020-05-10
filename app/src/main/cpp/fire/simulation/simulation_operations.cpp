@@ -141,7 +141,7 @@ void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRat
     slab.interiorOperation(dissipateShader, data, 0);
 }
 
-void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
+void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
     advectionShader.uniform1f("meterToVoxels", velocity->toVoxelScaleFactor());
@@ -149,18 +149,11 @@ void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair*
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    slab.interiorOperation(advectionShader, data, -1);
+    if(applyVelocityBorder)
+        slab.interiorOperation(advectionShader, data, -1);
+    else slab.fullOperation(advectionShader, data);
 }
-void SimulationOperations::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
-    advectionShader.use();
-    advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform1f("meterToVoxels", velocity->toVoxelScaleFactor());
-    advectionShader.uniform3f("gridSize", velocity->getSize());
-    velocity->bindData(GL_TEXTURE0);
-    data->bindData(GL_TEXTURE1);
 
-    slab.fullOperation(advectionShader, data);
-}
 void SimulationOperations::projection(DataTexturePair* velocity, int iterationCount){
     float dx = 1.0f/velocity->toVoxelScaleFactor();
     float alpha = -(dx*dx);
