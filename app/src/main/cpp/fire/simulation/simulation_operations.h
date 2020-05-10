@@ -35,7 +35,7 @@ public:
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly
-    void advection(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt);
+    void advect(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt);
 
     // Performs heat dissipation on the given temperature field
     void heatDissipation(DataTexturePair* temperature, float dt);
@@ -47,16 +47,16 @@ public:
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     // Performs diffusion on a low resolution unit
-    void velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt);
+    void diffuseVelocity(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt);
 
     // Performs diffusion on a high resolution unit
-    void substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt);
+    void diffuseSubstance(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
-    void projection(DataTexturePair* velocity, int iterationCount);
+    void project(DataTexturePair* velocity, int iterationCount);
 
     // Apply rotational flows
-    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
+    void createVorticity(DataTexturePair* velocity, float vorticityScale, float dt);
 
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
 

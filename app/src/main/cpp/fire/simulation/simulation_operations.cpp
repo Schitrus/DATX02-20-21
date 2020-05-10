@@ -109,7 +109,7 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     slab.interiorOperation(buoyancyShader, velocity, -1);
 }
 
-void SimulationOperations::velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::diffuseVelocity(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
 
     slab.copy(velocity, diffusionBLRTexture);
 
@@ -120,7 +120,7 @@ void SimulationOperations::velocityDiffusion(DataTexturePair* velocity, int iter
     jacobiIteration(velocity, diffusionBLRTexture, iterationCount, alpha, beta, -1);
 }
 
-void SimulationOperations::substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::diffuseSubstance(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
 
     slab.copy(substance, diffusionBHRTexture);
 
@@ -141,7 +141,7 @@ void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRat
     slab.fullOperation(dissipateShader, data);
 }
 
-void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt) {
+void SimulationOperations::advect(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
     advectionShader.uniform1f("meterToVoxels", velocity->toVoxelScaleFactor());
@@ -154,7 +154,7 @@ void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair*
     else slab.fullOperation(advectionShader, data);
 }
 
-void SimulationOperations::projection(DataTexturePair* velocity, int iterationCount){
+void SimulationOperations::project(DataTexturePair* velocity, int iterationCount){
     float dx = 1.0f/velocity->toVoxelScaleFactor();
     float alpha = -(dx*dx);
     float beta = 6.0f;
@@ -171,7 +171,7 @@ void SimulationOperations::projection(DataTexturePair* velocity, int iterationCo
     subtractGradient(velocity, dx);
 }
 
-void SimulationOperations::vorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
+void SimulationOperations::createVorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
     vorticityShader.use();
     vorticityShader.uniform1f("dt", dt);
     vorticityShader.uniform1f("vorticityScale", vorticityScale);

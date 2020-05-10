@@ -123,19 +123,20 @@ void Simulator::velocityStep(float dt){
         updateAndApplyWind(settings.getWindScale(), dt);
 
     // Advect
-    operations.advection(lowerVelocity, lowerVelocity, true, dt);
+    operations.advect(lowerVelocity, lowerVelocity, true, dt);
 
     // Diffuse
     if(settings.getVelKinematicViscosity() != 0.0f)
-        operations.velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
+        operations.diffuseVelocity(lowerVelocity, settings.getVelDiffusionIterations(),
+                                   settings.getVelKinematicViscosity(), dt);
 
     // Vorticity
     if(settings.getVorticityScale() != 0.0f)
-        operations.vorticity(lowerVelocity, settings.getVorticityScale(), dt);
+        operations.createVorticity(lowerVelocity, settings.getVorticityScale(), dt);
   
     // Project
     if(settings.getProjectionIterations() != 0)
-        operations.projection(lowerVelocity, settings.getProjectionIterations());
+        operations.project(lowerVelocity, settings.getProjectionIterations());
 }
 
 void Simulator::waveletStep(float dt){
@@ -161,11 +162,12 @@ void Simulator::temperatureStep(float dt) {
     handleSource(temperature, temperatureSource, dt);
 
     // Advection
-    operations.advection(higherVelocity, temperature, false, dt);
+    operations.advect(higherVelocity, temperature, false, dt);
 
     // Diffusion
     if(settings.getTempKinematicViscosity() != 0.0f)
-        operations.substanceDiffusion(temperature, settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
+        operations.diffuseSubstance(temperature, settings.getTempDiffusionIterations(),
+                                    settings.getTempKinematicViscosity(), dt);
 
     // Dissipation
     operations.heatDissipation(temperature, dt);
@@ -177,11 +179,12 @@ void Simulator::smokeDensityStep(float dt){
     handleSource(smokeDensity, densitySource, dt);
 
     // Advect
-    operations.advection(higherVelocity, smokeDensity, false, dt);
+    operations.advect(higherVelocity, smokeDensity, false, dt);
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)
-        operations.substanceDiffusion(smokeDensity, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
+        operations.diffuseSubstance(smokeDensity, settings.getSmokeDiffusionIterations(),
+                                    settings.getSmokeKinematicViscosity(), dt);
 
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
