@@ -138,7 +138,7 @@ void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRat
     dissipateShader.uniform1f("dissipation_rate", dissipationRate);
     data->bindData(GL_TEXTURE0);
 
-    slab.interiorOperation(dissipateShader, data, 0);
+    slab.fullOperation(dissipateShader, data);
 }
 
 void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt) {
