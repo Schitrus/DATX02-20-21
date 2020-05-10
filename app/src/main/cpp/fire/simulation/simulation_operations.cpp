@@ -75,23 +75,15 @@ void SimulationOperations::heatDissipation(DataTexturePair* temperature, float d
     slab.fullOperation(temperatureShader, temperature);
 }
 
-// todo how (if in any way) should the two source functions apply border restrictions
-void SimulationOperations::addSource(DataTexturePair* data, GLuint& source, float dt) {
-    addSourceShader.use();
-    addSourceShader.uniform1f("dt", dt);
+void SimulationOperations::addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt) {
+    Shader shader = mode == SourceMode::add ? addSourceShader : setSourceShader;
+
+    shader.use();
+    shader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
     bindData(source, GL_TEXTURE1);
 
-    slab.fullOperation(addSourceShader, data);
-}
-
-void SimulationOperations::setSource(DataTexturePair* data, GLuint& source, float dt) {
-    setSourceShader.use();
-    setSourceShader.uniform1f("dt", dt);
-    data->bindData(GL_TEXTURE0);
-    bindData(source, GL_TEXTURE1);
-
-    slab.fullOperation(setSourceShader, data);
+    slab.fullOperation(shader, data);
 }
 
 void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt){

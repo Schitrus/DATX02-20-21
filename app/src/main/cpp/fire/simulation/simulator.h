@@ -60,8 +60,6 @@ private:
     void temperatureStep( float dt);
 
     void smokeDensityStep(float dt);
-
-    void handleSource(DataTexturePair* substance, GLuint source, float dt);
 };
 
 #endif //DATX02_20_21_SIMULATOR_H
