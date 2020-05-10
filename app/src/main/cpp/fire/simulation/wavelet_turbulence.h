@@ -70,10 +70,6 @@ private:
 
     void clearTextures();
 
-    void generateWavelet(Settings settings);
-
-    double* generateTurbulence(vec3 size);
-
     void advection(DataTexturePair* lowerVelocity, float dt);
 
     void calcEnergy(DataTexturePair* lowerVelocity);
@@ -83,8 +79,6 @@ private:
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
 
     vec3* generateGradients(int num_gradients);
-
-    double turbulence(vec3 position, vec3 offset, vec3 size);
 
     void GenerateWavelet();
 
