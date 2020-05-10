@@ -22,10 +22,10 @@ void main() {
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
 
     // Location of the previous position, back in time
-    vec3 previous_position = vec3(position) + vec3(0.5) - dt * velocity * meterToVoxels;
+    vec3 previous_position = vec3(position) - dt * velocity * meterToVoxels;
 
     // Set result to velocity at previous position
     // Note: Linear interpolation due to linear texture
-    outTextureCoord = previous_position / (gridSize);
+    outTextureCoord = (previous_position + vec3(0.5)) / (gridSize);
 }
 

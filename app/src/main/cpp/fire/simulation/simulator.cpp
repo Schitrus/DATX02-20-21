@@ -36,6 +36,7 @@ int Simulator::init(Settings settings) {
 
     this->settings = settings;
     initData();
+
     start_time = NOW;
     last_time = start_time;
     return 1;
@@ -147,6 +148,10 @@ void Simulator::waveletStep(float dt){
     wavelet->advection(lowerVelocity, dt);
 
     wavelet->calcEnergy(lowerVelocity);
+
+    wavelet->calcScattering();
+
+    wavelet->regenerate(lowerVelocity);
 
     wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
 }
