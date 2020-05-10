@@ -62,8 +62,6 @@ void Simulator::update(){
 
     velocityStep(delta_time);
 
-    waveletStep(delta_time);
-
     smokeDensityStep(delta_time);
 
     temperatureStep(delta_time);
@@ -138,19 +136,9 @@ void Simulator::velocityStep(float dt){
     // Project
     if(settings.getProjectionIterations() != 0)
         operations.project(lowerVelocity, settings.getProjectionIterations());
-}
 
-void Simulator::waveletStep(float dt){
-    // Advect texture coordinates
-    wavelet.advection(lowerVelocity, dt);
-
-    wavelet.calcEnergy(lowerVelocity);
-
-    wavelet.calcScattering();
-
-    wavelet.regenerate(lowerVelocity);
-
-    wavelet.fluidSynthesis(lowerVelocity, higherVelocity);
+    // Go from low-res velocity to high-res velocity using Wavelet
+    wavelet.waveletStep(lowerVelocity, higherVelocity, dt);
 }
 
 void Simulator::updateAndApplyWind(float scale, float dt) {

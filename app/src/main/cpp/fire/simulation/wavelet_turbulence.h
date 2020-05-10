@@ -59,6 +59,21 @@ public:
 
     int changeSettings(Settings settings);
 
+    void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
+
+private:
+    int initShaders();
+
+    void calcJacobianCol(int axis, DataTexturePair* colTexture);
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
+
+    void generateWavelet(Settings settings);
+
+    double* generateTurbulence(vec3 size);
+
     void advection(DataTexturePair* lowerVelocity, float dt);
 
     void calcEnergy(DataTexturePair* lowerVelocity);
@@ -76,19 +91,6 @@ public:
     void noise(DataTexturePair* noiseTexture, float band_min, float band_max);
 
     void calcScattering();
-
-private:
-    int initShaders();
-
-    void calcJacobianCol(int axis, DataTexturePair* colTexture);
-
-    void initTextures(Settings settings);
-
-    void clearTextures();
-
-    void generateWavelet(Settings settings);
-
-    double* generateTurbulence(vec3 size);
 
 };
 

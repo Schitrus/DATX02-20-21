@@ -153,6 +153,19 @@ vec3* WaveletTurbulence::generateGradients(int num_gradients){
     return gradients;
 }
 
+void WaveletTurbulence::waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt) {
+    // Advect texture coordinates
+    advection(lowerVelocity, dt);
+
+    calcEnergy(lowerVelocity);
+
+    calcScattering();
+
+    regenerate(lowerVelocity);
+
+    fluidSynthesis(lowerVelocity, higherVelocity);
+}
+
 void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
     textureCoordShader.use();
 

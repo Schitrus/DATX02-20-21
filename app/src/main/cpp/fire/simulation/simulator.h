@@ -55,8 +55,6 @@ private:
     // Performs one fire.simulation step for velocity
     void velocityStep(float dt);
 
-    void waveletStep(float dt);
-
     void updateAndApplyWind(float scale, float dt);
 
     void temperatureStep( float dt);
