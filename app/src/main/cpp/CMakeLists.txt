@@ -11,11 +11,11 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 
-if (${ANDROID_PLATFORM_LEVEL} LESS 24)
-    message(FATAL_ERROR "OpenGL es 3.2 is not supported before API level 24 \
+if (${ANDROID_PLATFORM_LEVEL} LESS 21)
+    message(FATAL_ERROR "OpenGL es 3.1 is not supported before API level 21 \
                       (currently using ${ANDROID_PLATFORM_LEVEL}).")
     return()
-endif (${ANDROID_PLATFORM_LEVEL} LESS 24)
+endif (${ANDROID_PLATFORM_LEVEL} LESS 21)
 
 # Import the CMakeLists.txt for the glm library
 add_subdirectory(glm)
@@ -28,12 +28,14 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         fire/fire.cpp
+        fire/settings.cpp
         fire/rendering/renderer.cpp
         fire/rendering/ray_renderer.cpp
         fire/simulation/simulator.cpp
         fire/simulation/simulation_operations.cpp
         fire/simulation/wavelet_turbulence.cpp
         fire/simulation/slab_operation.cpp
+        fire/simulation/field_initialization.cpp
         fire/util/helper.cpp
         fire/util/file_loader.cpp
         fire/util/shader.cpp

@@ -27,7 +27,7 @@ public:
 
     GLuint texture();
 
-    void bind();
+    bool bind(const char *tag);
 
     void unbind();
 private:

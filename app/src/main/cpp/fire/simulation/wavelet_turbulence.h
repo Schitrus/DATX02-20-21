@@ -11,7 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <android/log.h>
 #include "fire/util/shader.h"
 #include "fire/util/data_texture_pair.h"
 #include "slab_operation.h"
@@ -52,7 +51,9 @@ class WaveletTurbulence {
     float band_min, band_max;
 
 public:
-    int init(SlabOperator* slab);
+    int init(SlabOperator* slab, Settings settings);
+
+    int changeSettings(Settings settings);
 
     void advection(DataTexturePair* lowerVelocity, float dt);
 
@@ -77,7 +78,12 @@ private:
 
     void calcJacobianCol(int axis, DataTexturePair* colTexture);
 
-    void generateWavelet();
+    void initTextures(Settings settings);
+
+    void clearTextures();
+
+    void generateWavelet(Settings settings);
+
     double* generateTurbulence(vec3 size);
 
 };

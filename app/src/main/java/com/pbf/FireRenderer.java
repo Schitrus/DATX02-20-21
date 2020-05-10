@@ -1,18 +1,21 @@
 package com.pbf;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+
+import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class FireRenderer implements GLSurfaceView.Renderer {
 
-    private Context context;
+    private final Queue<Runnable> taskQueue;
+    private final Context context;
 
-    public FireRenderer(Context context){
+    FireRenderer(Queue<Runnable> taskQueue, Context context) {
+        this.taskQueue = taskQueue;
         this.context = context;
     }
 
@@ -37,8 +40,18 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        executeTasks();
         update();
         FPSCounter.logFrame();
+    }
+
+    private void executeTasks() {
+        Runnable task;
+        do {
+            task = taskQueue.poll();
+            if(task != null)
+                task.run();
+        } while(task != null);
     }
 
     public native void update();

@@ -3,22 +3,18 @@
 //
 
 #include "simulation_operations.h"
-#include "simulator.h"
 #include "fire/util/helper.h"
+
+#include <android/log.h>
 
 #define LOG_TAG "Simulation operations"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-int SimulationOperations::init(SlabOperator* slab) {
+int SimulationOperations::init(SlabOperator* slab, Settings settings) {
     this->slab = slab;
     
-    createVector3DTexture(&diffusionBHRTexture, highResSize, (vec3*)nullptr);
-    createVector3DTexture(&diffusionBLRTexture, lowResSize, (vec3*)nullptr);
-
-    divergence = createScalarDataPair(false, (float*)nullptr);
-
-    jacobi = createScalarDataPair(false, (float*)nullptr);
+    initTextures(settings);
 
     if(!initShaders()) {
         LOG_ERROR("Failed to compile simulation_operations shaders");
@@ -50,6 +46,26 @@ int SimulationOperations::initShaders() {
     return success;
 }
 
+void SimulationOperations::initTextures(Settings settings) {
+    createVector3DTexture(&diffusionBHRTexture, settings.getSize(Resolution::substance), (vec3*)nullptr);
+    createVector3DTexture(&diffusionBLRTexture, settings.getSize(Resolution::velocity), (vec3*)nullptr);
+
+    divergence = createScalarDataPair(nullptr, Resolution::velocity, settings);
+
+    jacobi = createScalarDataPair(nullptr, Resolution::velocity, settings);
+}
+
+void SimulationOperations::clearTextures() {
+    delete divergence, delete jacobi;
+    glDeleteTextures(1, &diffusionBHRTexture);
+    glDeleteTextures(1, &diffusionBLRTexture);
+}
+
+int SimulationOperations::changeSettings(Settings settings) {
+    clearTextures();
+    initTextures(settings);
+    return 1;
+}
 
 void SimulationOperations::heatDissipation(DataTexturePair* temperature, float dt){
     temperatureShader.use();
@@ -78,7 +94,7 @@ void SimulationOperations::setSource(DataTexturePair* data, GLuint& source, floa
     slab->fullOperation(setSourceShader, data);
 }
 
-void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale){
+void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt){
     buoyancyShader.use();
     buoyancyShader.uniform1f("dt", dt);
     buoyancyShader.uniform1f("scale", scale);
@@ -93,16 +109,26 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     slab->interiorOperation(buoyancyShader, velocity, -1);
 }
 
-void SimulationOperations::diffuse(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
 
-    GLuint diffusionBTexture = velocity->isUsingHighRes() ? diffusionBHRTexture : diffusionBLRTexture;
-    slab->copy(velocity, diffusionBTexture);
+    slab->copy(velocity, diffusionBLRTexture);
 
     float dx = 1.0f / velocity->toVoxelScaleFactor();
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    jacobiIteration(velocity, diffusionBTexture, iterationCount, alpha, beta, -1);
+    jacobiIteration(velocity, diffusionBLRTexture, iterationCount, alpha, beta, -1);
+}
+
+void SimulationOperations::substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
+
+    slab->copy(substance, diffusionBHRTexture);
+
+    float dx = 1.0f / substance->toVoxelScaleFactor();
+    float alpha = (dx*dx) / (kinematicViscosity * dt);
+    float beta = 6.0f + alpha; // For 3D grids
+
+    jacobiIteration(substance, diffusionBHRTexture, iterationCount, alpha, beta, -1);
 }
 
 void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRate, float dt){
@@ -191,19 +217,6 @@ void SimulationOperations::subtractGradient(DataTexturePair* velocity, float dx)
 
     slab->interiorOperation(gradientShader, velocity, -1);
 }
-/*
-void SimulationOperations::substanceMovementStep(GLuint &target, GLuint& result, float dissipationRate, float dh, float dt){
-
-    advection(target, result, dt);
-
-    // Usually there is also a diffusion step for fluid fire.simulation here.
-    // However we assume that all fluids we simulate has a diffusion term of zero,
-    // removing the need of this fire.simulation step
-
-    if(dissipationRate != 0)
-        dissipate(target, result, dissipationRate, dt);
-}
-*/
 
 void SimulationOperations::addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt) {
     windShader.use();
