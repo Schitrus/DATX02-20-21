@@ -261,7 +261,9 @@ int RayRenderer::initProgram() {
     return success;
 }
 
-void RayRenderer::step() {
+void RayRenderer::step(GLuint density, GLuint temperature, int width, int height, int depth) {
+
+    setData(density, temperature, width, height, depth);
 
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);

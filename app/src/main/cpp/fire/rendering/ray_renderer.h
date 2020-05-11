@@ -65,9 +65,7 @@ public:
 
     void resize(int width, int height);
 
-    void step();
-
-    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
+    void step(GLuint density, GLuint temperature, int width, int height, int depth);
 
     void touch(double dx, double dy);
 
@@ -84,6 +82,8 @@ private:
     void initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO);
 
     int initProgram();
+
+    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
 
     void simScale();
 

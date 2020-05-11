@@ -18,12 +18,10 @@ class Renderer{
 public:
     int init();
     void resize(int width, int height);
-    void update();
+    void update(GLuint density, GLuint temperature, int width, int height, int depth);
 
     void scale(float scaleFactor, double scaleX, double scaleY);
     void touch(double dx, double dy);
-
-    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
 };
 
 #endif //DATX02_20_21_RENDERER_H

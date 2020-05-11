@@ -35,8 +35,7 @@ void Fire::update(){
     GLuint density, temperature;
     int width, height, depth;
     simulator.getData(density, temperature, width, height, depth);
-    renderer.setData(density, temperature, width, height, depth);
-    renderer.update();
+    renderer.update(density, temperature, width, height, depth);
 }
 
 void Fire::touch(double dx, double dy){
