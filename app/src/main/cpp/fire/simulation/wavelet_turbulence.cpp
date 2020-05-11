@@ -136,11 +136,11 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         turbulenceShader.uniform1f("min_band", band_min);
 
         noiseTexture->bindData(GL_TEXTURE0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, gradient_texture);
+        bindData(gradient_texture, GL_TEXTURE1);
 
         slab.fullOperation(turbulenceShader, noiseTexture);
 
+        glDeleteTextures(1, &gradient_texture);
     }
 }
 
