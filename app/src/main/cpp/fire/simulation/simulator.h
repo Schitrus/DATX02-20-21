@@ -42,15 +42,15 @@ public:
 
     int changeSettings(Settings settings);
 
-    void update();
-
-    void getData(GLuint& densityData, GLuint& temperatureData, ivec3& size);
+    void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
 private:
 
     void initData();
 
     void clearData();
+
+    void getData(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
     // Performs one fire.simulation step for velocity
     void velocityStep(float dt);

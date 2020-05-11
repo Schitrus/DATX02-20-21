@@ -31,10 +31,11 @@ void Fire::resize(int width, int height){
 }
 
 void Fire::update(){
-    simulator.update();
     GLuint density, temperature;
     ivec3 size;
-    simulator.getData(density, temperature, size);
+
+    simulator.update(density, temperature, size);
+
     renderer.update(density, temperature, size);
 }
 

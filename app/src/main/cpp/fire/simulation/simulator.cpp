@@ -50,7 +50,7 @@ int Simulator::changeSettings(Settings settings) {
     return operations.changeSettings(settings) && wavelet.changeSettings(settings);
 }
 
-void Simulator::update(){
+void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
     // todo maybe put a cap on the delta time to not get too big time steps during lag?
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
@@ -68,9 +68,10 @@ void Simulator::update(){
 
     slab.finish();
 
+    getData(densityData, temperatureData, size);
 }
 
-void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size){
+void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
     temperatureData = temperature->getDataTexture();
     densityData = smokeDensity->getDataTexture();
     ivec3 highResSize = settings.getSize(Resolution::substance);
