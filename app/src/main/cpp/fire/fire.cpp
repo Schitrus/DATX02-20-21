@@ -33,9 +33,9 @@ void Fire::resize(int width, int height){
 void Fire::update(){
     simulator.update();
     GLuint density, temperature;
-    int width, height, depth;
-    simulator.getData(density, temperature, width, height, depth);
-    renderer.update(density, temperature, width, height, depth);
+    ivec3 size;
+    simulator.getData(density, temperature, size);
+    renderer.update(density, temperature, size);
 }
 
 void Fire::touch(double dx, double dy){

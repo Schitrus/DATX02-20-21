@@ -34,8 +34,8 @@ void Renderer::resize(int width, int height){
     rayRenderer.resize(width, height);
 }
 
-void Renderer::update(GLuint density, GLuint temperature, int width, int height, int depth) {
-    rayRenderer.step(density, temperature, width, height, depth);
+void Renderer::update(GLuint density, GLuint temperature, ivec3 size) {
+    rayRenderer.step(density, temperature, size);
 }
 
 void Renderer::scale(float scaleFactor, double scaleX, double scaleY){

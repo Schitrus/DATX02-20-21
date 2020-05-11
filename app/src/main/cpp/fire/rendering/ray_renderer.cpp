@@ -146,13 +146,13 @@ void RayRenderer::simScale() {
     sim_height = min(sim_height, window_height);
 }
 
-void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth) {
+void RayRenderer::setData(GLuint density, GLuint temperature, ivec3 size) {
     densityTexID = density;
     temperatureTexID = temperature;
 
-    texture_width = width;
-    texture_height = height;
-    texture_depth = depth;
+    texture_width = size.x;
+    texture_height = size.y;
+    texture_depth = size.z;
     max_sim_res = max(max(texture_width, texture_height), texture_depth);
     vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float) max_sim_res);
     boundingScale = tex;
@@ -261,9 +261,9 @@ int RayRenderer::initProgram() {
     return success;
 }
 
-void RayRenderer::step(GLuint density, GLuint temperature, int width, int height, int depth) {
+void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
 
-    setData(density, temperature, width, height, depth);
+    setData(density, temperature, size);
 
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);

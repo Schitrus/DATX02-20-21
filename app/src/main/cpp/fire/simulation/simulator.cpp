@@ -70,13 +70,11 @@ void Simulator::update(){
 
 }
 
-void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
+void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size){
     temperatureData = temperature->getDataTexture();
     densityData = smokeDensity->getDataTexture();
     ivec3 highResSize = settings.getSize(Resolution::substance);
-    width = highResSize.x;
-    height = highResSize.y;
-    depth = highResSize.z;
+    size = highResSize;
 }
 
 void Simulator::initData() {

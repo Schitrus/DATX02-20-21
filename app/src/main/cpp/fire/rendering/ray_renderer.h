@@ -65,7 +65,7 @@ public:
 
     void resize(int width, int height);
 
-    void step(GLuint density, GLuint temperature, int width, int height, int depth);
+    void step(GLuint density, GLuint temperature, ivec3 size);
 
     void touch(double dx, double dy);
 
@@ -83,7 +83,7 @@ private:
 
     int initProgram();
 
-    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
+    void setData(GLuint density, GLuint temperature, ivec3 size);
 
     void simScale();
 

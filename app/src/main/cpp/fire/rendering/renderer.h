@@ -18,7 +18,7 @@ class Renderer{
 public:
     int init();
     void resize(int width, int height);
-    void update(GLuint density, GLuint temperature, int width, int height, int depth);
+    void update(GLuint density, GLuint temperature, ivec3 size);
 
     void scale(float scaleFactor, double scaleX, double scaleY);
     void touch(double dx, double dy);

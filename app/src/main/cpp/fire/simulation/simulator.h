@@ -44,7 +44,7 @@ public:
 
     void update();
 
-    void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
+    void getData(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
 private:
 
