@@ -13,7 +13,7 @@ import java.util.Queue;
 class FireListener implements View.OnTouchListener, View.OnClickListener {
 
     private final Queue<Runnable> taskQueue;
-    private double touchX, touchY, oldX, oldY;
+    private double oldX, oldY;
     private float scaleFactor = 1.0f;
     private ScaleGestureDetector scaleDetector;
     private long lastScale = 0;
@@ -26,8 +26,8 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        touchX = event.getX();
-        touchY = event.getY();
+        double touchX = event.getX();
+        double touchY = event.getY();
         final double deltaX = touchX - oldX;
         final double deltaY = touchY - oldY;
         oldX = touchX;
