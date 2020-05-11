@@ -10,7 +10,7 @@ import java.util.Queue;
 class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener implements View.OnTouchListener, View.OnClickListener {
 
     private final Queue<Runnable> taskQueue;
-    private double oldX, oldY;
+    private double oldXTouch, oldYTouch;
     private float scaleFactor = 1.0f;
     private ScaleGestureDetector scaleDetector;
     private long lastScale = 0;
@@ -25,10 +25,10 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
     public boolean onTouch(View v, MotionEvent event) {
         double touchX = event.getX();
         double touchY = event.getY();
-        final double deltaX = touchX - oldX;
-        final double deltaY = touchY - oldY;
-        oldX = touchX;
-        oldY = touchY;
+        final double deltaX = touchX - oldXTouch;
+        final double deltaY = touchY - oldYTouch;
+        oldXTouch = touchX;
+        oldYTouch = touchY;
         float oldScale = scaleFactor;
         scaleDetector.onTouchEvent(event);
         if (oldScale != scaleFactor)
