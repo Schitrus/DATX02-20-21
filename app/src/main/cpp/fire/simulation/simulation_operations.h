@@ -46,7 +46,7 @@ public:
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
     // Performs diffusion on a texture with given resolution
-    void diffuse(DataTexturePair* velocity, Resolution res, int iterationCount, float kinematicViscosity, float dt);
+    void diffuse(DataTexturePair* data, Resolution res, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
     void project(DataTexturePair* velocity, int iterationCount);
