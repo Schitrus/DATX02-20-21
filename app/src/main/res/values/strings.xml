@@ -8,4 +8,5 @@
     <string name="show_settings">Show settings</string>
     <string name="viscosityText">Viscosity</string>
     <string name="windText">Wind</string>
+    <string name="resolutionText">Resolution</string>
 </resources>

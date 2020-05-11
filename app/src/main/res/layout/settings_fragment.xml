@@ -298,6 +298,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Divider -->
         <View
             android:id="@+id/divider6"
             android:layout_width="430dp"
@@ -305,6 +306,50 @@
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/windConstraintLayout" />
+
+        <!-- Resolution layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/resolutionConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/divider6">
+
+            <TextView
+                android:id="@+id/resolutionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/resolutionText"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/resolutionSpinner"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:theme="@style/AppTheme"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider7"
+            android:layout_width="430dp"
+            android:layout_height="1dp"
+            android:background="#1D000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/resolutionConstraintLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

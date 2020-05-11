@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +29,19 @@ public class SettingsFragment extends Fragment {
     private static final int WIND_MIN = 0;
     private static final int WIND_MAX = 10;
 
+    private enum ResolutionItems{
+            LOW, MEDIUM, HIGH;
+
+        public static String[] stringValues(){
+                ResolutionItems[] resolutionItems = ResolutionItems.values();
+                String[] values = new String[resolutionItems.length];
+                for(int i = 0; i < resolutionItems.length; i++){
+                    values[i] = resolutionItems[i].name();
+                }
+                return values;
+        }
+    };
+
     private SeekBar vorticityBar;
     private TextView vorticityValueText;
 
@@ -41,6 +57,8 @@ public class SettingsFragment extends Fragment {
     private SeekBar windBar;
     private TextView windValueText;
 
+    private Spinner resolutionSpinner;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -55,6 +73,7 @@ public class SettingsFragment extends Fragment {
         initBuoyancyBar(v);
         initViscosityBar(v);
         initWindBar(v);
+        initResolutionSpinner(v);
     }
 
     private void initVorticityBar(View v){
@@ -102,6 +121,43 @@ public class SettingsFragment extends Fragment {
         );
     }
 
+    private void initResolutionSpinner(View v) {
+        resolutionSpinner = v.findViewById(R.id.resolutionSpinner);
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                getActivity(),
+                android.R.layout.simple_spinner_item,
+                ResolutionItems.stringValues()
+        );
+
+        // Set to this resource layout to remove radio button from menu
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        resolutionSpinner.setAdapter(adapter);
+        resolutionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                ResolutionItems res = ResolutionItems.values()[pos];
+                switch(res){
+                    case LOW:
+                        // Set low resolution
+                        break;
+                    case HIGH:
+                        // Set high resolution
+                        break;
+                    default:
+                        // Medium or anything else
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
     private static class SliderBarListener implements SeekBar.OnSeekBarChangeListener{
 
         private SeekBar seekBar;
@@ -135,5 +191,4 @@ public class SettingsFragment extends Fragment {
 
         }
     }
-
 }
