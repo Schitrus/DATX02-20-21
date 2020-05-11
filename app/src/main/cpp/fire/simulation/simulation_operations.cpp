@@ -101,26 +101,16 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     slab.interiorOperation(buoyancyShader, velocity, -1);
 }
 
-void SimulationOperations::diffuseVelocity(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::diffuse(DataTexturePair* velocity, Resolution res, int iterationCount, float kinematicViscosity, float dt) {
 
-    slab.copy(velocity, diffusionBLRTexture);
+    GLuint diffusionTexture = res == Resolution::velocity ? diffusionBLRTexture : diffusionBHRTexture;
+    slab.copy(velocity, diffusionTexture);
 
     float dx = 1.0f / velocity->toVoxelScaleFactor();
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    jacobiIteration(velocity, diffusionBLRTexture, iterationCount, alpha, beta, -1);
-}
-
-void SimulationOperations::diffuseSubstance(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
-
-    slab.copy(substance, diffusionBHRTexture);
-
-    float dx = 1.0f / substance->toVoxelScaleFactor();
-    float alpha = (dx*dx) / (kinematicViscosity * dt);
-    float beta = 6.0f + alpha; // For 3D grids
-
-    jacobiIteration(substance, diffusionBHRTexture, iterationCount, alpha, beta, -1);
+    jacobiIteration(velocity, diffusionTexture, iterationCount, alpha, beta, -1);
 }
 
 void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRate, float dt){

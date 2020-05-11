@@ -125,8 +125,8 @@ void Simulator::velocityStep(float dt){
 
     // Diffuse
     if(settings.getVelKinematicViscosity() != 0.0f)
-        operations.diffuseVelocity(lowerVelocity, settings.getVelDiffusionIterations(),
-                                   settings.getVelKinematicViscosity(), dt);
+        operations.diffuse(lowerVelocity, Resolution::velocity,
+                settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
 
     // Vorticity
     if(settings.getVorticityScale() != 0.0f)
@@ -158,8 +158,8 @@ void Simulator::temperatureStep(float dt) {
 
     // Diffusion
     if(settings.getTempKinematicViscosity() != 0.0f)
-        operations.diffuseSubstance(temperature, settings.getTempDiffusionIterations(),
-                                    settings.getTempKinematicViscosity(), dt);
+        operations.diffuse(temperature, Resolution::substance,
+                settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
 
     // Dissipation
     operations.heatDissipation(temperature, dt);
@@ -175,8 +175,8 @@ void Simulator::smokeDensityStep(float dt) {
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)
-        operations.diffuseSubstance(smokeDensity, settings.getSmokeDiffusionIterations(),
-                                    settings.getSmokeKinematicViscosity(), dt);
+        operations.diffuse(smokeDensity, Resolution::substance,
+                settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
 
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
