@@ -20,7 +20,9 @@ int SimulationOperations::init(SlabOperation slab, Settings settings) {
         LOG_ERROR("Failed to compile simulation_operations shaders");
         return 0;
     }
-    
+
+    LOG_INFO("Finished initializing simulation operations");
+
     return 1;
 }
 

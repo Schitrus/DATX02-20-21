@@ -35,6 +35,9 @@ int Simulator::init(Settings settings) {
 
     start_time = NOW;
     last_time = start_time;
+
+    LOG_INFO("Finished initializing simulator");
+
     return 1;
 }
 

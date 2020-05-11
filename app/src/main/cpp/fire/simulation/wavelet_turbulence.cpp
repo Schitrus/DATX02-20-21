@@ -29,6 +29,8 @@ int WaveletTurbulence::init(SlabOperation slab, Settings settings) {
 
     initTextures(settings);
 
+    LOG_INFO("Finished initializing  wavelet turbulence");
+
     return 1;
 }
 
