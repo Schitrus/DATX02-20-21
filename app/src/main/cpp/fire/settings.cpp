@@ -18,12 +18,13 @@ const Settings MORE_DIFFUSION = DIFFUSION.withVelDiffusion(5.0f, 20).withName("M
 const Settings WIND = DEFAULT.withWindScale(2.0f).withName("Wind");
 const Settings STORM = DEFAULT.withWindScale(10.0f).withSize(ivec3(1, 1, 1), 18, 90, 48.0f).withSmokeSourceDensity(0.8f).withSmokeDissipation(0.1f).withBuoyancyScale(0.3f).withName("Storm");
 const Settings SOURCE_MODE_ADD = LIGHTWEIGHT.withSourceMode(SourceMode::add).withTempSourceDensity(5000.0f).withSmokeSourceDensity(1.0f).withName("Source mode: add");
+const Settings FLOOR_IS_FIRE = DEFAULT.withSourceType(SourceType::floor).withName("Floor is Fire");
 
 int index = -1;
 
 Settings nextSettings() {
     index++;
-    if(index >= 9)
+    if(index >= 10)
         index = 0;
     switch(index) {
         case 1: return FEW_ITERATIONS;
@@ -34,6 +35,7 @@ Settings nextSettings() {
         case 6: return WIND;
         case 7: return STORM;
         case 8: return SOURCE_MODE_ADD;
+        case 9: return FLOOR_IS_FIRE;
         default: return DEFAULT;
     }
 }
