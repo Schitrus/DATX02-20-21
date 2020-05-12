@@ -2,6 +2,7 @@ package com.pbf;
 
 import android.content.res.AssetManager;
 import android.graphics.Point;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.Fade;
@@ -10,6 +11,7 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.Gravity;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -33,10 +35,18 @@ public class FireActivity extends FragmentActivity {
     private ToggleButton settingsButton;
     private FireView fire;
 
+    private AnimationDrawable animation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ImageView loading = (ImageView)findViewById(R.id.imageView);
+        animation = (AnimationDrawable)loading.getDrawable();
+        //animation.setEnterFadeDuration(0);
+        //animation.setExitFadeDuration(100);
+        animation.start();
 
         settingsFragment = new SettingsFragment();
 
