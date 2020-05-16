@@ -1,6 +1,7 @@
 package com.pbf;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class SettingsFragment extends Fragment {
     private static final int VISCOSITY_MIN = 1;
     private static final int VISCOSITY_MAX = 10;
     private static final int WIND_MIN = 0;
-    private static final int WIND_MAX = 100;
+    private static final int WIND_MAX = 250;
 
     private enum ResolutionItems{
             LOW, MEDIUM, HIGH;
@@ -115,7 +116,7 @@ public class SettingsFragment extends Fragment {
     private void initWindBar(View v){
         windBar = v.findViewById(R.id.windBar);
         windValueText = v.findViewById(R.id.windValueText);
-        
+
         windBar.setOnSeekBarChangeListener(
                 new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX)
         );
@@ -164,6 +165,7 @@ public class SettingsFragment extends Fragment {
         private TextView seekBarText;
         private final int minValue;
         private final int maxValue;
+        private int value;
 
         public SliderBarListener(SeekBar seekBar, TextView seekBarText, int minValue, int maxValue){
             this.minValue = minValue;
@@ -180,19 +182,18 @@ public class SettingsFragment extends Fragment {
             if(i < minValue){
                 i = minValue;
             }
-            seekBarText.setText(String.valueOf(i));
-            if(seekBar.getId() == R.id.windBar)
-                updateWind(i);
+            value = i;
+            seekBarText.setText(String.valueOf(value));
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-
+            if(seekBar.getId() == R.id.windBar)
+                updateWind(value);
         }
 
         public native void updateWind(int strength);

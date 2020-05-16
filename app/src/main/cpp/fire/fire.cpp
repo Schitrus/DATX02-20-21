@@ -68,6 +68,10 @@ void Fire::updateWind(int strength) {
     shouldUpdateSettings = true;
 }
 
+bool Fire::changedSettings() {
+    return shouldUpdateSettings;
+}
+
 
 AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
@@ -114,4 +118,8 @@ JC(void) Java_com_pbf_FireListener_onClick(JCT){
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength){
     fire->updateWind(strength);
+}
+
+JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){
+    return fire->changedSettings();
 }

@@ -1,5 +1,6 @@
 package com.pbf;
 
+import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
@@ -10,6 +11,7 @@ import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
@@ -44,9 +46,9 @@ public class FireActivity extends FragmentActivity {
 
         ImageView loading = (ImageView)findViewById(R.id.imageView);
         animation = (AnimationDrawable)loading.getDrawable();
-        //animation.setEnterFadeDuration(0);
-        //animation.setExitFadeDuration(100);
         animation.start();
+
+        loading.setVisibility(View.INVISIBLE);
 
         settingsFragment = new SettingsFragment();
 
@@ -57,7 +59,7 @@ public class FireActivity extends FragmentActivity {
         settingsButton = findViewById(R.id.toggleSettingsButton);
         settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
 
-        view = new FireView(getApplication());
+        view = new FireView(getApplication(), loading);
 
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
@@ -70,6 +72,8 @@ public class FireActivity extends FragmentActivity {
 
         //setContentView(fire);
     }
+
+
 
     private class SettingsButtonToggleListener implements CompoundButton.OnCheckedChangeListener {
 

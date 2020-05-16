@@ -55,6 +55,8 @@ public:
     void onClick();
 
     void updateWind(int strength);
+
+    bool changedSettings();
 };
 
 Fire* fire;
@@ -78,5 +80,7 @@ JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength);
+
+JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT);
 
 #endif //DATX02_20_21_FIRE_H

@@ -3,20 +3,27 @@ package com.pbf;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import androidx.core.content.ContextCompat;
+
 public class FireRenderer implements GLSurfaceView.Renderer {
 
     private final Queue<Runnable> taskQueue;
     private final Context context;
 
-    FireRenderer(Queue<Runnable> taskQueue, Context context) {
+    private ImageView loading;
+
+    FireRenderer(Queue<Runnable> taskQueue, Context context, ImageView loading) {
         this.taskQueue = taskQueue;
         this.context = context;
+        this.loading = loading;
     }
 
     @Override
@@ -41,7 +48,17 @@ public class FireRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         executeTasks();
+        ContextCompat.getMainExecutor(context).execute(new Runnable() {
+            @Override
+            public void run() {
+                if(changedSettings())
+                    loading.setVisibility(View.VISIBLE);
+                else
+                    loading.setVisibility(View.INVISIBLE);
+            }
+        });
         update();
+
         FPSCounter.logFrame();
     }
 
@@ -54,6 +71,7 @@ public class FireRenderer implements GLSurfaceView.Renderer {
         } while(task != null);
     }
 
+    public native boolean changedSettings();
     public native void update();
     public native void resize(int width, int height);
     private native int init();
