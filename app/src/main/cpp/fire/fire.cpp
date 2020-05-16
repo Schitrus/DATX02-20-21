@@ -4,6 +4,7 @@
 
 #include "fire.h"
 #include "util/file_loader.h"
+#include "settings.h"
 #include <android/asset_manager_jni.h>
 
 #include <jni.h>
@@ -20,8 +21,9 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
     initFileLoader(assetManager);
 }
 
-int Fire::init(){
-    return renderer.init(assetManager) && simulator.init();
+int Fire::init() {
+    Settings settings = nextSettings();
+    return renderer.init() && simulator.init(settings);
 }
 
 void Fire::resize(int width, int height){
@@ -29,12 +31,12 @@ void Fire::resize(int width, int height){
 }
 
 void Fire::update(){
-    simulator.update();
     GLuint density, temperature;
-    int width, height, depth;
-    simulator.getData(density, temperature, width, height, depth);
-    renderer.setData(density, temperature, width, height, depth);
-    renderer.update();
+    ivec3 size;
+
+    simulator.update(density, temperature, size);
+
+    renderer.update(density, temperature, size);
 }
 
 void Fire::touch(double dx, double dy){
@@ -43,6 +45,13 @@ void Fire::touch(double dx, double dy){
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){
     renderer.scale(scaleFactor, scaleX, scaleY);
+}
+
+void Fire::onClick() {
+    Settings newSettings = nextSettings();
+    std::string name = newSettings.getName();
+    LOG_INFO("Changing settings to %s", name.data());
+    simulator.changeSettings(newSettings);
 }
 
 
@@ -83,5 +92,9 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
 
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->scale(scaleFactor, scaleX, scaleY);
+}
+
+JC(void) Java_com_pbf_FireListener_onClick(JCT){
+    fire->onClick();
 }
 

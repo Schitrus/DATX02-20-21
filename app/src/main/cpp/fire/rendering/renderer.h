@@ -16,14 +16,12 @@ class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
 public:
-    int init(AAssetManager* assetManager);
+    int init();
     void resize(int width, int height);
-    void update();
+    void update(GLuint density, GLuint temperature, ivec3 size);
 
     void scale(float scaleFactor, double scaleX, double scaleY);
     void touch(double dx, double dy);
-
-    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
 };
 
 #endif //DATX02_20_21_RENDERER_H

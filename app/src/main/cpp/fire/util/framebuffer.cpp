@@ -4,12 +4,16 @@
 
 #include <android/log.h>
 #include "framebuffer.h"
+#include "helper.h"
 
 #define LOG_TAG "framebuffer"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 void Framebuffer::create(int width, int height, GLuint inFormat ,GLuint format){
+    LOG_INFO("Creating a complete framebuffer with size %d x %d", width, height);
+    clearGLErrors("framebuffer creation");
+
     this->width = width;
     this->height = height;
     this -> inFormat = inFormat;
@@ -38,6 +42,7 @@ void Framebuffer::create(int width, int height, GLuint inFormat ,GLuint format){
     // now actually attach it
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
+    checkGLError("framebuffer creation");
 
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -57,26 +62,29 @@ void Framebuffer::clear() {
     RBO = 0;
 }
 
-void Framebuffer::resize(int width, int height){
-    this->width = width;
-    this->height = height;
-    bind();
-    // Allocate a texture
-    glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
-    glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
+void Framebuffer::resize(int width, int height) {
+    if(this->width != width || this->height != height) {
+        this->width = width;
+        this->height = height;
+        FBO.bind();
+        // Allocate a texture
+        glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
+        glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
 
-    // Allocate for renderBuffer
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    unbind();
+        // Allocate for renderBuffer
+        glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+        FBO.unbind();
+    }
 }
 
 GLuint Framebuffer::texture(){
     return colorTextureTarget;
 }
 
-void Framebuffer::bind() {
+bool Framebuffer::bind(const char *tag) {
     FBO.bind();
+    return checkFramebufferStatus(GL_FRAMEBUFFER, tag);
 }
 
 void Framebuffer::unbind() {

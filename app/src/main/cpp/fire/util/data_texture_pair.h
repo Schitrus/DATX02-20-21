@@ -8,22 +8,32 @@
 #include <GLES3/gl31.h>
 
 #include <glm/glm.hpp>
+#include <fire/settings.h>
 
 using namespace glm;
 
+enum TextureType { SCALAR, VECTOR };
+
 class DataTexturePair {
-    bool isHighRes;
+    float scaleFactor;
+    ivec3 size;
     GLuint dataTexture, resultTexture;
 
+    TextureType type;
+
 public:
+    ~DataTexturePair();
+
+    // Clears the data in the textures to zero values;
+    void clearData();
 
     // initiates the textures as scalar fields with the given data
     // it ignores any previous textures, so only call init once per pair!
-    void initScalarData(bool isHighRes, float* data);
+    void initScalarData(float scaleFactor, ivec3 size, float* data);
 
     // initiates the textures as vector fields with the given data
     // it ignores any previous textures, so only call init once per pair!
-    void initVectorData(bool isHighRes, vec3* data);
+    void initVectorData(float scaleFactor, ivec3 size, vec3* data);
 
     // binds the data to the provided slot
     // The slot should be GL_TEXTURE0 or any larger number, depending on where you need the texture
@@ -43,17 +53,15 @@ public:
     // returns the result texture. Try to avoid usage of this by calling bindToFramebuffer() instead
     GLuint getResultTexture();
 
-    bool isUsingHighRes();
-
     ivec3 getSize();
 
     float toVoxelScaleFactor();
 };
 
 // creates a scalar data pair with the given data
-DataTexturePair* createScalarDataPair(bool isHighRes, float* data);
+DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings settings);
 
 // create a vector data pair with the given data
-DataTexturePair* createVectorDataPair(bool isHighRes, vec3* data);
+DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings settings);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H

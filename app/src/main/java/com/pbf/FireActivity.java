@@ -33,7 +33,7 @@ public class FireActivity extends FragmentActivity {
     private ConstraintLayout mainLayout;
     private ConstraintLayout constraintLayout;
     private ToggleButton settingsButton;
-    private FireView fire;
+    private FireView view;
 
     private AnimationDrawable animation;
 
@@ -57,14 +57,14 @@ public class FireActivity extends FragmentActivity {
         settingsButton = findViewById(R.id.toggleSettingsButton);
         settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
 
-        fire = new FireView(getApplication());
+        view = new FireView(getApplication());
 
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
 
         init(getResources().getAssets(), dimension.x, dimension.y);
         // Prepend so that settings UI is placed on top of the FireView
-        mainLayout.addView(fire, 0);
+        mainLayout.addView(view, 0);
 
         setContentView(mainLayout);
 
@@ -98,7 +98,7 @@ public class FireActivity extends FragmentActivity {
 
             TransitionSet transitionSet = new TransitionSet();
             transitionSet.addTransition(slideTransition).addTransition(fadeTransition);
-            
+
             settingsFragment.setEnterTransition(transitionSet);
             settingsFragment.setExitTransition(transitionSet);
             getSupportFragmentManager().beginTransaction()

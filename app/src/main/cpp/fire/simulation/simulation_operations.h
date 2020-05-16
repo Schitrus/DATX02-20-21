@@ -6,13 +6,14 @@
 #define DATX02_20_21_SIMULATION_OPERATIONS_H
 
 #include <GLES3/gl31.h>
+#include <fire/settings.h>
 
 #include "slab_operation.h"
 #include "fire/util/data_texture_pair.h"
 #include "fire/util/shader.h"
 
 class SimulationOperations {
-    SlabOperator* slab;
+    SlabOperation slab;
 
     GLuint diffusionBLRTexture, diffusionBHRTexture;
     DataTexturePair* divergence;
@@ -25,40 +26,43 @@ class SimulationOperations {
     Shader vorticityShader;
 
 public:
-    int init(SlabOperator* slab);
+    int init(SlabOperation slab, Settings settings);
 
-    int initShaders();
+    int changeSettings(Settings settings);
 
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float dt, float scale);
+    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt);
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly
-    void advection(DataTexturePair* velocity, DataTexturePair* data, float dt);
-
-    void fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt);
+    void advect(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt);
 
     // Performs heat dissipation on the given temperature field
     void heatDissipation(DataTexturePair* temperature, float dt);
 
     // Adds the given source field multiplied by dt to the target field
-    void addSource(DataTexturePair* data, GLuint& source, float dt);
-    void setSource(DataTexturePair* data, GLuint& source, float dt);
+    void addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt);
 
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
-    //example values: iterationCount = 20, diffusionConstant = 1.0
-    void diffuse(DataTexturePair* data, int iterationCount, float kinematicViscosity, float dt);
+    // Performs diffusion on a texture with given resolution
+    void diffuse(DataTexturePair* data, Resolution res, int iterationCount, float kinematicViscosity, float dt);
 
     // Projects the given *vector* field
-    void projection(DataTexturePair* velocity, int iterationCount);
+    void project(DataTexturePair* velocity, int iterationCount);
 
     // Apply rotational flows
-    void vorticity(DataTexturePair* velocity, float vorticityScale, float dt);
+    void createVorticity(DataTexturePair* velocity, float vorticityScale, float dt);
 
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
 
 private:
+
+    int initShaders();
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
 
     // Performs a number of jacobi iterations with two field inputs
     void jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,

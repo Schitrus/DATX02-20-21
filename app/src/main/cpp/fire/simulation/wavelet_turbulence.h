@@ -11,7 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <android/log.h>
 #include "fire/util/shader.h"
 #include "fire/util/data_texture_pair.h"
 #include "slab_operation.h"
@@ -22,45 +21,71 @@ using namespace glm;
 
 class WaveletTurbulence {
 
-    SlabOperator* slab;
+    SlabOperation slab;
+
+    vec3* advPos;
+    vec3* eigenValues;
+    vec3* jacobianX;
+    vec3* jacobianY;
+    vec3* jacobianZ;
 
     Shader turbulenceShader;
+    Shader waveletShader;
+
     Shader synthesisShader;
     Shader energyShader;
     Shader textureCoordShader;
+    Shader regenerateShader;
+    Shader eigenShader;
+    Shader jacobianShader;
 
     DataTexturePair* wavelet_turbulence;
     DataTexturePair* energy;
     DataTexturePair* texture_coord;
 
-    unsigned int band_min, band_max;
+    DataTexturePair* noiseTexture1;
+    DataTexturePair* noiseTexture2;
+    DataTexturePair* noiseTexture3;
 
-    vec3 corners[8] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
-                       {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
+    DataTexturePair* eigenTexture;
+    DataTexturePair* jacobianXTexture;
+    DataTexturePair* jacobianYTexture;
+    DataTexturePair* jacobianZTexture;
 
-    int num_angles;
-
-    double* angles;
+    float band_min, band_max;
 
 public:
-    int init(SlabOperator* slab);
+    int init(SlabOperation slab, Settings settings);
+
+    int changeSettings(Settings settings);
+
+    void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
+
+private:
+    int initShaders();
+
+    void calcJacobianCol(int axis, DataTexturePair* colTexture);
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
 
     void advection(DataTexturePair* lowerVelocity, float dt);
 
     void calcEnergy(DataTexturePair* lowerVelocity);
 
+    void regenerate(DataTexturePair* lowerVelocity);
+
     void fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity);
 
-    double turbulence(vec3 position, vec3 offset, vec3 size);
-private:
-    int initShaders();
+    vec3* generateGradients(int num_gradients);
 
-    void generateAngles();
-    void generateWavelet();
-    double* generateTurbulence(vec3 size);
-    double perlin(vec3 position);
+    void GenerateWavelet();
+
+    void noise(DataTexturePair* noiseTexture, float band_min, float band_max);
+
+    void calcScattering();
 
 };
-
 
 #endif //DATX02_20_21_WAVELET_TURBULENCE_H

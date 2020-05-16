@@ -25,7 +25,6 @@ class RayRenderer {
     int sim_width, sim_height, max_sim_res;
 
     int texture_width, texture_height, texture_depth;
-    AAssetManager *assetManager;
     GLint threads;
 
     // Framebuffers
@@ -62,19 +61,15 @@ class RayRenderer {
 
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
-    int init(AAssetManager *assetManager);;
+    int init();
 
     void resize(int width, int height);
 
-    void step();
-
-    void setData(GLuint density, GLuint temperature, int width, int height, int depth);
+    void step(GLuint density, GLuint temperature, ivec3 size);
 
     void touch(double dx, double dy);
 
 private:
-
-    void load3DTexture(const char *fileName);
 
     void initSSBO();
 
@@ -87,6 +82,8 @@ private:
     void initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO);
 
     int initProgram();
+
+    void setData(GLuint density, GLuint temperature, ivec3 size);
 
     void simScale();
 

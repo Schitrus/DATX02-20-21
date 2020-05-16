@@ -34,12 +34,12 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-int RayRenderer::init(AAssetManager *assetManager) {
+int RayRenderer::init() {
+
+    clearGLErrors("render initialization");
 
     start_time = NOW;
     last_time = start_time;
-
-    this->assetManager = assetManager;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -58,6 +58,12 @@ int RayRenderer::init(AAssetManager *assetManager) {
     initCube(VAO, VBO, EBO);
     initQuad(quad_VAO, quad_VBO, quad_EBO);
     initSSBO();
+
+    if(!checkGLError("render initialization"))
+    {
+        LOG_ERROR("Render initialization failed");
+        return 0;
+    }
 
     if (!initProgram()) {
         LOG_ERROR("Failed to compile ray_renderer shaders");
@@ -105,8 +111,6 @@ void RayRenderer::resize(int width, int height) {
     window_width = width;
     window_height = height;
 
-    resizeSim();
-
     resizeMaxTexture();
 }
 
@@ -140,23 +144,18 @@ void RayRenderer::simScale() {
     sim_height = min(sim_height, window_height);
 }
 
-void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth) {
+void RayRenderer::setData(GLuint density, GLuint temperature, ivec3 size) {
     densityTexID = density;
     temperatureTexID = temperature;
 
-    texture_width = width;
-    texture_height = height;
-    texture_depth = depth;
+    texture_width = size.x;
+    texture_height = size.y;
+    texture_depth = size.z;
     max_sim_res = max(max(texture_width, texture_height), texture_depth);
     vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float) max_sim_res);
     boundingScale = tex;
 
     resizeSim();
-}
-
-void RayRenderer::load3DTexture(const char *fileName) {
-    ::load3DTexture(assetManager, fileName, 256, 256, 178, &densityTexID);
-    boundingScale = vec3(1, 1, 0.7);
 }
 
 void RayRenderer::initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
@@ -260,7 +259,9 @@ int RayRenderer::initProgram() {
     return success;
 }
 
-void RayRenderer::step() {
+void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
+
+    setData(density, temperature, size);
 
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
@@ -276,8 +277,10 @@ void RayRenderer::step() {
 
     glBindVertexArray(VAO);
 
+    clearGLErrors("rendering");
     // back
-    back_FBO->bind();
+    if(!back_FBO->bind("back rendering"))
+        return;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
@@ -286,8 +289,12 @@ void RayRenderer::step() {
     loadMVP(backFaceShader, current_time);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
+    if(!checkGLError("back rendering"))
+        return;
+
     // front
-    front_FBO->bind();
+    if(!front_FBO->bind("front rendering"))
+        return;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
@@ -301,6 +308,9 @@ void RayRenderer::step() {
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_3D, temperatureTexID);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+    if(!checkGLError("front rendering"))
+        return;
 
     maxCompShader.use();
 
@@ -317,13 +327,15 @@ void RayRenderer::step() {
     glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
     glMemoryBarrier(GL_ALL_SHADER_BITS);
 
-    front_FBO->unbind();
+    if(!checkGLError("max compute"))
+        return;
 
+    front_FBO->unbind();
 
     // quad
     glBindVertexArray(quad_VAO);
     glViewport(0, 0, window_width, window_height);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_CULL_FACE);
 
@@ -335,6 +347,9 @@ void RayRenderer::step() {
     glBindTexture(GL_TEXTURE_2D, maxTexID); //todo
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    if(!checkGLError("final render step"))
+        return;
 
     glBindVertexArray(0);
 

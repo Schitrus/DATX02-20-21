@@ -1,59 +1,86 @@
 package com.pbf;
 
 import android.content.Context;
-import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
-import android.view.OrientationEventListener;
-import android.view.OrientationListener;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-class FireListener implements GLSurfaceView.OnTouchListener {
+import java.util.Queue;
 
-    private double touchX, touchY, oldX, oldY;
+class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener implements View.OnTouchListener, View.OnClickListener {
+
+    private final Queue<Runnable> taskQueue;
+    private double oldXTouch, oldYTouch;
     private float scaleFactor = 1.0f;
     private ScaleGestureDetector scaleDetector;
     private long lastScale = 0;
-    public FireListener(Context context){
-        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+    private long lastClick = 0;
+
+    FireListener(Queue<Runnable> taskQueue, Context context) {
+        this.taskQueue = taskQueue;
+        scaleDetector = new ScaleGestureDetector(context, this);
     }
 
-    public boolean onTouch(View v, MotionEvent event){
-        touchX = event.getX();
-        touchY = event.getY();
-        double deltaX = touchX - oldX;
-        double deltaY = touchY - oldY;
-        oldX = touchX;
-        oldY = touchY;
-        float oldscale = scaleFactor;
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        double touchX = event.getX();
+        double touchY = event.getY();
+        final double deltaX = touchX - oldXTouch;
+        final double deltaY = touchY - oldYTouch;
+        oldXTouch = touchX;
+        oldYTouch = touchY;
+        float oldScale = scaleFactor;
         scaleDetector.onTouchEvent(event);
-        if (oldscale != scaleFactor)
+        if (oldScale != scaleFactor)
             lastScale = scaleDetector.getEventTime();
-        if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE)
-            touch(deltaX, deltaY);
+        if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE) {
+            taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
+                @Override
+                public void run() {
+                    touch(deltaX, deltaY);
+                }
+            });
+        }
+
+        if(deltaX == 0.0 && deltaY == 0.0)
+            v.performClick();
 
         return true;
     }
 
-    public void onOrientationChanged(int orientation){
+    @Override
+    public void onClick(View v) {
 
+        if(System.currentTimeMillis() > lastClick + 100) {
+            lastClick = System.currentTimeMillis();
+            taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
+                @Override
+                public void run() {
+                    onClick();
+                }
+            });
+        }
     }
 
-    private class ScaleListener
-            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            scaleFactor *= detector.getScaleFactor();
+    @Override
+    public boolean onScale(final ScaleGestureDetector detector) {
+        scaleFactor *= detector.getScaleFactor();
 
-            // Don't let the object get too small or too large.
-            scaleFactor = Math.max(0.1f, scaleFactor);
+        // Don't let the object get too small or too large.
+        scaleFactor = Math.max(0.1f, scaleFactor);
 
-            scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
-            return true;
-        }
+        taskQueue.add(new Runnable() {
+            @Override
+            public void run() {
+                scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+            }
+        });
+        return true;
     }
 
     public native void scale(float scaleFactor, double scaleX, double scaleY);
 
     public native void touch(double dx, double dy);
+
+    public native void onClick();
 }
