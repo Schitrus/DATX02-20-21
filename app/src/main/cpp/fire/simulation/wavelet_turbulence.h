@@ -21,7 +21,7 @@ using namespace glm;
 
 class WaveletTurbulence {
 
-    SlabOperator* slab;
+    SlabOperation slab;
 
     vec3* advPos;
     vec3* eigenValues;
@@ -55,9 +55,20 @@ class WaveletTurbulence {
     float band_min, band_max;
 
 public:
-    int init(SlabOperator* slab, Settings settings);
+    int init(SlabOperation slab, Settings settings);
 
     int changeSettings(Settings settings);
+
+    void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
+
+private:
+    int initShaders();
+
+    void calcJacobianCol(int axis, DataTexturePair* colTexture);
+
+    void initTextures(Settings settings);
+
+    void clearTextures();
 
     void advection(DataTexturePair* lowerVelocity, float dt);
 
@@ -69,26 +80,11 @@ public:
 
     vec3* generateGradients(int num_gradients);
 
-    double turbulence(vec3 position, vec3 offset, vec3 size);
-
     void GenerateWavelet();
 
     void noise(DataTexturePair* noiseTexture, float band_min, float band_max);
 
     void calcScattering();
-
-private:
-    int initShaders();
-
-    void calcJacobianCol(int axis, DataTexturePair* colTexture);
-
-    void initTextures(Settings settings);
-
-    void clearTextures();
-
-    void generateWavelet(Settings settings);
-
-    double* generateTurbulence(vec3 size);
 
 };
 

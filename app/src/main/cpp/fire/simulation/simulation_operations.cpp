@@ -11,7 +11,7 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-int SimulationOperations::init(SlabOperator* slab, Settings settings) {
+int SimulationOperations::init(SlabOperation slab, Settings settings) {
     this->slab = slab;
     
     initTextures(settings);
@@ -20,7 +20,9 @@ int SimulationOperations::init(SlabOperator* slab, Settings settings) {
         LOG_ERROR("Failed to compile simulation_operations shaders");
         return 0;
     }
-    
+
+    LOG_INFO("Finished initializing simulation operations");
+
     return 1;
 }
 
@@ -72,26 +74,18 @@ void SimulationOperations::heatDissipation(DataTexturePair* temperature, float d
     temperatureShader.uniform1f("dt", dt);
     temperature->bindData(GL_TEXTURE0);
 
-    slab->fullOperation(temperatureShader, temperature);
+    slab.fullOperation(temperatureShader, temperature);
 }
 
-// todo how (if in any way) should the two source functions apply border restrictions
-void SimulationOperations::addSource(DataTexturePair* data, GLuint& source, float dt) {
-    addSourceShader.use();
-    addSourceShader.uniform1f("dt", dt);
+void SimulationOperations::addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt) {
+    Shader shader = mode == SourceMode::add ? addSourceShader : setSourceShader;
+
+    shader.use();
+    shader.uniform1f("dt", dt);
     data->bindData(GL_TEXTURE0);
     bindData(source, GL_TEXTURE1);
 
-    slab->fullOperation(addSourceShader, data);
-}
-
-void SimulationOperations::setSource(DataTexturePair* data, GLuint& source, float dt) {
-    setSourceShader.use();
-    setSourceShader.uniform1f("dt", dt);
-    data->bindData(GL_TEXTURE0);
-    bindData(source, GL_TEXTURE1);
-
-    slab->fullOperation(setSourceShader, data);
+    slab.fullOperation(shader, data);
 }
 
 void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt){
@@ -106,29 +100,19 @@ void SimulationOperations::buoyancy(DataTexturePair* velocity, DataTexturePair* 
     temperature->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
-    slab->interiorOperation(buoyancyShader, velocity, -1);
+    slab.interiorOperation(buoyancyShader, velocity, -1);
 }
 
-void SimulationOperations::velocityDiffusion(DataTexturePair* velocity, int iterationCount, float kinematicViscosity, float dt) {
+void SimulationOperations::diffuse(DataTexturePair* data, Resolution res, int iterationCount, float kinematicViscosity, float dt) {
 
-    slab->copy(velocity, diffusionBLRTexture);
+    GLuint diffusionTexture = res == Resolution::velocity ? diffusionBLRTexture : diffusionBHRTexture;
+    slab.copy(data, diffusionTexture);
 
-    float dx = 1.0f / velocity->toVoxelScaleFactor();
+    float dx = 1.0f / data->toVoxelScaleFactor();
     float alpha = (dx*dx) / (kinematicViscosity * dt);
     float beta = 6.0f + alpha; // For 3D grids
 
-    jacobiIteration(velocity, diffusionBLRTexture, iterationCount, alpha, beta, -1);
-}
-
-void SimulationOperations::substanceDiffusion(DataTexturePair* substance, int iterationCount, float kinematicViscosity, float dt) {
-
-    slab->copy(substance, diffusionBHRTexture);
-
-    float dx = 1.0f / substance->toVoxelScaleFactor();
-    float alpha = (dx*dx) / (kinematicViscosity * dt);
-    float beta = 6.0f + alpha; // For 3D grids
-
-    jacobiIteration(substance, diffusionBHRTexture, iterationCount, alpha, beta, -1);
+    jacobiIteration(data, diffusionTexture, iterationCount, alpha, beta, -1);
 }
 
 void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRate, float dt){
@@ -138,10 +122,10 @@ void SimulationOperations::dissipate(DataTexturePair* data, float dissipationRat
     dissipateShader.uniform1f("dissipation_rate", dissipationRate);
     data->bindData(GL_TEXTURE0);
 
-    slab->interiorOperation(dissipateShader, data, 0);
+    slab.fullOperation(dissipateShader, data);
 }
 
-void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
+void SimulationOperations::advect(DataTexturePair* velocity, DataTexturePair* data, bool applyVelocityBorder, float dt) {
     advectionShader.use();
     advectionShader.uniform1f("dt", dt);
     advectionShader.uniform1f("meterToVoxels", velocity->toVoxelScaleFactor());
@@ -149,19 +133,12 @@ void SimulationOperations::advection(DataTexturePair* velocity, DataTexturePair*
     velocity->bindData(GL_TEXTURE0);
     data->bindData(GL_TEXTURE1);
 
-    slab->interiorOperation(advectionShader, data, -1);
+    if(applyVelocityBorder)
+        slab.interiorOperation(advectionShader, data, -1);
+    else slab.fullOperation(advectionShader, data);
 }
-void SimulationOperations::fulladvection(DataTexturePair* velocity, DataTexturePair* data, float dt) {
-    advectionShader.use();
-    advectionShader.uniform1f("dt", dt);
-    advectionShader.uniform1f("meterToVoxels", velocity->toVoxelScaleFactor());
-    advectionShader.uniform3f("gridSize", velocity->getSize());
-    velocity->bindData(GL_TEXTURE0);
-    data->bindData(GL_TEXTURE1);
 
-    slab->fullOperation(advectionShader, data);
-}
-void SimulationOperations::projection(DataTexturePair* velocity, int iterationCount){
+void SimulationOperations::project(DataTexturePair* velocity, int iterationCount){
     float dx = 1.0f/velocity->toVoxelScaleFactor();
     float alpha = -(dx*dx);
     float beta = 6.0f;
@@ -178,13 +155,13 @@ void SimulationOperations::projection(DataTexturePair* velocity, int iterationCo
     subtractGradient(velocity, dx);
 }
 
-void SimulationOperations::vorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
+void SimulationOperations::createVorticity(DataTexturePair *velocity, float vorticityScale, float dt) {
     vorticityShader.use();
     vorticityShader.uniform1f("dt", dt);
     vorticityShader.uniform1f("vorticityScale", vorticityScale);
     velocity->bindData(GL_TEXTURE0);
 
-    slab->interiorOperation(vorticityShader, velocity, -1);
+    slab.interiorOperation(vorticityShader, velocity, -1);
 }
 
 void SimulationOperations::createDivergence(DataTexturePair* vectorData, float dx) {
@@ -192,7 +169,7 @@ void SimulationOperations::createDivergence(DataTexturePair* vectorData, float d
     divergenceShader.uniform1f("dh", dx);
     vectorData->bindData(GL_TEXTURE0);
 
-    slab->interiorOperation(divergenceShader, divergence, 1);
+    slab.interiorOperation(divergenceShader, divergence, 1);
 }
 
 void SimulationOperations::jacobiIteration(DataTexturePair *xTexturePair, GLuint bTexture,
@@ -205,7 +182,7 @@ void SimulationOperations::jacobiIteration(DataTexturePair *xTexturePair, GLuint
         jacobiShader.uniform1f("beta", beta);
         xTexturePair->bindData(GL_TEXTURE0);
 
-        slab->interiorOperation(jacobiShader, xTexturePair, scale);
+        slab.interiorOperation(jacobiShader, xTexturePair, scale);
     }
 }
 
@@ -215,7 +192,7 @@ void SimulationOperations::subtractGradient(DataTexturePair* velocity, float dx)
     jacobi->bindData(GL_TEXTURE0);
     velocity->bindData(GL_TEXTURE1);
 
-    slab->interiorOperation(gradientShader, velocity, -1);
+    slab.interiorOperation(gradientShader, velocity, -1);
 }
 
 void SimulationOperations::addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt) {
@@ -225,5 +202,5 @@ void SimulationOperations::addWind(DataTexturePair* velocity, float wind_angle, 
     windShader.uniform1f("wind_strength", wind_strength);
     velocity->bindData(GL_TEXTURE0);
 
-    slab->interiorOperation(windShader, velocity, -1);
+    slab.interiorOperation(windShader, velocity, -1);
 }

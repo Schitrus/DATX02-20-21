@@ -62,18 +62,20 @@ void Framebuffer::clear() {
     RBO = 0;
 }
 
-void Framebuffer::resize(int width, int height){
-    this->width = width;
-    this->height = height;
-    FBO.bind();
-    // Allocate a texture
-    glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
-    glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
+void Framebuffer::resize(int width, int height) {
+    if(this->width != width || this->height != height) {
+        this->width = width;
+        this->height = height;
+        FBO.bind();
+        // Allocate a texture
+        glBindTexture(GL_TEXTURE_2D, colorTextureTarget);
+        glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, GL_RGBA, format, NULL);
 
-    // Allocate for renderBuffer
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    unbind();
+        // Allocate for renderBuffer
+        glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+        FBO.unbind();
+    }
 }
 
 GLuint Framebuffer::texture(){

@@ -23,7 +23,7 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 
 int Fire::init() {
     Settings settings = nextSettings();
-    return renderer.init(assetManager) && simulator.init(settings);
+    return renderer.init() && simulator.init(settings);
 }
 
 void Fire::resize(int width, int height){
@@ -31,12 +31,12 @@ void Fire::resize(int width, int height){
 }
 
 void Fire::update(){
-    simulator.update();
     GLuint density, temperature;
-    int width, height, depth;
-    simulator.getData(density, temperature, width, height, depth);
-    renderer.setData(density, temperature, width, height, depth);
-    renderer.update();
+    ivec3 size;
+
+    simulator.update(density, temperature, size);
+
+    renderer.update(density, temperature, size);
 }
 
 void Fire::touch(double dx, double dy){

@@ -12,7 +12,7 @@
 #include "fire/util/simple_framebuffer.h"
 #include "fire/util/data_texture_pair.h"
 
-class SlabOperator {
+class SlabOperation {
 
     // Framebuffer
     SimpleFramebuffer* FBO;
@@ -55,10 +55,6 @@ public:
     // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
 
-    // Sets the depth uniform on the shader and then draws both the interior and boundary
-    // Returns true if the operation succeeded without an error
-    bool drawAllToTexture(Shader shader, int depth, ivec3 size);
-
 private:
     void initLine();
     void initQuad();
@@ -68,13 +64,17 @@ private:
 
     bool drawFrontOrBackBoundary(DataTexturePair* data, int scale, int depth);
 
+    // Sets the depth uniform on the shader and then draws both the interior and boundary
+    // Returns true if the operation succeeded without an error
+    bool drawLayer(Shader shader, int depth, ivec3 size);
+
     // Sets the depth uniform on the shader and then draws the interior
     // Returns true if the operation succeeded without an error
-    bool drawInteriorToTexture(Shader shader, int depth, ivec3 size);
+    bool drawLayerInterior(Shader shader, int depth, ivec3 size);
 
     // Sets the depth uniform on the shader and then draws the boundary
     // Returns true if the operation succeeded without an error
-    bool drawBoundaryToTexture(Shader shader, int depth, ivec3 size);
+    bool drawLayerBoundary(Shader shader, int depth, ivec3 size);
 };
 
 #endif //DATX02_20_21_SLAB_OPERATION_H

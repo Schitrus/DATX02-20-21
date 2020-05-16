@@ -1,19 +1,16 @@
 package com.pbf;
 
 import android.content.Context;
-import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
-import android.view.OrientationEventListener;
-import android.view.OrientationListener;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.Queue;
 
-class FireListener implements View.OnTouchListener, View.OnClickListener {
+class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener implements View.OnTouchListener, View.OnClickListener {
 
     private final Queue<Runnable> taskQueue;
-    private double touchX, touchY, oldX, oldY;
+    private double oldXTouch, oldYTouch;
     private float scaleFactor = 1.0f;
     private ScaleGestureDetector scaleDetector;
     private long lastScale = 0;
@@ -21,20 +18,20 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
 
     FireListener(Queue<Runnable> taskQueue, Context context) {
         this.taskQueue = taskQueue;
-        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        scaleDetector = new ScaleGestureDetector(context, this);
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        touchX = event.getX();
-        touchY = event.getY();
-        final double deltaX = touchX - oldX;
-        final double deltaY = touchY - oldY;
-        oldX = touchX;
-        oldY = touchY;
-        float oldscale = scaleFactor;
+        double touchX = event.getX();
+        double touchY = event.getY();
+        final double deltaX = touchX - oldXTouch;
+        final double deltaY = touchY - oldYTouch;
+        oldXTouch = touchX;
+        oldYTouch = touchY;
+        float oldScale = scaleFactor;
         scaleDetector.onTouchEvent(event);
-        if (oldscale != scaleFactor)
+        if (oldScale != scaleFactor)
             lastScale = scaleDetector.getEventTime();
         if(((lastScale + 100) < event.getEventTime()) && event.getAction() == MotionEvent.ACTION_MOVE) {
             taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
@@ -65,18 +62,20 @@ class FireListener implements View.OnTouchListener, View.OnClickListener {
         }
     }
 
-    private class ScaleListener
-            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            scaleFactor *= detector.getScaleFactor();
+    @Override
+    public boolean onScale(final ScaleGestureDetector detector) {
+        scaleFactor *= detector.getScaleFactor();
 
-            // Don't let the object get too small or too large.
-            scaleFactor = Math.max(0.1f, scaleFactor);
+        // Don't let the object get too small or too large.
+        scaleFactor = Math.max(0.1f, scaleFactor);
 
-            scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
-            return true;
-        }
+        taskQueue.add(new Runnable() {
+            @Override
+            public void run() {
+                scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+            }
+        });
+        return true;
     }
 
     public native void scale(float scaleFactor, double scaleX, double scaleY);

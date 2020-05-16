@@ -21,17 +21,13 @@
 
 int Simulator::init(Settings settings) {
 
-    slab = new SlabOperator();
-    operations = new SimulationOperations();
-    wavelet = new WaveletTurbulence();
-
-    if (!slab->init())
+    if (!slab.init())
         return 0;
 
-    if(!operations->init(slab, settings))
+    if(!operations.init(slab, settings))
         return 0;
 
-    if(!wavelet->init(slab, settings))
+    if(!wavelet.init(slab, settings))
         return 0;
 
     this->settings = settings;
@@ -39,6 +35,9 @@ int Simulator::init(Settings settings) {
 
     start_time = NOW;
     last_time = start_time;
+
+    LOG_INFO("Finished initializing simulator");
+
     return 1;
 }
 
@@ -51,10 +50,10 @@ int Simulator::changeSettings(Settings settings) {
     start_time = NOW;
     last_time = start_time;
 
-    return operations->changeSettings(settings) && wavelet->changeSettings(settings);
+    return operations.changeSettings(settings) && wavelet.changeSettings(settings);
 }
 
-void Simulator::update(){
+void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
     // todo maybe put a cap on the delta time to not get too big time steps during lag?
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
@@ -62,27 +61,24 @@ void Simulator::update(){
     if(settings.getDeltaTime() != 0.0f)
         delta_time = settings.getDeltaTime();
 
-    slab->prepare();
+    slab.prepare();
 
     velocityStep(delta_time);
 
-    waveletStep(delta_time);
-
-    densityStep(delta_time);
+    smokeDensityStep(delta_time);
 
     temperatureStep(delta_time);
 
-    slab->finish();
+    slab.finish();
 
+    getData(densityData, temperatureData, size);
 }
 
-void Simulator::getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth){
+void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
     temperatureData = temperature->getDataTexture();
-    densityData = density->getDataTexture();
+    densityData = smokeDensity->getDataTexture();
     ivec3 highResSize = settings.getSize(Resolution::substance);
-    width = highResSize.x;
-    height = highResSize.y;
-    depth = highResSize.z;
+    size = highResSize;
 }
 
 void Simulator::initData() {
@@ -99,7 +95,7 @@ void Simulator::initData() {
     initSourceField(density_source, settings.getSmokeSourceDensity(), Resolution::substance, settings);
     initSourceField(temperature_source, settings.getTempSourceDensity(), Resolution::substance, settings);
 
-    density = createScalarDataPair(density_field, Resolution::substance, settings);
+    smokeDensity = createScalarDataPair(density_field, Resolution::substance, settings);
     createScalar3DTexture(&densitySource, highResSize, density_source);
 
     temperature = createScalarDataPair(temperature_field, Resolution::substance, settings);
@@ -113,7 +109,7 @@ void Simulator::initData() {
 }
 
 void Simulator::clearData() {
-    delete density, delete temperature, delete lowerVelocity, delete higherVelocity;
+    delete smokeDensity, delete temperature, delete lowerVelocity, delete higherVelocity;
     glDeleteTextures(1, &densitySource);
     glDeleteTextures(1, &temperatureSource);
     glDeleteTextures(1, &velocitySource);
@@ -122,38 +118,29 @@ void Simulator::clearData() {
 void Simulator::velocityStep(float dt){
     // Source
     if(settings.getBuoyancyScale() != 0.0f)
-        operations->buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
+        operations.buoyancy(lowerVelocity, temperature, settings.getBuoyancyScale(), dt);
 
     if(settings.getWindScale() != 0.0f)
         updateAndApplyWind(settings.getWindScale(), dt);
 
     // Advect
-    operations->advection(lowerVelocity, lowerVelocity, dt);
+    operations.advect(lowerVelocity, lowerVelocity, true, dt);
 
     // Diffuse
     if(settings.getVelKinematicViscosity() != 0.0f)
-        operations->velocityDiffusion(lowerVelocity, settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
+        operations.diffuse(lowerVelocity, Resolution::velocity,
+                settings.getVelDiffusionIterations(), settings.getVelKinematicViscosity(), dt);
 
     // Vorticity
     if(settings.getVorticityScale() != 0.0f)
-        operations->vorticity(lowerVelocity, settings.getVorticityScale(), dt);
+        operations.createVorticity(lowerVelocity, settings.getVorticityScale(), dt);
   
     // Project
     if(settings.getProjectionIterations() != 0)
-        operations->projection(lowerVelocity, settings.getProjectionIterations());
-}
+        operations.project(lowerVelocity, settings.getProjectionIterations());
 
-void Simulator::waveletStep(float dt){
-    // Advect texture coordinates
-    wavelet->advection(lowerVelocity, dt);
-
-    wavelet->calcEnergy(lowerVelocity);
-
-    wavelet->calcScattering();
-
-    wavelet->regenerate(lowerVelocity);
-
-    wavelet->fluidSynthesis(lowerVelocity, higherVelocity);
+    // Go from low-res velocity to high-res velocity using Wavelet
+    wavelet.waveletStep(lowerVelocity, higherVelocity, dt);
 }
 
 void Simulator::updateAndApplyWind(float scale, float dt) {
@@ -162,43 +149,39 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 
     float windStrength = scale*(12.0f + 11*sin(windAngle*2.14f + 123));
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
-    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
+    operations.addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
     // Force
-    handleSource(temperature, temperatureSource, dt);
+    operations.addSource(temperature, temperatureSource, settings.getSourceMode(), dt);
 
     // Advection
-    operations->fulladvection(higherVelocity, temperature, dt);
+    operations.advect(higherVelocity, temperature, false, dt);
 
     // Diffusion
     if(settings.getTempKinematicViscosity() != 0.0f)
-        operations->substanceDiffusion(temperature, settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
+        operations.diffuse(temperature, Resolution::substance,
+                settings.getTempDiffusionIterations(), settings.getTempKinematicViscosity(), dt);
 
     // Dissipation
-    operations->heatDissipation(temperature, dt);
+    operations.heatDissipation(temperature, dt);
 
 }
 
-void Simulator::densityStep(float dt){
+void Simulator::smokeDensityStep(float dt) {
     // addForce
-    handleSource(density, densitySource, dt);
+    operations.addSource(smokeDensity, densitySource, settings.getSourceMode(), dt);
 
     // Advect
-    operations->fulladvection(higherVelocity, density, dt);
+    operations.advect(higherVelocity, smokeDensity, false, dt);
 
     // Diffuse
     if(settings.getSmokeKinematicViscosity() != 0.0f)
-        operations->substanceDiffusion(density, settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
+        operations.diffuse(smokeDensity, Resolution::substance,
+                settings.getSmokeDiffusionIterations(), settings.getSmokeKinematicViscosity(), dt);
 
     // Dissipate
     if(settings.getSmokeDissipation() != 0.0f)
-        operations->dissipate(density, settings.getSmokeDissipation(), dt);
-}
-
-void Simulator::handleSource(DataTexturePair *substance, GLuint source, float dt) {
-    if(settings.getSourceMode() == SourceMode::set)
-        operations->setSource(substance, source, dt);
-    else operations->addSource(substance, source, dt);
+        operations.dissipate(smokeDensity, settings.getSmokeDissipation(), dt);
 }

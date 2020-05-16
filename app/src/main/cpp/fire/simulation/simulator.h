@@ -17,13 +17,13 @@ using std::chrono::time_point;
 using std::chrono::system_clock;
 
 class Simulator {
-    SlabOperator* slab;
-    SimulationOperations* operations;
-    WaveletTurbulence* wavelet;
+    SlabOperation slab;
+    SimulationOperations operations;
+    WaveletTurbulence wavelet;
 
     Settings settings;
 
-    DataTexturePair* density;
+    DataTexturePair* smokeDensity;
     DataTexturePair* temperature;
     DataTexturePair* lowerVelocity;
     DataTexturePair* higherVelocity;
@@ -42,9 +42,7 @@ public:
 
     int changeSettings(Settings settings);
 
-    void update();
-
-    void getData(GLuint& densityData, GLuint& temperatureData, int& width, int& height, int& depth);
+    void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
 private:
 
@@ -52,18 +50,16 @@ private:
 
     void clearData();
 
+    void getData(GLuint& densityData, GLuint& temperatureData, ivec3& size);
+
     // Performs one fire.simulation step for velocity
     void velocityStep(float dt);
-
-    void waveletStep(float dt);
 
     void updateAndApplyWind(float scale, float dt);
 
     void temperatureStep( float dt);
 
-    void densityStep(float dt);
-
-    void handleSource(DataTexturePair* substance, GLuint source, float dt);
+    void smokeDensityStep(float dt);
 };
 
 #endif //DATX02_20_21_SIMULATOR_H

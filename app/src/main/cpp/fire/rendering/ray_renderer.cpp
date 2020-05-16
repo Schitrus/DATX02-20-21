@@ -34,14 +34,12 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-int RayRenderer::init(AAssetManager *assetManager) {
+int RayRenderer::init() {
 
     clearGLErrors("render initialization");
 
     start_time = NOW;
     last_time = start_time;
-
-    this->assetManager = assetManager;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -113,8 +111,6 @@ void RayRenderer::resize(int width, int height) {
     window_width = width;
     window_height = height;
 
-    resizeSim();
-
     resizeMaxTexture();
 }
 
@@ -148,23 +144,18 @@ void RayRenderer::simScale() {
     sim_height = min(sim_height, window_height);
 }
 
-void RayRenderer::setData(GLuint density, GLuint temperature, int width, int height, int depth) {
+void RayRenderer::setData(GLuint density, GLuint temperature, ivec3 size) {
     densityTexID = density;
     temperatureTexID = temperature;
 
-    texture_width = width;
-    texture_height = height;
-    texture_depth = depth;
+    texture_width = size.x;
+    texture_height = size.y;
+    texture_depth = size.z;
     max_sim_res = max(max(texture_width, texture_height), texture_depth);
     vec3 tex = vec3(texture_width, texture_height, texture_depth) / ((float) max_sim_res);
     boundingScale = tex;
 
     resizeSim();
-}
-
-void RayRenderer::load3DTexture(const char *fileName) {
-    ::load3DTexture(assetManager, fileName, 256, 256, 178, &densityTexID);
-    boundingScale = vec3(1, 1, 0.7);
 }
 
 void RayRenderer::initQuad(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
@@ -268,7 +259,9 @@ int RayRenderer::initProgram() {
     return success;
 }
 
-void RayRenderer::step() {
+void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
+
+    setData(density, temperature, size);
 
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);

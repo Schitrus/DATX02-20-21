@@ -19,6 +19,11 @@ void initSourceField(float* field, float value, Resolution res, Settings setting
 
         fillSphere(field, value, center1, radius, res, settings);
         fillSphere(field, value, center2, radius, res, settings);
+    } else if(settings.getSourceType() == SourceType::floor) {
+        vec3 minPos = vec3(0);
+        vec3 maxPos = vec3(1, 0.1f, 1) * settings.getSimulationSize();
+
+        fillField(field, value, minPos, maxPos, res, settings);
     }
 }
 
