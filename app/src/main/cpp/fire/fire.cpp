@@ -17,13 +17,14 @@
 
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
     : javaEnvironment(javaEnvironment), assetManager(assetManager),
-      screen_width(width), screen_height(height) {
+      screen_width(width), screen_height(height), shouldUpdateSettings(false) {
     initFileLoader(assetManager);
 }
 
 int Fire::init() {
-    Settings settings = nextSettings();
-    return renderer.init() && simulator.init(settings);
+    settings = new Settings;
+    *settings = nextSettings();
+    return renderer.init() && simulator.init(*settings);
 }
 
 void Fire::resize(int width, int height){
@@ -33,6 +34,11 @@ void Fire::resize(int width, int height){
 void Fire::update(){
     GLuint density, temperature;
     ivec3 size;
+
+    if(shouldUpdateSettings){
+        simulator.changeSettings(*settings);
+        shouldUpdateSettings =  false;
+    }
 
     simulator.update(density, temperature, size);
 
@@ -48,10 +54,18 @@ void Fire::scale(float scaleFactor, double scaleX, double scaleY){
 }
 
 void Fire::onClick() {
-    Settings newSettings = nextSettings();
-    std::string name = newSettings.getName();
-    LOG_INFO("Changing settings to %s", name.data());
-    simulator.changeSettings(newSettings);
+    //Settings newSettings = nextSettings();
+    //std::string name = newSettings.getName();
+    //LOG_INFO("Changing settings to %s", name.data());
+    *settings = nextSettings();
+    shouldUpdateSettings = true;
+    //simulator.changeSettings(newSettings);
+}
+
+void Fire::updateWind(int strength) {
+    *settings = settings->withWindScale(strength);
+    LOG_INFO("WindUpdate, %d", strength);
+    shouldUpdateSettings = true;
 }
 
 
@@ -98,3 +112,6 @@ JC(void) Java_com_pbf_FireListener_onClick(JCT){
     fire->onClick();
 }
 
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength){
+    fire->updateWind(strength);
+}

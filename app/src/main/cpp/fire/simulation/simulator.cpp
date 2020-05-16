@@ -147,7 +147,7 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
 
     windAngle += dt*0.5f;
 
-    float windStrength = scale*(12.0f + 11*sin(windAngle*2.14f + 123));
+    float windStrength = settings.getWindScale();
     LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     operations.addWind(lowerVelocity, windAngle, windStrength, dt);
 }

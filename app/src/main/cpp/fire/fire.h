@@ -12,6 +12,7 @@
 
 #include "rendering/renderer.h"
 #include "simulation/simulator.h"
+#include "settings.h"
 
 /*
  Did you ever hear the tragedy of Darth Plagueis The Wise?
@@ -29,6 +30,11 @@
 */
 class Fire{
     int screen_width, screen_height;
+
+    bool shouldUpdateSettings;
+
+    Settings* settings;
+
 public:
 
     Renderer renderer;
@@ -47,6 +53,8 @@ public:
     void scale(float scaleFactor, double scaleX, double scaleY);
 
     void onClick();
+
+    void updateWind(int strength);
 };
 
 Fire* fire;
@@ -68,5 +76,7 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT);
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
+
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength);
 
 #endif //DATX02_20_21_FIRE_H

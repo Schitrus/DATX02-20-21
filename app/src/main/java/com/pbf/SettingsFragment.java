@@ -27,7 +27,7 @@ public class SettingsFragment extends Fragment {
     private static final int VISCOSITY_MIN = 1;
     private static final int VISCOSITY_MAX = 10;
     private static final int WIND_MIN = 0;
-    private static final int WIND_MAX = 10;
+    private static final int WIND_MAX = 100;
 
     private enum ResolutionItems{
             LOW, MEDIUM, HIGH;
@@ -115,7 +115,7 @@ public class SettingsFragment extends Fragment {
     private void initWindBar(View v){
         windBar = v.findViewById(R.id.windBar);
         windValueText = v.findViewById(R.id.windValueText);
-
+        
         windBar.setOnSeekBarChangeListener(
                 new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX)
         );
@@ -171,6 +171,8 @@ public class SettingsFragment extends Fragment {
             this.seekBar = seekBar;
             this.seekBarText = seekBarText;
             seekBar.setMax(maxValue);
+
+            seekBarText.setText(String.valueOf(minValue));
         }
 
         @Override
@@ -179,6 +181,8 @@ public class SettingsFragment extends Fragment {
                 i = minValue;
             }
             seekBarText.setText(String.valueOf(i));
+            if(seekBar.getId() == R.id.windBar)
+                updateWind(i);
         }
 
         @Override
@@ -190,5 +194,7 @@ public class SettingsFragment extends Fragment {
         public void onStopTrackingTouch(SeekBar seekBar) {
 
         }
+
+        public native void updateWind(int strength);
     }
 }
