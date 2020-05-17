@@ -54,7 +54,8 @@ public:
 
     void onClick();
 
-    void updateWind(int strength);
+    void updateWind(float strength);
+    void updateVorticity(float vorticityScale);
 
     bool changedSettings();
 };
@@ -79,7 +80,9 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength);
+
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale);
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT);
 

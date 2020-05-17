@@ -17,18 +17,26 @@ import androidx.fragment.app.Fragment;
 
 import com.example.datx02_20_21.R;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class SettingsFragment extends Fragment {
 
     private static final int VORTICITY_MIN = 0;
-    private static final int VORTICITY_MAX = 10;
+    private static final int VORTICITY_MAX = 1000;
+    private static final float VORTICITY_STEP = 0.05f;
     private static final int ITERATIONS_MIN = 1;
     private static final int ITERATIONS_MAX = 100;
+    private static final float ITERATIONS_STEP = 1.0f;
     private static final int BUOYANCY_MIN = 0;
-    private static final int BUOYANCY_MAX = 10;
+    private static final int BUOYANCY_MAX = 100;
+    private static final float BUOYANCY_STEP = 0.1f;
     private static final int VISCOSITY_MIN = 1;
-    private static final int VISCOSITY_MAX = 10;
+    private static final int VISCOSITY_MAX = 1000;
+    private static final float VISCOSITY_STEP = 0.01f;
     private static final int WIND_MIN = 0;
-    private static final int WIND_MAX = 250;
+    private static final int WIND_MAX = 1000;
+    private static final float WIND_STEP = 0.25f;
 
     private enum ResolutionItems{
             LOW, MEDIUM, HIGH;
@@ -82,7 +90,7 @@ public class SettingsFragment extends Fragment {
         vorticityValueText = v.findViewById(R.id.vorticityValueText);
 
         vorticityBar.setOnSeekBarChangeListener(
-                new SliderBarListener(vorticityBar, vorticityValueText, VORTICITY_MIN, VORTICITY_MAX)
+                new SliderBarListener(vorticityBar, vorticityValueText, VORTICITY_MIN, VORTICITY_MAX, VORTICITY_STEP)
         );
     }
 
@@ -91,7 +99,7 @@ public class SettingsFragment extends Fragment {
         iterationsValueText = v.findViewById(R.id.iterationsValueText);
 
        iterationsBar.setOnSeekBarChangeListener(
-               new SliderBarListener(iterationsBar, iterationsValueText, ITERATIONS_MIN, ITERATIONS_MAX)
+               new SliderBarListener(iterationsBar, iterationsValueText, ITERATIONS_MIN, ITERATIONS_MAX, ITERATIONS_STEP)
        );
     }
 
@@ -100,7 +108,7 @@ public class SettingsFragment extends Fragment {
         buoyancyValueText = v.findViewById(R.id.buoyancyValueText);
 
         buoyancyBar.setOnSeekBarChangeListener(
-                new SliderBarListener(buoyancyBar, buoyancyValueText, BUOYANCY_MIN, BUOYANCY_MAX)
+                new SliderBarListener(buoyancyBar, buoyancyValueText, BUOYANCY_MIN, BUOYANCY_MAX, BUOYANCY_STEP)
         );
     }
 
@@ -109,7 +117,7 @@ public class SettingsFragment extends Fragment {
         viscosityValueText = v.findViewById(R.id.viscosityValueText);
 
         viscosityBar.setOnSeekBarChangeListener(
-                new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX)
+                new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX, VISCOSITY_STEP)
         );
     }
 
@@ -118,7 +126,7 @@ public class SettingsFragment extends Fragment {
         windValueText = v.findViewById(R.id.windValueText);
 
         windBar.setOnSeekBarChangeListener(
-                new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX)
+                new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX, WIND_STEP)
         );
     }
 
@@ -165,11 +173,13 @@ public class SettingsFragment extends Fragment {
         private TextView seekBarText;
         private final int minValue;
         private final int maxValue;
+        private final float step;
         private int value;
 
-        public SliderBarListener(SeekBar seekBar, TextView seekBarText, int minValue, int maxValue){
+        public SliderBarListener(SeekBar seekBar, TextView seekBarText, int minValue, int maxValue, float step){
             this.minValue = minValue;
             this.maxValue = maxValue;
+            this.step = step;
             this.seekBar = seekBar;
             this.seekBarText = seekBarText;
             seekBar.setMax(maxValue);
@@ -183,7 +193,15 @@ public class SettingsFragment extends Fragment {
                 i = minValue;
             }
             value = i;
-            seekBarText.setText(String.valueOf(value));
+            seekBarText.setText(String.valueOf(round(value*step, 2)));
+        }
+
+        private static double round(double value, int places) {
+            if (places < 0) throw new IllegalArgumentException();
+
+            BigDecimal bd = new BigDecimal(Double.toString(value));
+            bd = bd.setScale(places, RoundingMode.HALF_UP);
+            return bd.doubleValue();
         }
 
         @Override
@@ -194,13 +212,13 @@ public class SettingsFragment extends Fragment {
         public void onStopTrackingTouch(SeekBar seekBar) {
             switch (seekBar.getId()){
                 case R.id.windBar:
-                    updateWind(value);
-                //case R.id.vorticityBar:
-                //    updateVorticity(value);
+                    updateWind((value*step));
+                case R.id.vorticityBar:
+                    updateVorticity((value*step));
             }
         }
 
-        public native void updateWind(int strength);
-        //public native void updateVorticity(int vorticityScale);
+        public native void updateWind(float strength);
+        public native void updateVorticity(float vorticityScale);
     }
 }

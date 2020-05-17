@@ -62,9 +62,15 @@ void Fire::onClick() {
     //simulator.changeSettings(newSettings);
 }
 
-void Fire::updateWind(int strength) {
+void Fire::updateWind(float strength) {
     *settings = settings->withWindScale(strength);
     LOG_INFO("WindUpdate, %d", strength);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateVorticity(float vorticityScale) {
+    *settings = settings->withVorticityScale(vorticityScale);
+    LOG_INFO("VorticityUpdate, %d", vorticityScale);
     shouldUpdateSettings = true;
 }
 
@@ -116,8 +122,12 @@ JC(void) Java_com_pbf_FireListener_onClick(JCT){
     fire->onClick();
 }
 
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jint strength){
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength){
     fire->updateWind(strength);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale){
+    fire->updateVorticity(vorticityScale);
 }
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){
