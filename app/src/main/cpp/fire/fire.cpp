@@ -64,13 +64,31 @@ void Fire::onClick() {
 
 void Fire::updateWind(float strength) {
     *settings = settings->withWindScale(strength);
-    LOG_INFO("WindUpdate, %d", strength);
+    LOG_INFO("WindUpdate, %f", strength);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateVorticity(float vorticityScale) {
     *settings = settings->withVorticityScale(vorticityScale);
-    LOG_INFO("VorticityUpdate, %d", vorticityScale);
+    LOG_INFO("VorticityUpdate, %f", vorticityScale);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateBuoyancy(float buoyancyScale) {
+    *settings = settings->withBuoyancyScale(buoyancyScale);
+    LOG_INFO("BuoyancyUpdate, %f", buoyancyScale);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateViscosity(float viscosity) {
+    //TODO ADD VISCOSITY
+    LOG_INFO("ViscosityUpdate, %f", viscosity);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateIterations(int iterations) {
+    *settings = settings->withProjectIterations(iterations);
+    LOG_INFO("IterationsUpdate, %d", iterations);
     shouldUpdateSettings = true;
 }
 
@@ -128,6 +146,16 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jf
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale){
     fire->updateVorticity(vorticityScale);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT, jfloat buoyancyScale){
+    fire->updateBuoyancy(buoyancyScale);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity){
+    fire->updateViscosity(viscosity);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations){
+    fire->updateIterations(iterations);
 }
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){

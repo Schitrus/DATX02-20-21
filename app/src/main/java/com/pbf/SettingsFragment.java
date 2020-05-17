@@ -212,13 +212,29 @@ public class SettingsFragment extends Fragment {
         public void onStopTrackingTouch(SeekBar seekBar) {
             switch (seekBar.getId()){
                 case R.id.windBar:
-                    updateWind((value*step));
+                    updateWind(value*step);
+                    break;
                 case R.id.vorticityBar:
-                    updateVorticity((value*step));
+                    updateVorticity(value*step);
+                    break;
+                case R.id.buoyancyBar:
+                    updateBuoyancy(value*step);
+                    break;
+                case R.id.iterationsBar:
+                    updateIterations((int)(value*step));
+                    break;
+                case R.id.viscosityBar:
+                    updateViscosity(value*step);
+                    break;
+                case R.id.resolutionSpinner:
+                    break;
             }
         }
 
         public native void updateWind(float strength);
         public native void updateVorticity(float vorticityScale);
+        public native void updateBuoyancy(float buoyancyScale);
+        public native void updateIterations(int iterations);
+        public native void updateViscosity(float viscosity);
     }
 }

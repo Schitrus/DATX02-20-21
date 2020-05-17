@@ -56,6 +56,10 @@ public:
 
     void updateWind(float strength);
     void updateVorticity(float vorticityScale);
+    void updateBuoyancy(float buoyancyScale);
+    void updateViscosity(float viscosity);
+    void updateIterations(int iterations);
+
 
     bool changedSettings();
 };
@@ -81,8 +85,11 @@ JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength);
-
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT, jfloat buoyancyScale);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations);
+
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT);
 
