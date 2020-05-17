@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.transition.Slide;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.Gravity;
@@ -34,6 +35,7 @@ public class FireActivity extends FragmentActivity {
     private SettingsFragment settingsFragment;
     private ConstraintLayout mainLayout;
     private ConstraintLayout constraintLayout;
+    private ConstraintLayout scrollView;
     private ToggleButton settingsButton;
     private FireView view;
 
@@ -48,13 +50,15 @@ public class FireActivity extends FragmentActivity {
         animation = (AnimationDrawable)loading.getDrawable();
         animation.start();
 
-        loading.setVisibility(View.INVISIBLE);
+        //loading.setVisibility(View.INVISIBLE);
 
         settingsFragment = new SettingsFragment();
 
         mainLayout = findViewById(R.id.mainLayout);
 
         constraintLayout = findViewById(R.id.constraintLayout);
+        scrollView = findViewById(R.id.scrollViewContainer);
+        //scrollView.setVisibility(View.GONE);
 
         settingsButton = findViewById(R.id.toggleSettingsButton);
         settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
@@ -67,6 +71,8 @@ public class FireActivity extends FragmentActivity {
         init(getResources().getAssets(), dimension.x, dimension.y);
         // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(view, 0);
+
+        findViewById(R.id.scrollViewContainer).setVisibility(View.INVISIBLE);
 
         setContentView(mainLayout);
 
@@ -100,22 +106,45 @@ public class FireActivity extends FragmentActivity {
             Fade fadeTransition = new Fade();
             fadeTransition.setDuration(DURATION_IN_MILLISECONDS);
 
-            TransitionSet transitionSet = new TransitionSet();
-            transitionSet.addTransition(slideTransition).addTransition(fadeTransition);
+            TransitionSet transition = new TransitionSet();
+            transition.addTransition(slideTransition).addTransition(fadeTransition);
 
-            settingsFragment.setEnterTransition(transitionSet);
-            settingsFragment.setExitTransition(transitionSet);
+            settingsFragment.setEnterTransition(transition);
+            settingsFragment.setExitTransition(transition);
+
+            findViewById(R.id.scrollViewContainer).setVisibility(View.VISIBLE);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.settingsContainer, settingsFragment)
                     .commit();
         }
 
-        private void removeFragment(){
+        private void removeFragment() {
             //for (Fragment fragment : getSupportFragmentManager().getFragments()) {
               //  getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             //}
 
             getSupportFragmentManager().beginTransaction().remove(settingsFragment).commit();
+
+            Thread t = new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(DURATION_IN_MILLISECONDS);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.scrollViewContainer).setVisibility(View.INVISIBLE);
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            t.start();
+
         }
 
         // Rotate Button 180 degress counter-clockwise

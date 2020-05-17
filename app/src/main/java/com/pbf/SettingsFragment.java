@@ -192,10 +192,15 @@ public class SettingsFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            if(seekBar.getId() == R.id.windBar)
-                updateWind(value);
+            switch (seekBar.getId()){
+                case R.id.windBar:
+                    updateWind(value);
+                //case R.id.vorticityBar:
+                //    updateVorticity(value);
+            }
         }
 
         public native void updateWind(int strength);
+        //public native void updateVorticity(int vorticityScale);
     }
 }
