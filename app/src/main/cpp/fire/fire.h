@@ -60,6 +60,7 @@ public:
     void updateViscosity(float viscosity);
     void updateIterations(int iterations);
 
+    void updateResolution(int width, int height, int depth);
 
     bool changedSettings();
 };
@@ -90,6 +91,7 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations);
 
+JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint width, jint height, jint depth);
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT);
 

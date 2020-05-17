@@ -42,8 +42,8 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
             });
         }
 
-        if(deltaX == 0.0 && deltaY == 0.0)
-            v.performClick();
+        //if(deltaX == 0.0 && deltaY == 0.0)
+        //    v.performClick();
 
         return true;
     }

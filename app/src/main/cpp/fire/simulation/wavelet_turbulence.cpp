@@ -12,6 +12,7 @@
 #include <android/log.h>
 
 #include <fire/util/helper.h>
+#include <cstdlib>
 
 #define LOG_TAG "wavelet"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)

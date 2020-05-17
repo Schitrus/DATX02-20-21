@@ -92,6 +92,14 @@ void Fire::updateIterations(int iterations) {
     shouldUpdateSettings = true;
 }
 
+void Fire::updateResolution(int width, int height, int depth) {
+    int scale = min(min(width, height), height);
+    ivec3 size = ivec3(width/scale, height/scale, depth/scale);
+    settings->withSize(size, scale, scale*5, 24);
+    LOG_INFO("ResolutionUpdate, %d, %d, %d", width, height, depth);
+    shouldUpdateSettings = true;
+}
+
 bool Fire::changedSettings() {
     return shouldUpdateSettings;
 }
@@ -156,6 +164,10 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JC
 }
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations){
     fire->updateIterations(iterations);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint width, jint height, jint depth){
+    fire->updateResolution(width, height, depth);
 }
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){

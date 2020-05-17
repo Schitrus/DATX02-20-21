@@ -95,8 +95,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initIterationsBar(View v){
-        iterationsBar = v.findViewById(R.id.iterationsBar);
-        iterationsValueText = v.findViewById(R.id.iterationsValueText);
+        iterationsBar = v.findViewById(R.id.projectionIterationsBar);
+        iterationsValueText = v.findViewById(R.id.projectionIterationsValueText);
 
        iterationsBar.setOnSeekBarChangeListener(
                new SliderBarListener(iterationsBar, iterationsValueText, ITERATIONS_MIN, ITERATIONS_MAX, ITERATIONS_STEP)
@@ -113,8 +113,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initViscosityBar(View v){
-        viscosityBar = v.findViewById(R.id.viscosityBar);
-        viscosityValueText = v.findViewById(R.id.viscosityValueText);
+        viscosityBar = v.findViewById(R.id.smokeKinematicViscosityBar);
+        viscosityValueText = v.findViewById(R.id.smokeKinematicViscosityValueText);
 
         viscosityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX, VISCOSITY_STEP)
@@ -122,8 +122,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initWindBar(View v){
-        windBar = v.findViewById(R.id.windBar);
-        windValueText = v.findViewById(R.id.windValueText);
+        windBar = v.findViewById(R.id.windStrengthBar);
+        windValueText = v.findViewById(R.id.windStrengthValueText);
 
         windBar.setOnSeekBarChangeListener(
                 new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX, WIND_STEP)
@@ -150,13 +150,13 @@ public class SettingsFragment extends Fragment {
                 ResolutionItems res = ResolutionItems.values()[pos];
                 switch(res){
                     case LOW:
-                        // Set low resolution
+                        updateResolution(6, 6, 24);
                         break;
                     case HIGH:
-                        // Set high resolution
+                        updateResolution(24, 24, 96);
                         break;
                     default:
-                        // Medium or anything else
+                        updateResolution(12, 12, 48);
                 }
             }
 
@@ -211,7 +211,7 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             switch (seekBar.getId()){
-                case R.id.windBar:
+                case R.id.windStrengthBar:
                     updateWind(value*step);
                     break;
                 case R.id.vorticityBar:
@@ -220,10 +220,10 @@ public class SettingsFragment extends Fragment {
                 case R.id.buoyancyBar:
                     updateBuoyancy(value*step);
                     break;
-                case R.id.iterationsBar:
+                case R.id.projectionIterationsBar:
                     updateIterations((int)(value*step));
                     break;
-                case R.id.viscosityBar:
+                case R.id.smokeKinematicViscosityBar:
                     updateViscosity(value*step);
                     break;
                 case R.id.resolutionSpinner:
@@ -237,4 +237,6 @@ public class SettingsFragment extends Fragment {
         public native void updateIterations(int iterations);
         public native void updateViscosity(float viscosity);
     }
+
+    public native void updateResolution(int width, int height, int depth);
 }
