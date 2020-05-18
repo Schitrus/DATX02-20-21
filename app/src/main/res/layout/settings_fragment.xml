@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/rounded_corners">
 
-
+        <!-- Settings -->
         <TextView
             android:id="@+id/settingsHeader"
             android:layout_width="wrap_content"
@@ -243,12 +243,67 @@
 
         <!-- Divider -->
         <View
-            android:id="@+id/divider2"
+            android:id="@+id/divider26"
             android:layout_width="430dp"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/simulationScaleConstraintLayout" />
+
+        <!-- Time step Layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/timeStepConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider26">
+
+            <SeekBar
+                android:id="@+id/timeStepScaleBar"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="64dp"
+                android:theme="@style/AppTheme"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/timeStepScaleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/timeStepText"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/timeStepValueText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/sliderDefaultValue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="430dp"
+            android:layout_height="1dp"
+            android:background="#1D000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timeStepConstraintLayout" />
 
         <!-- Background Color layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -417,9 +472,9 @@
             <SeekBar
                 android:id="@+id/objectRadiusBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -472,9 +527,9 @@
             <SeekBar
                 android:id="@+id/objectTemperatureBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -527,9 +582,9 @@
             <SeekBar
                 android:id="@+id/objectDensityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -582,9 +637,9 @@
             <SeekBar
                 android:id="@+id/objectVelocityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -647,9 +702,9 @@
             <SeekBar
                 android:id="@+id/windStrengthBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -701,9 +756,9 @@
             <SeekBar
                 android:id="@+id/windAngleBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -754,9 +809,9 @@
             <SeekBar
                 android:id="@+id/vorticityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -819,9 +874,9 @@
             <SeekBar
                 android:id="@+id/buoyancyBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -873,9 +928,9 @@
             <SeekBar
                 android:id="@+id/smokeDissipationBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -927,9 +982,9 @@
             <SeekBar
                 android:id="@+id/temperatureKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -981,9 +1036,9 @@
             <SeekBar
                 android:id="@+id/smokeKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1035,9 +1090,9 @@
             <SeekBar
                 android:id="@+id/velocityKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1089,9 +1144,9 @@
             <SeekBar
                 android:id="@+id/bandMinBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1152,9 +1207,9 @@
             <SeekBar
                 android:id="@+id/bandMaxBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1205,9 +1260,9 @@
             <SeekBar
                 android:id="@+id/densityDiffusionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="125dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1260,9 +1315,9 @@
             <SeekBar
                 android:id="@+id/velocityDiffusionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="125dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -1315,9 +1370,9 @@
             <SeekBar
                 android:id="@+id/projectionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="200dp"
+                android:layout_width="125dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginEnd="32dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

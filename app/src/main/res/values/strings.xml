@@ -30,4 +30,5 @@
     <string name="objectVelocityText">Object Velocity</string>
     <string name="bandMinText">Min Noise Band</string>
     <string name="bandMaxText">Max Noise Band</string>
+    <string name="timeStepText">Time Step</string>
 </resources>
