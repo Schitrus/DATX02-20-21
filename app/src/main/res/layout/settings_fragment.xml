@@ -8,6 +8,7 @@
     android:background="@drawable/rounded_corners">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:theme="@style/AppTheme"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/rounded_corners">
@@ -421,7 +422,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:text="@string/backgroundColorText"
+                    android:text="@string/filterColorText"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -463,6 +464,74 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/colorConstraintLayout" />
 
+        <!-- Color Space -->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/colorSpaceConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider3">
+
+            <TextView
+                android:id="@+id/colorSpaceText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/colorSpaceText"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <NumberPicker
+                android:id="@+id/colorSpaceXPicker"
+                android:theme="@style/AppTheme.Picker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="6dp"
+                app:layout_constraintStart_toEndOf="@id/colorSpaceText"
+                app:layout_constraintEnd_toStartOf="@id/colorSpaceYPicker"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <NumberPicker
+                android:id="@+id/colorSpaceYPicker"
+                android:theme="@style/AppTheme.Picker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                app:layout_constraintStart_toEndOf="@id/colorSpaceXPicker"
+                app:layout_constraintEnd_toStartOf="@id/colorSpaceZPicker"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <NumberPicker
+                android:id="@+id/colorSpaceZPicker"
+                android:theme="@style/AppTheme.Picker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintStart_toEndOf="@id/colorSpaceYPicker"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider28"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1D000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/colorSpaceConstraintLayout" />
+
         <!-- Object Type layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/objectTypeConstraintLayout"
@@ -472,7 +541,7 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider3">
+            app:layout_constraintTop_toTopOf="@id/divider28">
 
             <TextView
                 android:id="@+id/objectTypeText"

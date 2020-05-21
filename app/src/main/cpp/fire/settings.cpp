@@ -60,6 +60,11 @@ Settings::Settings() {
     smokeDissipation = 0.0f;
     tempKinematicViscosity = 0.0f;
     tempDiffusionIterations = 0;
+
+    backgroundColor = vec3(0.0f, 0.0f, 0.0f);
+    filterColor = vec3(1.0f, 1.0f, 1.0f);
+    colorSpace = vec3(1.0f, 1.0f, 1.0f);
+
 }
 
 Settings::Settings(const Settings* other) {
@@ -89,6 +94,10 @@ Settings::Settings(const Settings* other) {
     smokeDissipation = other->smokeDissipation;
     tempKinematicViscosity = other->tempKinematicViscosity;
     tempDiffusionIterations = other->tempDiffusionIterations;
+
+    backgroundColor = other->backgroundColor;
+    filterColor = other->filterColor;
+    colorSpace= other->colorSpace;
 }
 
 std::string Settings::getName() {
@@ -274,5 +283,35 @@ Settings Settings::withTempDiffusion(float viscosity, int iterations) const {
     Settings newSetting = Settings(this);
     newSetting.tempKinematicViscosity = viscosity;
     newSetting.tempDiffusionIterations = iterations;
+    return newSetting;
+}
+
+vec3 Settings::getBackgroundColor(){
+    return backgroundColor;
+}
+
+Settings Settings::withBackgroundColor(vec3 backgroundColor) const {
+    Settings newSetting = Settings(this);
+    newSetting.backgroundColor = backgroundColor;
+    return newSetting;
+}
+
+vec3 Settings::getFilterColor(){
+    return filterColor;
+}
+
+Settings Settings::withFilterColor(vec3 filterColor) const {
+    Settings newSetting = Settings(this);
+    newSetting.filterColor = filterColor;
+    return newSetting;
+}
+
+vec3 Settings::getColorSpace(){
+    return colorSpace;
+}
+
+Settings Settings::withColorSpace(vec3 colorSpace) const {
+    Settings newSetting = Settings(this);
+    newSetting.colorSpace = colorSpace;
     return newSetting;
 }

@@ -6,6 +6,9 @@ precision highp sampler2D;
 layout(binding = 0) uniform sampler2D LMS;
 layout(binding = 2) uniform sampler2D max_LMS_tex;
 
+uniform vec3 filterColor;
+uniform vec3 colorSpace;
+
 in vec2 texCoord;
 
 out vec4 outColor;
@@ -60,8 +63,8 @@ void main() {
     vec4 max_LMS = texelFetch(max_LMS_tex, ivec2(0, 0), 0);
 
     vec4 color = texture(LMS, texCoord).rgba;
-
-    color.rgb = max(pow(XYZ_to_RGB(color.rgb, max_LMS.xyz), vec3(1.8, 2.2, 2.2)), vec3(0.2));
+    // Color space = vec3(1.8, 2.2, 2.2)
+    color.rgb = max(pow(XYZ_to_RGB(color.rgb, max_LMS.xyz), colorSpace), vec3(0.2)) * filterColor;
 
     outColor = color;
 }

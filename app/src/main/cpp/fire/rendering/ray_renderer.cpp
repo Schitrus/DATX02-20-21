@@ -34,9 +34,11 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-int RayRenderer::init() {
+int RayRenderer::init(Settings settings) {
 
     clearGLErrors("render initialization");
+
+    this->settings = settings;
 
     start_time = NOW;
     last_time = start_time;
@@ -69,6 +71,11 @@ int RayRenderer::init() {
         LOG_ERROR("Failed to compile ray_renderer shaders");
         return 0;
     }
+    return 1;
+}
+
+int RayRenderer::changeSettings(Settings settings) {
+    this->settings = settings;
     return 1;
 }
 
@@ -335,11 +342,18 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
     // quad
     glBindVertexArray(quad_VAO);
     glViewport(0, 0, window_width, window_height);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    vec3 bgColor = settings.getBackgroundColor();
+    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_CULL_FACE);
 
     quadShader.use();
+
+    vec3 filterColor = settings.getFilterColor();
+    vec3 colorSpace = settings.getColorSpace();
+
+    quadShader.uniform3f("filterColor", filterColor);
+    quadShader.uniform3f("colorSpace", colorSpace);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, front_FBO->texture());

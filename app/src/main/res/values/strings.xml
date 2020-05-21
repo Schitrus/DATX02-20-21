@@ -34,4 +34,5 @@
     <string name="orientationStaticText">Static</string>
     <string name="orientationDynamicText">Dynamic</string>
     <string name="orientationText">Orientation</string>
+    <string name="colorSpaceText">Color Space</string>
 </resources>

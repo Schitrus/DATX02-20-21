@@ -24,7 +24,7 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 int Fire::init() {
     settings = new Settings;
     *settings = nextSettings();
-    return renderer.init() && simulator.init(*settings);
+    return renderer.init(*settings) && simulator.init(*settings);
 }
 
 void Fire::resize(int width, int height){
@@ -37,6 +37,7 @@ void Fire::update(){
 
     if(shouldUpdateSettings){
         simulator.changeSettings(*settings);
+        renderer.changeSettings(*settings);
         shouldUpdateSettings =  false;
     }
 
@@ -97,6 +98,24 @@ void Fire::updateResolution(int width, int height, int depth) {
     ivec3 size = ivec3(width/scale, height/scale, depth/scale);
     settings->withSize(size, scale, scale*5, 24);
     LOG_INFO("ResolutionUpdate, %d, %d, %d", width, height, depth);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateBackgroundColor(float red, float green, float blue) {
+    *settings = settings->withBackgroundColor(vec3(red, green, blue));
+    LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateFilterColor(float red, float green, float blue) {
+    *settings = settings->withFilterColor(vec3(red, green, blue));
+    LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateColorSpace(float X, float Y, float Z) {
+    *settings = settings->withColorSpace(vec3(X, Y, Z));
+    LOG_INFO("ColorSpaceUpdate, %f, %f, %f", X, Y, Z);
     shouldUpdateSettings = true;
 }
 
@@ -168,6 +187,18 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(J
 
 JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint width, jint height, jint depth){
     fire->updateResolution(width, height, depth);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_updateBackgroundColor(JCT, jfloat red, jfloat green, jfloat blue){
+    fire->updateBackgroundColor(red, green, blue);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_updateFilterColor(JCT, jfloat red, jfloat green, jfloat blue){
+    fire->updateFilterColor(red, green, blue);
+}
+
+JC(void) Java_com_pbf_SettingsFragment_updateColorSpace(JCT, jfloat X, jfloat Y, jfloat Z){
+    fire->updateColorSpace(X, Y, Z);
 }
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){

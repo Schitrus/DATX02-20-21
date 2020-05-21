@@ -11,6 +11,7 @@
 #include <chrono>
 
 #include <android/asset_manager.h>
+#include <fire/settings.h>
 
 #include "fire/util/shader.h"
 #include "fire/util/framebuffer.h"
@@ -26,6 +27,8 @@ class RayRenderer {
 
     int texture_width, texture_height, texture_depth;
     GLint threads;
+
+    Settings settings;
 
     // Framebuffers
     Framebuffer *back_FBO;
@@ -61,7 +64,9 @@ class RayRenderer {
 
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
-    int init();
+    int init(Settings settings);
+
+    int changeSettings(Settings settings);
 
     void resize(int width, int height);
 

@@ -26,8 +26,14 @@
  But I believe Aang can save the world.
 */
 
-int Renderer::init() {
-    return rayRenderer.init();
+int Renderer::init(Settings settings) {
+    this->settings = settings;
+    return rayRenderer.init(settings);
+}
+
+int Renderer::changeSettings(Settings settings) {
+    this->settings = settings;
+    return rayRenderer.changeSettings(settings);
 }
 
 void Renderer::resize(int width, int height){

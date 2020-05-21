@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -16,9 +17,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.datx02_20_21.R;
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.OnColorChangedListener;
+import com.flask.colorpicker.OnColorSelectedListener;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class SettingsFragment extends Fragment {
 
@@ -68,6 +73,10 @@ public class SettingsFragment extends Fragment {
 
     private Spinner resolutionSpinner;
 
+    private ColorPickerView backgroundColor, filterColor;
+
+    private NumberPicker colorSpaceX, colorSpaceY, colorSpaceZ;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -83,6 +92,8 @@ public class SettingsFragment extends Fragment {
         initViscosityBar(v);
         initWindBar(v);
         initResolutionSpinner(v);
+        initColorPicker(v);
+        initColorSpacePicker(v);
     }
 
     private void initVorticityBar(View v){
@@ -167,6 +178,80 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    private void initColorPicker(View v){
+        backgroundColor = v.findViewById(R.id.backgroundColorPicker);
+        backgroundColor.addOnColorChangedListener(new OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int i) {
+                int blue = (i>>0)&0xFF;
+                int green = (i>>8)&0xFF;
+                int red = (i>>16)&0xFF;
+                updateBackgroundColor((red)/255.0f,(green)/255.0f,(blue)/255.0f);
+            }
+        });
+
+        filterColor = v.findViewById(R.id.filterColorPicker);
+        filterColor.addOnColorChangedListener(new OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int i) {
+                int blue = (i>>0)&0xFF;
+                int green = (i>>8)&0xFF;
+                int red = (i>>16)&0xFF;
+                updateFilterColor((red)/255.0f,(green)/255.0f,(blue)/255.0f);
+            }
+        });
+    }
+
+    private void initColorSpacePicker(View v){
+        colorSpaceX = v.findViewById(R.id.colorSpaceXPicker);
+        colorSpaceY = v.findViewById(R.id.colorSpaceYPicker);
+        colorSpaceZ = v.findViewById(R.id.colorSpaceZPicker);
+
+        colorSpaceX.setMinValue(1);
+        colorSpaceY.setMinValue(1);
+        colorSpaceZ.setMinValue(1);
+        colorSpaceX.setMaxValue(100);
+        colorSpaceY.setMaxValue(100);
+        colorSpaceZ.setMaxValue(100);
+
+        colorSpaceX.setWrapSelectorWheel(false);
+        colorSpaceY.setWrapSelectorWheel(false);
+        colorSpaceZ.setWrapSelectorWheel(false);
+        colorSpaceX.setFormatter(formatter);
+        colorSpaceY.setFormatter(formatter);
+        colorSpaceZ.setFormatter(formatter);
+
+        colorSpaceX.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                updateColorSpace(i1/10.0f, colorSpaceY.getValue()/10.0f, colorSpaceZ.getValue()/10.0f);
+            }
+        });
+
+        colorSpaceY.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                updateColorSpace(colorSpaceX.getValue()/10.0f, i1/10.0f, colorSpaceZ.getValue()/10.0f);
+            }
+        });
+
+        colorSpaceZ.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                updateColorSpace(colorSpaceX.getValue()/10.0f, colorSpaceY.getValue()/10.0f, i1/10.0f);
+            }
+        });
+
+    }
+
+    NumberPicker.Formatter formatter = new NumberPicker.Formatter(){
+        @Override
+        public String format(int i) {
+            DecimalFormat df = new DecimalFormat("#0.00");
+            return df.format((float)(i)/10.0f);
+        }
+    };
+
     private static class SliderBarListener implements SeekBar.OnSeekBarChangeListener{
 
         private SeekBar seekBar;
@@ -239,4 +324,7 @@ public class SettingsFragment extends Fragment {
     }
 
     public native void updateResolution(int width, int height, int depth);
+    public native void updateBackgroundColor(float red, float green, float blue);
+    public native void updateFilterColor(float red, float green, float blue);
+    public native void updateColorSpace(float X, float Y, float Z);
 }

@@ -9,14 +9,19 @@
 #include <GLES3/gl31.h>
 
 #include <android/asset_manager.h>
+#include <fire/settings.h>
 
 #include "fire/rendering/ray_renderer.h"
 
 class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
+    Settings settings;
 public:
-    int init();
+    int init(Settings settings);
+
+    int changeSettings(Settings settings);
+
     void resize(int width, int height);
     void update(GLuint density, GLuint temperature, ivec3 size);
 

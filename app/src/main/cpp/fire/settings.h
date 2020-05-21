@@ -32,6 +32,9 @@ class Settings {
     vec3 simulationSize;
     float dt;
 
+    vec3 backgroundColor, filterColor;
+    vec3 colorSpace;
+
     SourceMode sourceMode;
     SourceType sourceType;
     float temperatureSourceDensity;
@@ -125,6 +128,7 @@ public:
 
     // Returns a scale factor for wind strength
     float getWindScale();
+
     // Sets the scale factor for wind strength
     // If the scale factor is set to 0, the wind step will be skipped
     Settings withWindScale(float windScale) const;
@@ -150,6 +154,17 @@ public:
     // Sets the parameters related to diffusion of the temperature
     // If the viscosity is set to 0, the diffusion step step will be skipped for temperature
     Settings withTempDiffusion(float viscosity, int iterations) const;
+
+    vec3 getBackgroundColor();
+    Settings withBackgroundColor(vec3 backgroundColor) const;
+
+    vec3 getFilterColor();
+    Settings withFilterColor(vec3 filterColor) const;
+
+    vec3 getColorSpace();
+    Settings withColorSpace(vec3 colorSpace) const;
+
+
 
 private:
     Settings(const Settings* other);
