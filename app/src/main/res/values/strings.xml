@@ -31,4 +31,7 @@
     <string name="bandMinText">Min Noise Band</string>
     <string name="bandMaxText">Max Noise Band</string>
     <string name="timeStepText">Time Step</string>
+    <string name="orientationStaticText">Static</string>
+    <string name="orientationDynamicText">Dynamic</string>
+    <string name="orientationText">Orientation</string>
 </resources>

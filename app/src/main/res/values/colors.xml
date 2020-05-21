@@ -6,4 +6,5 @@
     <color name="pbfColor">#D6764C</color>
     <color name="pbfColorDark">#93350C</color>
     <color name="pbfColorAccent">#E16731</color>
+    <color name="textColor">#DDDDDD</color>
 </resources>

@@ -136,7 +136,7 @@ public class SettingsFragment extends Fragment {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getActivity(),
-                android.R.layout.simple_spinner_item,
+                R.layout.spinner_item,
                 ResolutionItems.stringValues()
         );
 

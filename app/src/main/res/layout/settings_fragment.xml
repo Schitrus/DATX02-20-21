@@ -18,18 +18,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/title_activity_settings"
-            android:textSize="20sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Divider -->
         <View
             android:id="@+id/divider"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:background="#1D000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,8 +39,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/touchConstraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -50,80 +50,119 @@
                 android:id="@+id/touchText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/touchText"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/touchRotation"
-                android:layout_width="wrap_content"
+            <ToggleButton
+                android:id="@+id/touch"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="@string/touchRotationText"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/touchForce"
-                app:layout_constraintTop_toTopOf="parent">
-
-            </Button>
-
-            <Button
-                android:id="@+id/touchForce"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="@string/touchForceText"
-                android:textSize="16sp"
+                android:textColor="@color/textColor"
+                android:background="@color/pbfColor"
+                android:textOn="@string/touchForceText"
+                android:textOff="@string/touchRotationText"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-            </Button>
+                app:layout_constraintTop_toTopOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Divider -->
         <View
             android:id="@+id/divider1"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:background="#1D000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/touchConstraintLayout" />
+
+        <!-- Orientation layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/orientationConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider1">
+
+            <TextView
+                android:id="@+id/orientationText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/orientationText"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ToggleButton
+                android:id="@+id/orientation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textSize="16sp"
+                android:textColor="@color/textColor"
+                android:background="@color/pbfColor"
+                android:textOn="@string/orientationDynamicText"
+                android:textOff="@string/orientationStaticText"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                app:layout_constraintWidth_percent="0.3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider27"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#1D000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/orientationConstraintLayout" />
 
         <!-- Resolution layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/resolutionConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider1">
+            app:layout_constraintTop_toTopOf="@id/divider27">
 
             <TextView
                 android:id="@+id/resolutionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/resolutionText"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
                 android:id="@+id/resolutionSpinner"
-                android:layout_width="130dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:theme="@style/AppTheme"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -134,7 +173,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider10"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -145,7 +184,7 @@
             android:id="@+id/resolutionScaleConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -155,21 +194,23 @@
             <SeekBar
                 android:id="@+id/resolutionScaleBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/resolutionScaleText"
+                app:layout_constraintEnd_toStartOf="@id/resolutionScaleValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/resolutionScaleText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/resolutionScaleText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -189,18 +230,18 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider11"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/resolutionScaleConstraintLayout" />
 
-        <!-- SimulaionScale Layout -->
+        <!-- Simulation Scale Layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/simulationScaleConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -210,21 +251,23 @@
             <SeekBar
                 android:id="@+id/simulationScaleBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/simulationScaleText"
+                app:layout_constraintEnd_toStartOf="@id/simulationScaleValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/simulationScaleText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/simulationScaleText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -244,7 +287,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider26"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -255,7 +298,7 @@
             android:id="@+id/timeStepConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -263,23 +306,25 @@
             app:layout_constraintTop_toBottomOf="@id/divider26">
 
             <SeekBar
-                android:id="@+id/timeStepScaleBar"
+                android:id="@+id/timeStepBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="64dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/timeStepText"
+                app:layout_constraintEnd_toStartOf="@id/timeStepValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/timeStepScaleText"
-                android:layout_width="wrap_content"
+                android:id="@+id/timeStepText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/timeStepText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -299,126 +344,131 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider2"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/timeStepConstraintLayout" />
 
-        <!-- Background Color layout -->
+        <!-- Color Layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/backgroundColorConstraintLayout"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginStart="0dp"
+            android:id="@+id/colorConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider2">
-
-            <com.flask.colorpicker.ColorPickerView
-                android:id="@+id/background_color_picker_view"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                app:alphaSlider="true"
-                app:density="12"
-                android:layout_marginTop="32dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:lightnessSlider="true"
-                app:lightnessSliderView="@+id/background_lightness_slider"
-                app:wheelType="CIRCLE" />
-
-            <TextView
-                android:id="@+id/backgroundColorValueText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/backgroundColorText"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.flask.colorpicker.slider.LightnessSlider
-                android:id="@+id/background_lightness_slider"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="180dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Color Filter layout -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/colorFilterConstraintLayout"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider2">
 
-            <com.flask.colorpicker.ColorPickerView
-                android:id="@+id/color_filter_picker_view"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                app:alphaSlider="true"
-                app:density="12"
-                android:layout_marginTop="32dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:lightnessSlider="true"
-                app:lightnessSliderView="@+id/filter_lightness_slider"
-                app:wheelType="CIRCLE" />
-
-            <TextView
-                android:id="@+id/filterColorValueText"
-                android:layout_width="wrap_content"
+            <!-- Background Color layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/backgroundColorConstraintLayout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/filterColorText"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
 
-            <com.flask.colorpicker.slider.LightnessSlider
-                android:id="@+id/filter_lightness_slider"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="180dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                <TextView
+                    android:id="@+id/backgroundColorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/backgroundColorText"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.flask.colorpicker.ColorPickerView
+                    android:id="@+id/backgroundColorPicker"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintWidth_percent="0.75"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:density="8"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/backgroundColorText"
+                    app:wheelType="CIRCLE"
+                    app:lightnessSlider="true"
+                    app:lightnessSliderView="@id/backgroundColorSlider"/>
+
+                <com.flask.colorpicker.slider.LightnessSlider
+                    android:id="@+id/backgroundColorSlider"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    app:layout_constraintWidth_percent="0.85"
+                    app:layout_constraintTop_toBottomOf="@id/backgroundColorPicker"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Filter Color layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/filterColorConstraintLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_percent="0.5"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/filterColorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/backgroundColorText"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.flask.colorpicker.ColorPickerView
+                    android:id="@+id/filterColorPicker"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintWidth_percent="0.75"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:density="8"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/filterColorText"
+                    app:wheelType="CIRCLE"
+                    app:lightnessSlider="true"
+                    app:lightnessSliderView="@id/filterColorSlider"/>
+
+                <com.flask.colorpicker.slider.LightnessSlider
+                    android:id="@+id/filterColorSlider"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    app:layout_constraintWidth_percent="0.85"
+                    app:layout_constraintTop_toBottomOf="@id/filterColorPicker"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Divider -->
         <View
             android:id="@+id/divider3"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/colorFilterConstraintLayout" />
+            app:layout_constraintTop_toBottomOf="@id/colorConstraintLayout" />
 
         <!-- Object Type layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/objectTypeConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -428,19 +478,19 @@
                 android:id="@+id/objectTypeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/objectTypeText"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
                 android:id="@+id/objectTypeSpinner"
-                android:layout_width="130dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:theme="@style/AppTheme"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -451,7 +501,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider13"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -462,7 +512,7 @@
             android:id="@+id/objectRadiusConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -472,21 +522,23 @@
             <SeekBar
                 android:id="@+id/objectRadiusBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/objectRadiusText"
+                app:layout_constraintEnd_toStartOf="@id/objectRadiusValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/objectRadiusText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/objectRadiusText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -506,7 +558,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider17"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -517,7 +569,7 @@
             android:id="@+id/objectTemperatureConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -527,21 +579,23 @@
             <SeekBar
                 android:id="@+id/objectTemperatureBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/objectTemperatureText"
+                app:layout_constraintEnd_toStartOf="@id/objectTemperatureValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/objectTemperatureText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/objectTemperatureText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -561,7 +615,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider16"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -572,7 +626,7 @@
             android:id="@+id/objectDensityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -582,21 +636,23 @@
             <SeekBar
                 android:id="@+id/objectDensityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/objectDensityText"
+                app:layout_constraintEnd_toStartOf="@id/objectDensityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/objectDensityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/objectDensityText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -616,7 +672,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider15"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -627,7 +683,7 @@
             android:id="@+id/objectVelocityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -637,21 +693,23 @@
             <SeekBar
                 android:id="@+id/objectVelocityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/objectVelocityText"
+                app:layout_constraintEnd_toStartOf="@id/objectVelocityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/objectVelocityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/objectVelocityText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -671,7 +729,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider4"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -682,19 +740,20 @@
             android:id="@+id/windStrengthConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/divider4">
 
             <TextView
                 android:id="@+id/windStrengthText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/windStrengthText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -702,12 +761,14 @@
             <SeekBar
                 android:id="@+id/windStrengthBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="175dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/windStrengthText"
+                app:layout_constraintEnd_toStartOf="@id/windStrengthValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -725,7 +786,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider8"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -742,13 +803,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/divider8">
 
+            <CheckBox
+                android:id="@+id/windAngleCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
             <TextView
                 android:id="@+id/windAngleText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/windAngleText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/windAngleCheckBox"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -756,12 +826,14 @@
             <SeekBar
                 android:id="@+id/windAngleBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="175dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/windAngleText"
+                app:layout_constraintEnd_toStartOf="@id/windAngleValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -774,21 +846,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <CheckBox
-                android:id="@+id/windAngleCheckBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Divider -->
         <View
             android:id="@+id/divider18"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -799,7 +862,7 @@
             android:id="@+id/vorticityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -809,21 +872,23 @@
             <SeekBar
                 android:id="@+id/vorticityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="175dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/vorticityText"
+                app:layout_constraintEnd_toStartOf="@id/vorticityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/vorticityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/vorticity"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -843,7 +908,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider14"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -854,7 +919,7 @@
             android:id="@+id/buoyancyConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -862,11 +927,11 @@
 
             <TextView
                 android:id="@+id/buoyancyText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/buoyancyText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -874,12 +939,14 @@
             <SeekBar
                 android:id="@+id/buoyancyBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="175dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/buoyancyText"
+                app:layout_constraintEnd_toStartOf="@id/buoyancyValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -897,7 +964,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider6"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -908,7 +975,7 @@
             android:id="@+id/smokeDissipationConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -916,11 +983,11 @@
 
             <TextView
                 android:id="@+id/smokeDissipationText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/smokeDissipationText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -928,12 +995,14 @@
             <SeekBar
                 android:id="@+id/smokeDissipationBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/smokeDissipationText"
+                app:layout_constraintEnd_toStartOf="@id/smokeDissipationValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -951,7 +1020,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider25"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -962,7 +1031,7 @@
             android:id="@+id/temperatureKinematicViscosityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -970,11 +1039,11 @@
 
             <TextView
                 android:id="@+id/temperatureKinematicViscosityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/temperatureKinematicViscosityText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -982,12 +1051,14 @@
             <SeekBar
                 android:id="@+id/temperatureKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/temperatureKinematicViscosityText"
+                app:layout_constraintEnd_toStartOf="@id/temperatureKinematicViscosityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -1005,7 +1076,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider24"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1016,7 +1087,7 @@
             android:id="@+id/smokeKinematicViscosityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -1024,11 +1095,11 @@
 
             <TextView
                 android:id="@+id/smokeKinematicViscosityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/smokeKinematicViscosityText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1036,12 +1107,14 @@
             <SeekBar
                 android:id="@+id/smokeKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/smokeKinematicViscosityText"
+                app:layout_constraintEnd_toStartOf="@id/smokeKinematicViscosityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -1059,7 +1132,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider20"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1070,7 +1143,7 @@
             android:id="@+id/velocityKinematicViscosityConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -1078,11 +1151,11 @@
 
             <TextView
                 android:id="@+id/velocityKinematicViscosityText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/velocityKinematicViscosityText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1090,12 +1163,14 @@
             <SeekBar
                 android:id="@+id/velocityKinematicViscosityBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/velocityKinematicViscosityText"
+                app:layout_constraintEnd_toStartOf="@id/velocityKinematicViscosityValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -1113,7 +1188,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider23"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1130,13 +1205,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/divider23">
 
+            <CheckBox
+                android:id="@+id/bandMinCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
             <TextView
                 android:id="@+id/bandMinText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/bandMinText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/bandMinCheckBox"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1144,12 +1228,14 @@
             <SeekBar
                 android:id="@+id/bandMinBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/bandMinText"
+                app:layout_constraintEnd_toStartOf="@id/bandMinValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -1162,21 +1248,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <CheckBox
-                android:id="@+id/bandMinCheckBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Divider -->
         <View
             android:id="@+id/divider22"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1193,13 +1270,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/divider22">
 
+            <CheckBox
+                android:id="@+id/bandMaxCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
             <TextView
                 android:id="@+id/bandMaxText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/bandMaxText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/bandMaxCheckBox"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1207,12 +1293,14 @@
             <SeekBar
                 android:id="@+id/bandMaxBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="150dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/bandMaxText"
+                app:layout_constraintEnd_toStartOf="@id/bandMaxValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -1225,21 +1313,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <CheckBox
-                android:id="@+id/bandMaxCheckBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Divider -->
         <View
             android:id="@+id/divider21"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1250,7 +1329,7 @@
             android:id="@+id/densityDiffusionIterationsConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -1260,21 +1339,23 @@
             <SeekBar
                 android:id="@+id/densityDiffusionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="125dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/densityDiffusionIterationsText"
+                app:layout_constraintEnd_toStartOf="@id/densityDiffusionIterationsValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/densityDiffusionIterationsText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/densityDiffusionIterationsText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1294,7 +1375,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider19"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1305,7 +1386,7 @@
             android:id="@+id/velocityDiffusionIterationsConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -1315,21 +1396,23 @@
             <SeekBar
                 android:id="@+id/velocityDiffusionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="125dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/velocityDiffusionIterationsText"
+                app:layout_constraintEnd_toStartOf="@id/velocityDiffusionIterationsValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/velocityDiffusionIterationsText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/velocityDiffusionIterationsText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1349,7 +1432,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider7"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1360,7 +1443,7 @@
             android:id="@+id/projectionIterationsConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -1370,21 +1453,23 @@
             <SeekBar
                 android:id="@+id/projectionIterationsBar"
                 style="@style/Widget.AppCompat.SeekBar"
-                android:layout_width="125dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:theme="@style/AppTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/projectionIterationsText"
+                app:layout_constraintEnd_toStartOf="@id/projectionIterationsValueText"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/projectionIterationsText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/projectionIterationsText"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1404,7 +1489,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider5"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintStart_toStartOf="parent"
@@ -1415,7 +1500,7 @@
             android:id="@+id/boundariesConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -1423,10 +1508,11 @@
 
             <Spinner
                 android:id="@+id/boundariesSpinner"
-                android:layout_width="130dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:theme="@style/AppTheme"
+                app:layout_constraintWidth_percent="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1435,9 +1521,8 @@
                 android:id="@+id/boundariesText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@string/boundariesText"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -1448,7 +1533,7 @@
         <!-- Divider -->
         <View
             android:id="@+id/divider9"
-            android:layout_width="430dp"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1D000000"
             app:layout_constraintEnd_toEndOf="parent"
