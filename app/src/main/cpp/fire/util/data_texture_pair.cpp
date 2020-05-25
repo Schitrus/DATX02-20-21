@@ -74,17 +74,17 @@ float DataTexturePair::toVoxelScaleFactor() {
     return scaleFactor;
 }
 
-DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings settings) {
-    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
-    ivec3 size = settings.getSize(res);
+DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* settings) {
+    float scaleFactor = 1.0f/settings->getResToSimFactor(res);
+    ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initScalarData(scaleFactor, size, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings settings) {
-    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
-    ivec3 size = settings.getSize(res);
+DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings* settings) {
+    float scaleFactor = 1.0f/settings->getResToSimFactor(res);
+    ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initVectorData(scaleFactor, size, data);
     return texturePair;

@@ -16,11 +16,11 @@
 class Renderer{
     int window_width, window_height;
     RayRenderer rayRenderer;
-    Settings settings;
+    Settings* settings;
 public:
-    int init(Settings settings);
+    int init(Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings);
 
     void resize(int width, int height);
     void update(GLuint density, GLuint temperature, ivec3 size);

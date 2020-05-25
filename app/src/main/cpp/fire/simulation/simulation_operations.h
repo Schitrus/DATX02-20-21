@@ -26,9 +26,9 @@ class SimulationOperations {
     Shader vorticityShader;
 
 public:
-    int init(SlabOperation slab, Settings settings);
+    int init(SlabOperation slab, Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings);
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt);
@@ -60,7 +60,7 @@ private:
 
     int initShaders();
 
-    void initTextures(Settings settings);
+    void initTextures(Settings* settings);
 
     void clearTextures();
 

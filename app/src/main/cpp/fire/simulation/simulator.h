@@ -21,7 +21,7 @@ class Simulator {
     SimulationOperations operations;
     WaveletTurbulence wavelet;
 
-    Settings settings;
+    Settings* settings;
 
     DataTexturePair* smokeDensity;
     DataTexturePair* temperature;
@@ -38,9 +38,9 @@ class Simulator {
 
 public:
 
-    int init(Settings settings);
+    int init(Settings* settings);
 
-    int changeSettings(Settings settings, bool shouldRegenFields);
+    int changeSettings(Settings* settings, bool shouldRegenFields);
 
     void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 

@@ -28,7 +28,7 @@ class RayRenderer {
     int texture_width, texture_height, texture_depth;
     GLint threads;
 
-    Settings settings;
+    Settings* settings;
 
     // Framebuffers
     Framebuffer *back_FBO;
@@ -64,9 +64,9 @@ class RayRenderer {
 
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
-    int init(Settings settings);
+    int init(Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings);
 
     void resize(int width, int height);
 

@@ -34,7 +34,7 @@ class Fire{
     bool shouldUpdateSettings;
     bool shouldRegenFields;
 
-    Settings settings;
+    Settings* settings;
 
 public:
 

@@ -55,9 +55,9 @@ class WaveletTurbulence {
     float band_min, band_max;
 
 public:
-    int init(SlabOperation slab, Settings settings);
+    int init(SlabOperation slab, Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings);
 
     void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
 
@@ -66,7 +66,7 @@ private:
 
     void calcJacobianCol(int axis, DataTexturePair* colTexture);
 
-    void initTextures(Settings settings);
+    void initTextures(Settings* settings);
 
     void clearTextures();
 

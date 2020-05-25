@@ -22,7 +22,8 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 }
 
 int Fire::init() {
-    settings = DEFAULT;
+    settings = new Settings;
+    *settings = DEFAULT;
     return renderer.init(settings) && simulator.init(settings);
 }
 
@@ -64,19 +65,19 @@ void Fire::onClick() {
 }
 
 void Fire::updateWind(float strength) {
-    settings.withWindScale(strength);
+    settings->withWindScale(strength);
     LOG_INFO("WindUpdate, %f", strength);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateVorticity(float vorticityScale) {
-    settings.withVorticityScale(vorticityScale);
+    settings->withVorticityScale(vorticityScale);
     LOG_INFO("VorticityUpdate, %f", vorticityScale);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateBuoyancy(float buoyancyScale) {
-    settings.withBuoyancyScale(buoyancyScale);
+    settings->withBuoyancyScale(buoyancyScale);
     LOG_INFO("BuoyancyUpdate, %f", buoyancyScale);
     shouldUpdateSettings = true;
 }
@@ -88,7 +89,7 @@ void Fire::updateViscosity(float viscosity) {
 }
 
 void Fire::updateIterations(int iterations) {
-    settings.withProjectIterations(iterations);
+    settings->withProjectIterations(iterations);
     LOG_INFO("IterationsUpdate, %d", iterations);
     shouldUpdateSettings = true;
 }
@@ -100,19 +101,19 @@ void Fire::updateResolution(int lowerRes) {
 }
 
 void Fire::updateBackgroundColor(float red, float green, float blue) {
-    settings.withBackgroundColor(vec3(red, green, blue));
+    settings->withBackgroundColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateFilterColor(float red, float green, float blue) {
-    settings.withFilterColor(vec3(red, green, blue));
+    settings->withFilterColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateColorSpace(float X, float Y, float Z) {
-    settings.withColorSpace(vec3(X, Y, Z));
+    settings->withColorSpace(vec3(X, Y, Z));
     LOG_INFO("ColorSpaceUpdate, %f, %f, %f", X, Y, Z);
     shouldUpdateSettings = true;
 }

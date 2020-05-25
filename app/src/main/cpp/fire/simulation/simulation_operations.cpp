@@ -11,7 +11,7 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-int SimulationOperations::init(SlabOperation slab, Settings settings) {
+int SimulationOperations::init(SlabOperation slab, Settings* settings) {
     this->slab = slab;
     
     initTextures(settings);
@@ -48,9 +48,9 @@ int SimulationOperations::initShaders() {
     return success;
 }
 
-void SimulationOperations::initTextures(Settings settings) {
-    createVector3DTexture(&diffusionBHRTexture, settings.getSize(Resolution::substance), (vec3*)nullptr);
-    createVector3DTexture(&diffusionBLRTexture, settings.getSize(Resolution::velocity), (vec3*)nullptr);
+void SimulationOperations::initTextures(Settings* settings) {
+    createVector3DTexture(&diffusionBHRTexture, settings->getSize(Resolution::substance), (vec3*)nullptr);
+    createVector3DTexture(&diffusionBLRTexture, settings->getSize(Resolution::velocity), (vec3*)nullptr);
 
     divergence = createScalarDataPair(nullptr, Resolution::velocity, settings);
 
@@ -63,7 +63,7 @@ void SimulationOperations::clearTextures() {
     glDeleteTextures(1, &diffusionBLRTexture);
 }
 
-int SimulationOperations::changeSettings(Settings settings) {
+int SimulationOperations::changeSettings(Settings* settings) {
     clearTextures();
     initTextures(settings);
     return 1;

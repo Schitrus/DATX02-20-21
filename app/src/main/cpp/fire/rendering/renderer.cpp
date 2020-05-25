@@ -26,12 +26,12 @@
  But I believe Aang can save the world.
 */
 
-int Renderer::init(Settings settings) {
+int Renderer::init(Settings* settings) {
     this->settings = settings;
     return rayRenderer.init(settings);
 }
 
-int Renderer::changeSettings(Settings settings) {
+int Renderer::changeSettings(Settings* settings) {
     this->settings = settings;
     return rayRenderer.changeSettings(settings);
 }

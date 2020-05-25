@@ -59,9 +59,9 @@ public:
 };
 
 // creates a scalar data pair with the given data
-DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings settings);
+DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* settings);
 
 // create a vector data pair with the given data
-DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings settings);
+DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings* settings);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H

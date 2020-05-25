@@ -27,7 +27,6 @@ enum class SourceType {singleSphere, dualSpheres, floor};
 class Settings {
     std::string name;
 
-
     ivec3 velocityResSize, substanceResSize;
 
     float resScale, simulationScale;
