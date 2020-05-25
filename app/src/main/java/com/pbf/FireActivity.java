@@ -43,6 +43,11 @@ public class FireActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Point dimension = new Point();
+        getWindowManager().getDefaultDisplay().getSize(dimension);
+
+        init(getResources().getAssets(), dimension.x, dimension.y);
+
         ImageView loading = (ImageView)findViewById(R.id.loadingImage);
         animation = (AnimationDrawable)loading.getDrawable();
         animation.start();
@@ -61,11 +66,6 @@ public class FireActivity extends FragmentActivity {
         settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
 
         view = new FireView(getApplication(), loading);
-
-        Point dimension = new Point();
-        getWindowManager().getDefaultDisplay().getSize(dimension);
-
-        init(getResources().getAssets(), dimension.x, dimension.y);
         // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(view, 0);
 
@@ -83,21 +83,27 @@ public class FireActivity extends FragmentActivity {
         private final int DURATION_IN_MILLISECONDS = 250;
         private final int MARGIN = 8;
 
+        SettingsButtonToggleListener(){
+            super();
+            initFragment();
+        }
+
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
             if(checked){
                 //moveButtonDown();
-                addFragment();
+                showFragment();
                 rotateButtonCounterCW();
             }
             else{
                 //moveButtonUp();
-                removeFragment();
+                hideFragment();
                 rotateButtonCW();
             }
         }
 
-        private void addFragment(){
+        private void initFragment(){
+
             Slide slideTransition = new Slide(Gravity.TOP);
             slideTransition.setDuration(DURATION_IN_MILLISECONDS);
             Fade fadeTransition = new Fade();
@@ -109,19 +115,27 @@ public class FireActivity extends FragmentActivity {
             settingsFragment.setEnterTransition(transition);
             settingsFragment.setExitTransition(transition);
 
-            findViewById(R.id.scrollViewContainer).setVisibility(View.VISIBLE);
+            findViewById(R.id.scrollViewContainer).setVisibility(View.INVISIBLE);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.settingsContainer, settingsFragment)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.settingsContainer, settingsFragment).commitNow();
+
+            getSupportFragmentManager().beginTransaction().hide(settingsFragment).commitNow();
+
         }
 
-        private void removeFragment() {
+        private void showFragment(){
+
+            findViewById(R.id.scrollViewContainer).setVisibility(View.VISIBLE);
+
+            getSupportFragmentManager().beginTransaction().show(settingsFragment).commitNow();
+        }
+
+        private void hideFragment() {
             //for (Fragment fragment : getSupportFragmentManager().getFragments()) {
               //  getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             //}
 
-            getSupportFragmentManager().beginTransaction().remove(settingsFragment).commit();
+            getSupportFragmentManager().beginTransaction().hide(settingsFragment).commitNow();
 
             Thread t = new Thread(){
                 @Override

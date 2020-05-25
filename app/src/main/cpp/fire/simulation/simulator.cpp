@@ -41,12 +41,13 @@ int Simulator::init(Settings settings) {
     return 1;
 }
 
-int Simulator::changeSettings(Settings settings) {
-
-    clearData();
+int Simulator::changeSettings(Settings settings, bool shouldRegenFields) {
 
     this->settings = settings;
-    initData();
+    if(shouldRegenFields) {
+        clearData();
+        initData();
+    }
     start_time = NOW;
     last_time = start_time;
 

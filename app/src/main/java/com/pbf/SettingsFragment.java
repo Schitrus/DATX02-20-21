@@ -159,15 +159,16 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 ResolutionItems res = ResolutionItems.values()[pos];
+
                 switch(res){
                     case LOW:
-                        updateResolution(6, 6, 24);
+                        updateResolution(6);
                         break;
                     case HIGH:
-                        updateResolution(24, 24, 96);
+                        updateResolution(24);
                         break;
                     default:
-                        updateResolution(12, 12, 48);
+                        updateResolution(12);
                 }
             }
 
@@ -323,7 +324,7 @@ public class SettingsFragment extends Fragment {
         public native void updateViscosity(float viscosity);
     }
 
-    public native void updateResolution(int width, int height, int depth);
+    public native void updateResolution(int lowerRes);
     public native void updateBackgroundColor(float red, float green, float blue);
     public native void updateFilterColor(float red, float green, float blue);
     public native void updateColorSpace(float X, float Y, float Z);

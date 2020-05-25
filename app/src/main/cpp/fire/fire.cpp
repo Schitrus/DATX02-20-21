@@ -17,14 +17,13 @@
 
 Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int height)
     : javaEnvironment(javaEnvironment), assetManager(assetManager),
-      screen_width(width), screen_height(height), shouldUpdateSettings(false) {
+      screen_width(width), screen_height(height), shouldUpdateSettings(false), shouldRegenFields(false) {
     initFileLoader(assetManager);
 }
 
 int Fire::init() {
-    settings = new Settings;
-    *settings = nextSettings();
-    return renderer.init(*settings) && simulator.init(*settings);
+    settings = DEFAULT;
+    return renderer.init(settings) && simulator.init(settings);
 }
 
 void Fire::resize(int width, int height){
@@ -36,9 +35,10 @@ void Fire::update(){
     ivec3 size;
 
     if(shouldUpdateSettings){
-        simulator.changeSettings(*settings);
-        renderer.changeSettings(*settings);
+        simulator.changeSettings(settings, shouldRegenFields);
+        renderer.changeSettings(settings);
         shouldUpdateSettings =  false;
+        shouldRegenFields = false;
     }
 
     simulator.update(density, temperature, size);
@@ -58,25 +58,25 @@ void Fire::onClick() {
     //Settings newSettings = nextSettings();
     //std::string name = newSettings.getName();
     //LOG_INFO("Changing settings to %s", name.data());
-    *settings = nextSettings();
-    shouldUpdateSettings = true;
+    //*settings = nextSettings();
+    //shouldUpdateSettings = true;
     //simulator.changeSettings(newSettings);
 }
 
 void Fire::updateWind(float strength) {
-    *settings = settings->withWindScale(strength);
+    settings.withWindScale(strength);
     LOG_INFO("WindUpdate, %f", strength);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateVorticity(float vorticityScale) {
-    *settings = settings->withVorticityScale(vorticityScale);
+    settings.withVorticityScale(vorticityScale);
     LOG_INFO("VorticityUpdate, %f", vorticityScale);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateBuoyancy(float buoyancyScale) {
-    *settings = settings->withBuoyancyScale(buoyancyScale);
+    settings.withBuoyancyScale(buoyancyScale);
     LOG_INFO("BuoyancyUpdate, %f", buoyancyScale);
     shouldUpdateSettings = true;
 }
@@ -88,33 +88,31 @@ void Fire::updateViscosity(float viscosity) {
 }
 
 void Fire::updateIterations(int iterations) {
-    *settings = settings->withProjectIterations(iterations);
+    settings.withProjectIterations(iterations);
     LOG_INFO("IterationsUpdate, %d", iterations);
     shouldUpdateSettings = true;
 }
 
-void Fire::updateResolution(int width, int height, int depth) {
-    int scale = min(min(width, height), height);
-    ivec3 size = ivec3(width/scale, height/scale, depth/scale);
-    settings->withSize(size, scale, scale*5, 24);
-    LOG_INFO("ResolutionUpdate, %d, %d, %d", width, height, depth);
+void Fire::updateResolution(int lowerRes) {
+    LOG_INFO("ResolutionUpdate, %d", lowerRes);
     shouldUpdateSettings = true;
+    shouldRegenFields = true;
 }
 
 void Fire::updateBackgroundColor(float red, float green, float blue) {
-    *settings = settings->withBackgroundColor(vec3(red, green, blue));
+    settings.withBackgroundColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateFilterColor(float red, float green, float blue) {
-    *settings = settings->withFilterColor(vec3(red, green, blue));
+    settings.withFilterColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateColorSpace(float X, float Y, float Z) {
-    *settings = settings->withColorSpace(vec3(X, Y, Z));
+    settings.withColorSpace(vec3(X, Y, Z));
     LOG_INFO("ColorSpaceUpdate, %f, %f, %f", X, Y, Z);
     shouldUpdateSettings = true;
 }
@@ -137,7 +135,6 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
 
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject , jobject mgr, jint width, jint height){
-
     fire = new Fire(env, loadAssetManager(env, mgr), width, height);
 }
 
@@ -185,8 +182,8 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(J
     fire->updateIterations(iterations);
 }
 
-JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint width, jint height, jint depth){
-    fire->updateResolution(width, height, depth);
+JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint lowerRes){
+    fire->updateResolution(lowerRes);
 }
 
 JC(void) Java_com_pbf_SettingsFragment_updateBackgroundColor(JCT, jfloat red, jfloat green, jfloat blue){

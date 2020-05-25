@@ -40,7 +40,7 @@ public:
 
     int init(Settings settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings settings, bool shouldRegenFields);
 
     void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 

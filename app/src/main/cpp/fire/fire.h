@@ -32,8 +32,9 @@ class Fire{
     int screen_width, screen_height;
 
     bool shouldUpdateSettings;
+    bool shouldRegenFields;
 
-    Settings* settings;
+    Settings settings;
 
 public:
 
@@ -60,7 +61,7 @@ public:
     void updateViscosity(float viscosity);
     void updateIterations(int iterations);
 
-    void updateResolution(int width, int height, int depth);
+    void updateResolution(int lowerRes);
     void updateBackgroundColor(float red, float green, float blue);
     void updateFilterColor(float red, float green, float blue);
     void updateColorSpace(float X, float Y, float Z);
@@ -94,7 +95,7 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations);
 
-JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint width, jint height, jint depth);
+JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint lowerRes);
 JC(void) Java_com_pbf_SettingsFragment_updateBackgroundColor(JCT, jfloat red, jfloat green, jfloat blue);
 JC(void) Java_com_pbf_SettingsFragment_updateFilterColor(JCT, jfloat red, jfloat green, jfloat blue);
 JC(void) Java_com_pbf_SettingsFragment_updateColorSpace(JCT, jfloat X, jfloat Y, jfloat Z);

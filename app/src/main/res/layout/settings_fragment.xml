@@ -495,6 +495,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="6dp"
+                android:descendantFocusability="blocksDescendants"
                 app:layout_constraintStart_toEndOf="@id/colorSpaceText"
                 app:layout_constraintEnd_toStartOf="@id/colorSpaceYPicker"
                 app:layout_constraintTop_toTopOf="parent"/>
@@ -506,6 +507,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_marginEnd="6dp"
+                android:descendantFocusability="blocksDescendants"
                 app:layout_constraintStart_toEndOf="@id/colorSpaceXPicker"
                 app:layout_constraintEnd_toStartOf="@id/colorSpaceZPicker"
                 app:layout_constraintTop_toTopOf="parent"/>
@@ -517,6 +519,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_marginEnd="16dp"
+                android:descendantFocusability="blocksDescendants"
                 app:layout_constraintStart_toEndOf="@id/colorSpaceYPicker"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
