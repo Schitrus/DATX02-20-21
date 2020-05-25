@@ -51,7 +51,7 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     start_time = NOW;
     last_time = start_time;
 
-    return operations.changeSettings(settings) && wavelet.changeSettings(settings);
+    return operations.changeSettings(settings, shouldRegenFields) && wavelet.changeSettings(settings, shouldRegenFields);
 }
 
 void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size) {

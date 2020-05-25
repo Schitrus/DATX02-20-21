@@ -29,6 +29,8 @@ class Settings {
 
     ivec3 velocityResSize, substanceResSize;
 
+    float velocityScale, substanceScale;
+
     float resScale, simulationScale;
     float velocityToSimFactor, substanceToSimFactor;
     vec3 simulationSize;
@@ -78,8 +80,13 @@ public:
     ivec3 getSizeRatio();
     // Get ResolutionScale
     float getResScale();
+
+    float getVelocityScale();
+
+    float getSubstanceScale();
+
     // Sets the size of the simulation and resolutions
-    Settings withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale);
+    Settings withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale);
 
     // Returns the fixed delta time, or 0 if the delta time shouldn't be fixed
     float getDeltaTime();

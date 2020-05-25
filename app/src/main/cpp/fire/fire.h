@@ -55,6 +55,8 @@ public:
 
     void onClick();
 
+    void updateResolutionScale(float scale);
+
     void updateWind(float strength);
     void updateVorticity(float vorticityScale);
     void updateBuoyancy(float buoyancyScale);
@@ -89,6 +91,7 @@ JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateResolutionScale(JCT, jfloat scale);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT, jfloat buoyancyScale);

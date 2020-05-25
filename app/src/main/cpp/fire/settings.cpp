@@ -26,7 +26,8 @@ Settings::Settings() {
     simulationScale = 1;
     sizeRatio = ivec3(1, 1, 1);
 
-    LOG_INFO("Hello");
+    velocityScale = 1;
+    substanceScale = 1;
 
     velocityResSize = ivec3(1.0f, 1.0f, 1.0f) + ivec3(2, 2, 2);
     substanceResSize = ivec3(1.0f, 1.0f, 1.0f) + ivec3(2, 2, 2);
@@ -97,16 +98,27 @@ float Settings::getSimulationScale(){
     return simulationScale;
 }
 
+float Settings::getVelocityScale() {
+    return velocityScale;
+}
+
+float Settings::getSubstanceScale() {
+    return substanceScale;
+}
+
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
-Settings Settings::withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) {
+
+Settings Settings::withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale) {
     this->simulationScale = simulationScale;
     this->resScale = ((float)substanceScale/velocityScale);
     this->sizeRatio = sizeRatio;
+    this->velocityScale = velocityScale;
+    this->substanceScale = substanceScale;
     this->simulationSize = simulationScale * vec3(sizeRatio);
-    this->velocityResSize = velocityScale * sizeRatio + ivec3(2, 2, 2);
+    this->velocityResSize = ivec3(velocityScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
     this->velocityToSimFactor = simulationScale / velocityScale;
-    this->substanceResSize = substanceScale * sizeRatio + ivec3(2, 2, 2);
+    this->substanceResSize = ivec3(substanceScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
     this->substanceToSimFactor = simulationScale / substanceScale;
     return *this;
 }

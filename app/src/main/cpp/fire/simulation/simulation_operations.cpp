@@ -63,9 +63,11 @@ void SimulationOperations::clearTextures() {
     glDeleteTextures(1, &diffusionBLRTexture);
 }
 
-int SimulationOperations::changeSettings(Settings* settings) {
-    clearTextures();
-    initTextures(settings);
+int SimulationOperations::changeSettings(Settings* settings, bool shouldRegenFields) {
+    if(shouldRegenFields) {
+        clearTextures();
+        initTextures(settings);
+    }
     return 1;
 }
 

@@ -57,7 +57,7 @@ class WaveletTurbulence {
 public:
     int init(SlabOperation slab, Settings* settings);
 
-    int changeSettings(Settings* settings);
+    int changeSettings(Settings* settings, bool shouldRegenFields);
 
     void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
 

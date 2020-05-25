@@ -64,6 +64,13 @@ void Fire::onClick() {
     //simulator.changeSettings(newSettings);
 }
 
+void Fire::updateResolutionScale(float scale) {
+    settings->withSize(settings->getSizeRatio(), settings->getVelocityScale(), settings->getVelocityScale()*scale, settings->getSimulationScale());
+    LOG_INFO("ResolutionScaleUpdate, %f", scale);
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
 void Fire::updateWind(float strength) {
     settings->withWindScale(strength);
     LOG_INFO("WindUpdate, %f", strength);
@@ -96,6 +103,7 @@ void Fire::updateIterations(int iterations) {
 
 void Fire::updateResolution(int lowerRes) {
     LOG_INFO("ResolutionUpdate, %d", lowerRes);
+    settings->withSize(settings->getSizeRatio(), lowerRes, settings->getResScale()*lowerRes, settings->getSimulationScale());
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
@@ -163,6 +171,10 @@ JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX
 
 JC(void) Java_com_pbf_FireListener_onClick(JCT){
     fire->onClick();
+}
+
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateResolutionScale(JCT, jfloat scale){
+    fire->updateResolutionScale(scale);
 }
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength){

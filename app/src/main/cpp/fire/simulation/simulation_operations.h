@@ -28,7 +28,7 @@ class SimulationOperations {
 public:
     int init(SlabOperation slab, Settings* settings);
 
-    int changeSettings(Settings* settings);
+    int changeSettings(Settings* settings, bool shouldRegenFields);
 
     // Applies buoyancy forces to velocity, based on the temperature
     void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt);

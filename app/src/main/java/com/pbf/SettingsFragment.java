@@ -27,18 +27,27 @@ import java.text.DecimalFormat;
 
 public class SettingsFragment extends Fragment {
 
+    // Resolution Scale
+    private static final int RESOLUTION_SCALE_MIN = 2;
+    private static final int RESOLUTION_SCALE_MAX = 40;
+    private static final float RESOLUTION_SCALE_STEP = 0.5f;
+
     private static final int VORTICITY_MIN = 0;
     private static final int VORTICITY_MAX = 1000;
     private static final float VORTICITY_STEP = 0.05f;
+
     private static final int ITERATIONS_MIN = 1;
     private static final int ITERATIONS_MAX = 100;
     private static final float ITERATIONS_STEP = 1.0f;
+
     private static final int BUOYANCY_MIN = 0;
     private static final int BUOYANCY_MAX = 100;
     private static final float BUOYANCY_STEP = 0.1f;
+
     private static final int VISCOSITY_MIN = 1;
     private static final int VISCOSITY_MAX = 1000;
     private static final float VISCOSITY_STEP = 0.01f;
+
     private static final int WIND_MIN = 0;
     private static final int WIND_MAX = 1000;
     private static final float WIND_STEP = 0.25f;
@@ -56,24 +65,11 @@ public class SettingsFragment extends Fragment {
         }
     };
 
-    private SeekBar vorticityBar;
-    private TextView vorticityValueText;
+    private SeekBar simulationScaleBar;
+    private TextView simulationScaleValueText;
 
-    private SeekBar iterationsBar;
-    private TextView iterationsValueText;
-
-    private SeekBar buoyancyBar;
-    private TextView buoyancyValueText;
-
-    private SeekBar viscosityBar;
-    private TextView viscosityValueText;
-
-    private SeekBar windBar;
-    private TextView windValueText;
-
-    private Spinner resolutionSpinner;
-
-    private ColorPickerView backgroundColor, filterColor;
+    private SeekBar deltaTimeBar;
+    private TextView deltaTimeValueText;
 
     private NumberPicker colorSpaceX, colorSpaceY, colorSpaceZ;
 
@@ -86,6 +82,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initUIElements(View v){
+        initResolutionScaleBar(v);
         initVorticityBar(v);
         initIterationsBar(v);
         initBuoyancyBar(v);
@@ -96,9 +93,18 @@ public class SettingsFragment extends Fragment {
         initColorSpacePicker(v);
     }
 
+    private void initResolutionScaleBar(View v){
+        SeekBar resolutionScaleBar = v.findViewById(R.id.resolutionScaleBar);
+        TextView resolutionScaleValueText = v.findViewById(R.id.resolutionScaleValueText);
+
+        resolutionScaleBar.setOnSeekBarChangeListener(
+                new SliderBarListener(resolutionScaleBar, resolutionScaleValueText, RESOLUTION_SCALE_MIN, RESOLUTION_SCALE_MAX, RESOLUTION_SCALE_STEP)
+        );
+    }
+
     private void initVorticityBar(View v){
-        vorticityBar = v.findViewById(R.id.vorticityBar);
-        vorticityValueText = v.findViewById(R.id.vorticityValueText);
+        SeekBar vorticityBar = v.findViewById(R.id.vorticityBar);
+        TextView vorticityValueText = v.findViewById(R.id.vorticityValueText);
 
         vorticityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(vorticityBar, vorticityValueText, VORTICITY_MIN, VORTICITY_MAX, VORTICITY_STEP)
@@ -106,8 +112,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initIterationsBar(View v){
-        iterationsBar = v.findViewById(R.id.projectionIterationsBar);
-        iterationsValueText = v.findViewById(R.id.projectionIterationsValueText);
+        SeekBar iterationsBar = v.findViewById(R.id.projectionIterationsBar);
+        TextView iterationsValueText = v.findViewById(R.id.projectionIterationsValueText);
 
        iterationsBar.setOnSeekBarChangeListener(
                new SliderBarListener(iterationsBar, iterationsValueText, ITERATIONS_MIN, ITERATIONS_MAX, ITERATIONS_STEP)
@@ -115,8 +121,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initBuoyancyBar(View v){
-        buoyancyBar = v.findViewById(R.id.buoyancyBar);
-        buoyancyValueText = v.findViewById(R.id.buoyancyValueText);
+        SeekBar buoyancyBar = v.findViewById(R.id.buoyancyBar);
+        TextView buoyancyValueText = v.findViewById(R.id.buoyancyValueText);
 
         buoyancyBar.setOnSeekBarChangeListener(
                 new SliderBarListener(buoyancyBar, buoyancyValueText, BUOYANCY_MIN, BUOYANCY_MAX, BUOYANCY_STEP)
@@ -124,8 +130,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initViscosityBar(View v){
-        viscosityBar = v.findViewById(R.id.smokeKinematicViscosityBar);
-        viscosityValueText = v.findViewById(R.id.smokeKinematicViscosityValueText);
+        SeekBar viscosityBar = v.findViewById(R.id.smokeKinematicViscosityBar);
+        TextView viscosityValueText = v.findViewById(R.id.smokeKinematicViscosityValueText);
 
         viscosityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(viscosityBar, viscosityValueText, VISCOSITY_MIN, VISCOSITY_MAX, VISCOSITY_STEP)
@@ -133,8 +139,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initWindBar(View v){
-        windBar = v.findViewById(R.id.windStrengthBar);
-        windValueText = v.findViewById(R.id.windStrengthValueText);
+        SeekBar windBar = v.findViewById(R.id.windStrengthBar);
+        TextView windValueText = v.findViewById(R.id.windStrengthValueText);
 
         windBar.setOnSeekBarChangeListener(
                 new SliderBarListener(windBar, windValueText, WIND_MIN, WIND_MAX, WIND_STEP)
@@ -142,7 +148,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initResolutionSpinner(View v) {
-        resolutionSpinner = v.findViewById(R.id.resolutionSpinner);
+        Spinner resolutionSpinner = v.findViewById(R.id.resolutionSpinner);
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
@@ -180,7 +186,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initColorPicker(View v){
-        backgroundColor = v.findViewById(R.id.backgroundColorPicker);
+        ColorPickerView backgroundColor = v.findViewById(R.id.backgroundColorPicker);
         backgroundColor.addOnColorChangedListener(new OnColorChangedListener() {
             @Override
             public void onColorChanged(int i) {
@@ -191,7 +197,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        filterColor = v.findViewById(R.id.filterColorPicker);
+        ColorPickerView filterColor = v.findViewById(R.id.filterColorPicker);
         filterColor.addOnColorChangedListener(new OnColorChangedListener() {
             @Override
             public void onColorChanged(int i) {
@@ -297,6 +303,9 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             switch (seekBar.getId()){
+                case R.id.resolutionScaleBar:
+                    updateResolutionScale(value*step);
+                    break;
                 case R.id.windStrengthBar:
                     updateWind(value*step);
                     break;
@@ -312,11 +321,10 @@ public class SettingsFragment extends Fragment {
                 case R.id.smokeKinematicViscosityBar:
                     updateViscosity(value*step);
                     break;
-                case R.id.resolutionSpinner:
-                    break;
             }
         }
 
+        public native void updateResolutionScale(float scale);
         public native void updateWind(float strength);
         public native void updateVorticity(float vorticityScale);
         public native void updateBuoyancy(float buoyancyScale);

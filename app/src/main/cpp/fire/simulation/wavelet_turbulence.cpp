@@ -116,9 +116,11 @@ void WaveletTurbulence::clearTextures() {
     delete[] advPos, delete[] eigenValues, delete[] jacobianX, delete[] jacobianY, delete[] jacobianZ;
 }
 
-int WaveletTurbulence::changeSettings(Settings* settings) {
-    clearTextures();
-    initTextures(settings);
+int WaveletTurbulence::changeSettings(Settings* settings, bool shouldRegenFields) {
+    if(shouldRegenFields) {
+        clearTextures();
+        initTextures(settings);
+    }
     return 1;
 }
 
