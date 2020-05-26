@@ -15,11 +15,15 @@
 #define NOW std::chrono::time_point<std::chrono::system_clock>(std::chrono::system_clock::now())
 #define DURATION(a, b) (std::chrono::duration_cast<std::chrono::milliseconds>(a - b)).count() / 1000.0f;
 
-#define LOG_TAG "Simulator"
+#define LOG_TAG "Simulators"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 int Simulator::init(Settings* settings) {
+
+    this->settings = new Settings();
+
+    *(this->settings) = *settings;
 
     if (!slab.init())
         return 0;
@@ -30,7 +34,6 @@ int Simulator::init(Settings* settings) {
     if(!wavelet.init(slab, settings))
         return 0;
 
-    this->settings = settings;
     initData();
 
     start_time = NOW;
@@ -43,7 +46,7 @@ int Simulator::init(Settings* settings) {
 
 int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
 
-    this->settings = settings;
+    *(this->settings) = *(settings);
     if(shouldRegenFields) {
         clearData();
         initData();
@@ -73,6 +76,7 @@ void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size
     slab.finish();
 
     getData(densityData, temperatureData, size);
+
 }
 
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
@@ -98,14 +102,14 @@ void Simulator::initData() {
     initSourceField(temperature_source, settings->getTempSourceDensity(), Resolution::substance, settings);
 
     smokeDensity = createScalarDataPair(density_field, Resolution::substance, settings);
-    createScalar3DTexture(&densitySource, highResSize, density_source);
+    createScalar3DTexture(densitySource, highResSize, density_source);
 
     temperature = createScalarDataPair(temperature_field, Resolution::substance, settings);
-    createScalar3DTexture(&temperatureSource, highResSize, temperature_source);
+    createScalar3DTexture(temperatureSource, highResSize, temperature_source);
 
     lowerVelocity = createVectorDataPair(velocity_field, Resolution::velocity, settings);
     higherVelocity = createVectorDataPair(nullptr, Resolution::substance, settings);
-    createVector3DTexture(&velocitySource, lowResSize, velocity_source);
+    createVector3DTexture(velocitySource, lowResSize, velocity_source);
 
     delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
 }
@@ -150,7 +154,6 @@ void Simulator::updateAndApplyWind(float scale, float dt) {
     windAngle += dt*0.5f;
 
     float windStrength = settings->getWindScale();
-    LOG_INFO("Angle: %f, Wind: %f", windAngle, windStrength);
     operations.addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
@@ -172,6 +175,7 @@ void Simulator::temperatureStep(float dt) {
 }
 
 void Simulator::smokeDensityStep(float dt) {
+
     // addForce
     operations.addSource(smokeDensity, densitySource, settings->getSourceMode(), dt);
 
@@ -186,4 +190,5 @@ void Simulator::smokeDensityStep(float dt) {
     // Dissipate
     if(settings->getSmokeDissipation() != 0.0f)
         operations.dissipate(smokeDensity, settings->getSmokeDissipation(), dt);
+
 }

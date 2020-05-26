@@ -18,6 +18,8 @@ public:
     void bind();
 
     void unbind();
+
+    GLuint getFBO();
 };
 
 #endif //DATX02_20_21_SIMPLE_FRAMEBUFFER_H

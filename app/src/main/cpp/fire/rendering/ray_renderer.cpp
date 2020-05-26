@@ -38,7 +38,9 @@ int RayRenderer::init(Settings* settings) {
 
     clearGLErrors("render initialization");
 
-    this->settings = settings;
+    this->settings = new Settings();
+
+    *(this->settings) = *settings;
 
     start_time = NOW;
     last_time = start_time;
@@ -71,11 +73,12 @@ int RayRenderer::init(Settings* settings) {
         LOG_ERROR("Failed to compile ray_renderer shaders");
         return 0;
     }
+
     return 1;
 }
 
 int RayRenderer::changeSettings(Settings* settings) {
-    this->settings = settings;
+    *(this->settings) = *settings;
     return 1;
 }
 
@@ -259,8 +262,8 @@ void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
 
 int RayRenderer::initProgram() {
     bool success = true;
-    success &= backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
     success &= frontFaceShader.load("shaders/render/ray.vert", "shaders/render/front_face.frag");
+    success &= backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
     success &= quadShader.load("shaders/render/vertex.vert", "shaders/render/quad.frag");
     success &= maxCompShader.load("shaders/render/max.comp");
     return success;

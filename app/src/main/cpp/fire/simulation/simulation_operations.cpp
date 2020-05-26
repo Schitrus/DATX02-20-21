@@ -49,12 +49,13 @@ int SimulationOperations::initShaders() {
 }
 
 void SimulationOperations::initTextures(Settings* settings) {
-    createVector3DTexture(&diffusionBHRTexture, settings->getSize(Resolution::substance), (vec3*)nullptr);
-    createVector3DTexture(&diffusionBLRTexture, settings->getSize(Resolution::velocity), (vec3*)nullptr);
+    createVector3DTexture(diffusionBHRTexture, settings->getSize(Resolution::substance), (vec3*)nullptr);
+    createVector3DTexture(diffusionBLRTexture, settings->getSize(Resolution::velocity), (vec3*)nullptr);
 
     divergence = createScalarDataPair(nullptr, Resolution::velocity, settings);
 
     jacobi = createScalarDataPair(nullptr, Resolution::velocity, settings);
+
 }
 
 void SimulationOperations::clearTextures() {
@@ -79,7 +80,7 @@ void SimulationOperations::heatDissipation(DataTexturePair* temperature, float d
     slab.fullOperation(temperatureShader, temperature);
 }
 
-void SimulationOperations::addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt) {
+void SimulationOperations::addSource(DataTexturePair* data, GLuint source, SourceMode mode, float dt) {
     Shader shader = mode == SourceMode::add ? addSourceShader : setSourceShader;
 
     shader.use();

@@ -30,16 +30,16 @@ void DataTexturePair::initScalarData(float scaleFactor, ivec3 size, float* data)
     this->scaleFactor = scaleFactor;
     this->size = size;
     type = SCALAR;
-    createScalar3DTexture(&dataTexture, size, data);
-    createScalar3DTexture(&resultTexture, size, (float*)nullptr);
+    createScalar3DTexture(dataTexture, size, data);
+    createScalar3DTexture(resultTexture, size, (float*)nullptr);
 }
 
 void DataTexturePair::initVectorData(float scaleFactor, ivec3 size, vec3* data) {
     this->scaleFactor = scaleFactor;
     this->size = size;
     type = VECTOR;
-    createVector3DTexture(&dataTexture, size, data);
-    createVector3DTexture(&resultTexture, size, (vec3*)nullptr);
+    createVector3DTexture(dataTexture, size, data);
+    createVector3DTexture(resultTexture, size, (vec3*)nullptr);
 }
 
 void DataTexturePair::bindData(GLenum textureSlot) {

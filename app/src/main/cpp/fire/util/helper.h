@@ -12,8 +12,8 @@
 
 using namespace glm;
 
-void createScalar3DTexture(GLuint *id, ivec3 size, float* data);
-void createVector3DTexture(GLuint *id, ivec3 size, vec3* data);
+void createScalar3DTexture(GLuint& id, ivec3 size, float* data);
+void createVector3DTexture(GLuint& id, ivec3 size, vec3* data);
 
 void load3DTexture(AAssetManager *mgr, const char *filename, GLsizei width, GLsizei height,
                    GLsizei depth,GLuint *volumeTexID);

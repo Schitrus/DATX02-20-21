@@ -54,37 +54,6 @@ void WaveletTurbulence::initTextures(Settings* settings) {
     band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
     band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
 
-    LOG_INFO("Name: %s", settings->getName().c_str());
-    LOG_INFO("Sizes: %d, %d, %d,    %d, %d, %d", lowResSize.x, lowResSize.y, lowResSize.z, highResSize.x, highResSize.y, highResSize.z);
-    LOG_INFO("resScale: %f", settings->getResScale());
-    LOG_INFO("simulationScale: %f", settings->getSimulationScale());
-    LOG_INFO("velocityToSimFactor: %f", settings->getResToSimFactor(Resolution::velocity));
-    LOG_INFO("substanceToSimFactor: %f", settings->getResToSimFactor(Resolution::substance));
-    LOG_INFO("simulationScale: %f, %f, %f", settings->getSimulationSize().x, settings->getSimulationSize().y, settings->getSimulationSize().z);
-    LOG_INFO("Delta Time: %f", settings->getDeltaTime());
-    LOG_INFO("Size Ratio: %d, %d, %d", settings->getSizeRatio().x, settings->getSizeRatio().y, settings->getSizeRatio().z);
-    LOG_INFO("Background Color: %f, %f, %f", settings->getBackgroundColor().x, settings->getBackgroundColor().y, settings->getBackgroundColor().z);
-    LOG_INFO("Filter Color: %f, %f, %f", settings->getFilterColor().x, settings->getFilterColor().y, settings->getFilterColor().z);
-    LOG_INFO("Color Space: %f, %f, %f", settings->getColorSpace().x, settings->getColorSpace().y, settings->getColorSpace().z);
-    LOG_INFO("SourceMode: %s", settings->getSourceMode() == SourceMode::set ? "set" : "add");
-    LOG_INFO("SourceType: %s", settings->getSourceType() == SourceType::singleSphere ? "single sphere" : settings->getSourceType() == SourceType::dualSpheres ? "dual spheres" : "floor");
-    LOG_INFO("temperaturSourceDensity: %f", settings->getTempSourceDensity());
-    LOG_INFO("smokSourceDensity: %f", settings->getSmokeSourceDensity());
-    LOG_INFO("projection iterations: %d", settings->getProjectionIterations());
-    LOG_INFO("vorticity scale: %f", settings->getVorticityScale());
-    LOG_INFO("velocity kinematic viscosity: %f", settings->getVelKinematicViscosity());
-    LOG_INFO("velocity diffusion iterations: %d", settings->getVelDiffusionIterations());
-    LOG_INFO("buoyancy: %f", settings->getBuoyancyScale());
-    LOG_INFO("wind scale: %f", settings->getWindScale());
-    LOG_INFO("smoke kinematic viscosity: %f", settings->getSmokeKinematicViscosity());
-    LOG_INFO("smoke diffusion iterations: %d", settings->getSmokeDiffusionIterations());
-    LOG_INFO("smoke dissipation: %f", settings->getSmokeDissipation());
-    LOG_INFO("temperatur kinematic viscosity: %f", settings->getTempKinematicViscosity());
-    LOG_INFO("temperatur diffusion iterations: %d", settings->getTempDiffusionIterations());
-
-
-
-
     texture_coord = createVectorDataPair(nullptr, Resolution::velocity, settings);
     energy = createScalarDataPair(nullptr, Resolution::velocity, settings);
 
@@ -161,7 +130,7 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         vec3* gradients = generateGradients(num_gradients);
 
         GLuint gradient_texture;
-        createVector3DTexture(&gradient_texture, ivec3(num_gradients, 1, 1), gradients);
+        createVector3DTexture(gradient_texture, ivec3(num_gradients, 1, 1), gradients);
 
         turbulenceShader.uniform1i("seed1", seed.x);
         turbulenceShader.uniform1i("seed2", seed.y);

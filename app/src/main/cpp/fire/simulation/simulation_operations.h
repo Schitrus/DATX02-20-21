@@ -41,7 +41,7 @@ public:
     void heatDissipation(DataTexturePair* temperature, float dt);
 
     // Adds the given source field multiplied by dt to the target field
-    void addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt);
+    void addSource(DataTexturePair* data, GLuint source, SourceMode mode, float dt);
 
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 

@@ -22,9 +22,17 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 }
 
 int Fire::init() {
-    settings = new Settings;
-    *settings = DEFAULT;
-    return renderer.init(settings) && simulator.init(settings);
+    settings = new Settings();
+    settings->withSize(ivec3(1, 4, 1), 12, 60, 24.0f)->withDeltaTime(1/30.0f)
+            ->withSourceMode(SourceMode::set)->withSourceType(SourceType::singleSphere)->withTempSourceDensity(3500.0f)
+            ->withSmokeSourceDensity(0.4f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
+            ->withBuoyancyScale(0.15f)->withWindScale(0.0f)->withSmokeDiffusion(0.0f, 0)->withSmokeDissipation(0.0f)
+            ->withTempDiffusion(0.0f, 0)->withBackgroundColor(vec3(0.0f, 0.0f, 0.0f))->withFilterColor(vec3(1.0f, 1.0f, 1.0f))
+            ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default");
+    bool success = true;
+    success &= renderer.init(settings);
+    success &= simulator.init(settings);
+    return success;
 }
 
 void Fire::resize(int width, int height){
@@ -43,7 +51,7 @@ void Fire::update(){
     }
 
     simulator.update(density, temperature, size);
-
+    //LOG_INFO("Density: %d, Temperature: %d", density, temperature);
     renderer.update(density, temperature, size);
 }
 

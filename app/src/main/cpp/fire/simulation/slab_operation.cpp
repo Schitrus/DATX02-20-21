@@ -37,12 +37,14 @@ int SlabOperation::init() {
     FBO->init();
 
     initQuad();
+
     initLine();
 
     if(!initShaders()) {
         LOG_ERROR("Failed to compile slab_operation shaders");
         return 0;
     }
+    
     return 1;
 
 }
@@ -229,7 +231,7 @@ void SlabOperation::interiorOperation(Shader shader, DataTexturePair* data, int 
     }
     data->operationFinished();
 
-    setBoundary(data, boundaryScale);
+    //setBoundary(data, boundaryScale);
 }
 
 void SlabOperation::fullOperation(Shader shader, DataTexturePair* data) {

@@ -3,10 +3,16 @@
 //
 
 #include "field_initialization.h"
+#include <android/log.h>
+
+#define LOG_TAG "FIELDS"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 void initSourceField(float* field, float value, Resolution res, Settings* settings) {
+
     if(settings->getSourceType() == SourceType::singleSphere) {
         float radius = 6.4f;
         vec3 center = vec3(0.5f, 0.2f, 0.5f) * settings->getSimulationSize();
@@ -125,7 +131,6 @@ void fillSphere(float* field, float value, vec3 center, float radius, Resolution
                 vec3 pos = vec3(x + 0.5f, y + 0.5f, z + 0.5f) * toSimulationScale;
 
                 if(distance(pos, center) <= radius) {
-
                     //Index of position in texture space (with border)
                     int index = gridSize.x * (gridSize.y * (z + border) + y + border) + x + border;
                     field[index] = value;

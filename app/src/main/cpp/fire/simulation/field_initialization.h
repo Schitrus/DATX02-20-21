@@ -20,7 +20,7 @@ vec3* createVectorField(vec3 value, ivec3 gridSize);
 void fillField(float* field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings* settings);
 
 void fillSphere(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
-void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settingse);
+void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
 
 // fills the field with vectors pointing outward from the center,
 // and that scale with the distance from the center

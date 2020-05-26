@@ -12,13 +12,14 @@
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+/*
 const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f).withDeltaTime(1/30.0f)
         .withSourceMode(SourceMode::set).withSourceType(SourceType::singleSphere).withTempSourceDensity(3500.0f)
         .withSmokeSourceDensity(0.4f).withVelDiffusion(0.0f, 0).withVorticityScale(8.0f).withProjectIterations(20)
         .withBuoyancyScale(0.15f).withWindScale(0.0f).withSmokeDiffusion(0.0f, 0).withSmokeDissipation(0.0f)
         .withTempDiffusion(0.0f, 0).withBackgroundColor(vec3(0.0f, 0.0f, 0.0f)).withFilterColor(vec3(1.0f, 1.0f, 1.0f))
         .withColorSpace(vec3(1.8f, 2.2f, 2.2f)).withName("Default");
-
+*/
 Settings::Settings() {
     dt = 0.0f;
 
@@ -63,9 +64,9 @@ std::string Settings::getName() {
     return name;
 }
 
-Settings Settings::withName(std::string name) {
+Settings* Settings::withName(std::string name) {
     this->name = name;
-    return *this;
+    return this;
 }
 
 ivec3 Settings::getSize(Resolution res) {
@@ -109,7 +110,7 @@ float Settings::getSubstanceScale() {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-Settings Settings::withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale) {
+Settings* Settings::withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale) {
     this->simulationScale = simulationScale;
     this->resScale = ((float)substanceScale/velocityScale);
     this->sizeRatio = sizeRatio;
@@ -120,7 +121,7 @@ Settings Settings::withSize(ivec3 sizeRatio, float velocityScale, float substanc
     this->velocityToSimFactor = simulationScale / velocityScale;
     this->substanceResSize = ivec3(substanceScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
     this->substanceToSimFactor = simulationScale / substanceScale;
-    return *this;
+    return this;
 }
 #pragma clang diagnostic pop
 
@@ -128,45 +129,45 @@ float Settings::getDeltaTime() {
     return dt;
 }
 
-Settings Settings::withDeltaTime(float dt) {
+Settings* Settings::withDeltaTime(float dt) {
    this->dt = dt;
-    return *this;
+    return this;
 }
 
 SourceMode Settings::getSourceMode() {
     return sourceMode;
 }
 
-Settings Settings::withSourceMode(SourceMode mode) {
+Settings* Settings::withSourceMode(SourceMode mode) {
     this->sourceMode = mode;
-    return *this;
+    return this;
 }
 
 SourceType Settings::getSourceType() {
     return sourceType;
 }
 
-Settings Settings::withSourceType(SourceType type) {
+Settings* Settings::withSourceType(SourceType type) {
     this->sourceType = type;
-    return *this;
+    return this;
 }
 
 float Settings::getTempSourceDensity() {
     return temperatureSourceDensity;
 }
 
-Settings Settings::withTempSourceDensity(float density) {
+Settings* Settings::withTempSourceDensity(float density) {
     this->temperatureSourceDensity = density;
-    return *this;
+    return this;
 }
 
 float Settings::getSmokeSourceDensity() {
     return smokeSourceDensity;
 }
 
-Settings Settings::withSmokeSourceDensity(float density) {
+Settings* Settings::withSmokeSourceDensity(float density) {
     this->smokeSourceDensity = density;
-    return *this;
+    return this;
 }
 
 float Settings::getVelKinematicViscosity() {
@@ -177,46 +178,46 @@ int Settings::getVelDiffusionIterations() {
     return velocityDiffusionIterations;
 }
 
-Settings Settings::withVelDiffusion(float viscosity, int iterations) {
+Settings* Settings::withVelDiffusion(float viscosity, int iterations) {
     this->velocityKinematicViscosity = viscosity;
     this->velocityDiffusionIterations = iterations;
-    return *this;
+    return this;
 }
 
 float Settings::getVorticityScale() {
     return vorticityScale;
 }
 
-Settings Settings::withVorticityScale(float vorticityScale) {
+Settings* Settings::withVorticityScale(float vorticityScale) {
     this->vorticityScale = vorticityScale;
-    return *this;
+    return this;
 }
 
 int Settings::getProjectionIterations() {
     return projectionIterations;
 }
 
-Settings Settings::withProjectIterations(int projectionIterations) {
+Settings* Settings::withProjectIterations(int projectionIterations) {
     this->projectionIterations = projectionIterations;
-    return *this;
+    return this;
 }
 
 float Settings::getBuoyancyScale() {
     return buoyancyScale;
 }
 
-Settings Settings::withBuoyancyScale(float buoyancyScale) {
+Settings* Settings::withBuoyancyScale(float buoyancyScale) {
     this->buoyancyScale = buoyancyScale;
-    return *this;
+    return this;
 }
 
 float Settings::getWindScale() {
     return windScale;
 }
 
-Settings Settings::withWindScale(float windScale) {
+Settings* Settings::withWindScale(float windScale) {
     this->windScale = windScale;
-    return *this;
+    return this;
 }
 
 float Settings::getSmokeKinematicViscosity() {
@@ -227,19 +228,19 @@ int Settings::getSmokeDiffusionIterations() {
     return smokeDiffusionIterations;
 }
 
-Settings Settings::withSmokeDiffusion(float viscosity, int iterations) {
+Settings* Settings::withSmokeDiffusion(float viscosity, int iterations) {
     this->smokeKinematicViscosity = viscosity;
     this->smokeDiffusionIterations = iterations;
-    return *this;
+    return this;
 }
 
 float Settings::getSmokeDissipation() {
     return smokeDissipation;
 }
 
-Settings Settings::withSmokeDissipation(float smokeDissipation) {
+Settings* Settings::withSmokeDissipation(float smokeDissipation) {
     this->smokeDissipation = smokeDissipation;
-    return *this;
+    return this;
 }
 
 float Settings::getTempKinematicViscosity() {
@@ -250,35 +251,35 @@ int Settings::getTempDiffusionIterations() {
     return tempDiffusionIterations;
 }
 
-Settings Settings::withTempDiffusion(float viscosity, int iterations) {
+Settings* Settings::withTempDiffusion(float viscosity, int iterations) {
     this->tempKinematicViscosity = viscosity;
     this->tempDiffusionIterations = iterations;
-    return *this;
+    return this;
 }
 
 vec3 Settings::getBackgroundColor(){
     return backgroundColor;
 }
 
-Settings Settings::withBackgroundColor(vec3 backgroundColor) {
+Settings* Settings::withBackgroundColor(vec3 backgroundColor) {
     this->backgroundColor = backgroundColor;
-    return *this;
+    return this;
 }
 
 vec3 Settings::getFilterColor(){
     return filterColor;
 }
 
-Settings Settings::withFilterColor(vec3 filterColor) {
+Settings* Settings::withFilterColor(vec3 filterColor) {
     this->filterColor = filterColor;
-    return *this;
+    return this;
 }
 
 vec3 Settings::getColorSpace(){
     return colorSpace;
 }
 
-Settings Settings::withColorSpace(vec3 colorSpace) {
+Settings* Settings::withColorSpace(vec3 colorSpace) {
     this->colorSpace = colorSpace;
-    return *this;
+    return this;
 }

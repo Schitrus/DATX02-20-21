@@ -20,3 +20,7 @@ void SimpleFramebuffer::bind() {
 void SimpleFramebuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+GLuint SimpleFramebuffer::getFBO(){
+    return FBO;
+};

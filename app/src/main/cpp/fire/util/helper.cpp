@@ -54,10 +54,10 @@ char *loadFileToMemory(AAssetManager *mgr, const char *filename) {
     return fileContent;
 }
 
-void createScalar3DTexture(GLuint *id, ivec3 size, float* data){
+void createScalar3DTexture(GLuint& id, ivec3 size, float* data){
 
-    glGenTextures(1, id);
-    glBindTexture(GL_TEXTURE_3D, *id);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_3D, id);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R16F, size.x, size.y, size.z, 0, GL_RED, GL_FLOAT, data);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -66,10 +66,10 @@ void createScalar3DTexture(GLuint *id, ivec3 size, float* data){
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void createVector3DTexture(GLuint *id, ivec3 size, vec3* data){
+void createVector3DTexture(GLuint& id, ivec3 size, vec3* data){
 
-    glGenTextures(1, id);
-    glBindTexture(GL_TEXTURE_3D, *id);  // todo RGB16F is not considered color-renderable in the gles 3.2 specification. Consider switching to RGBA16F
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_3D, id);  // todo RGB16F is not considered color-renderable in the gles 3.2 specification. Consider switching to RGBA16F
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F, size.x, size.y, size.z, 0, GL_RGB, GL_FLOAT, data);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

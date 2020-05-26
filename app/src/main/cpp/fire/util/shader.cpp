@@ -199,14 +199,14 @@ GLuint Shader::createProgram(const char *vertex_path, const char *fragment_path)
     return shader_program;
 }
 
-void Shader::uniform1i(const GLchar *name, GLint value) {
+void Shader::uniform1i(const GLchar *name, int value) {
     if (program() != 0)
         glUniform1i(glGetUniformLocation(program(), name), value);
     else
         LOG_ERROR("Tried to set uniform %s for a shader that isn't initiated!", name);
 }
 
-void Shader::uniform1f(const GLchar *name, GLfloat value) {
+void Shader::uniform1f(const GLchar *name, float value) {
     if (program() != 0)
         glUniform1f(glGetUniformLocation(program(), name), value);
     else
