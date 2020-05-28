@@ -59,11 +59,6 @@ int Simulator::init(Settings* settings) {
 
 int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
 
-    if(shouldRegenFields) {
-        clearData();
-        initData(settings);
-    }
-
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
     windScale = settings->getWindScale();
@@ -78,6 +73,11 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     smokeDiffusionIterations = settings->getSmokeDiffusionIterations();
     smokeDissipation = settings->getSmokeDissipation();
 
+
+    if(shouldRegenFields) {
+        //clearData();
+        initData(settings);
+    }
 
     return operations->changeSettings(settings, shouldRegenFields) && wavelet->changeSettings(settings, shouldRegenFields);
 }

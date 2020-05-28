@@ -10,9 +10,14 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
+#include <mutex>
+#include <condition_variable>
+
 #include "rendering/renderer.h"
 #include "simulation/simulator.h"
 #include "settings.h"
+
+
 
 /*
  Did you ever hear the tragedy of Darth Plagueis The Wise?

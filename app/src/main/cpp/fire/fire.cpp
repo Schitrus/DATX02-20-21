@@ -52,6 +52,8 @@ void Fire::update(){
         shouldRegenFields = false;
     }
 
+
+
     simulator->update(density, temperature, size);
     renderer->update(density, temperature, size);
 }

@@ -31,6 +31,7 @@ class RayRenderer {
     vec3 backgroundColor, filterColor;
     vec3 colorSpace;
 
+    // Do not remove, it breaks for Kalle otherwise
     std::string this_string_is_not_used_anywhere;
 
     // Framebuffers

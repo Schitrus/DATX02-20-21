@@ -81,7 +81,7 @@ void WaveletTurbulence::clearTextures() {
 int WaveletTurbulence::changeSettings(Settings* settings, bool shouldRegenFields) {
 
     if(shouldRegenFields) {
-        clearTextures();
+        //clearTextures();
         initTextures(settings);
     }
     return 1;
