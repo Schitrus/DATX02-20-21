@@ -55,8 +55,6 @@ void Fire::update(){
         shouldRegenFields = false;
     }
 
-
-
     simulator->update(density, temperature, size);
     renderer->update(density, temperature, size);
 }
@@ -78,42 +76,12 @@ void Fire::onClick() {
     //simulator.changeSettings(newSettings);
 }
 
-void Fire::updateResolutionScale(float scale) {
-    settings->withSize(settings->getSizeRatio(), settings->getVelocityScale(), settings->getVelocityScale()*scale, settings->getSimulationScale());
-    LOG_INFO("ResolutionScaleUpdate, %f", scale);
-    shouldUpdateSettings = true;
-    shouldRegenFields = true;
+void Fire::setTouchMode(bool touchMode){
+    LOG_INFO("TouchModeSetting, %s", touchMode ? "true" : "false");
 }
 
-void Fire::updateWind(float strength) {
-    settings->withWindScale(strength);
-    LOG_INFO("WindUpdate, %f", strength);
-    shouldUpdateSettings = true;
-    shouldRegenFields = true; // TODO remove
-}
-
-void Fire::updateVorticity(float vorticityScale) {
-    settings->withVorticityScale(vorticityScale);
-    LOG_INFO("VorticityUpdate, %f", vorticityScale);
-    shouldUpdateSettings = true;
-}
-
-void Fire::updateBuoyancy(float buoyancyScale) {
-    settings->withBuoyancyScale(buoyancyScale);
-    LOG_INFO("BuoyancyUpdate, %f", buoyancyScale);
-    shouldUpdateSettings = true;
-}
-
-void Fire::updateViscosity(float viscosity) {
-    //TODO ADD VISCOSITY
-    LOG_INFO("ViscosityUpdate, %f", viscosity);
-    shouldUpdateSettings = true;
-}
-
-void Fire::updateIterations(int iterations) {
-    settings->withProjectIterations(iterations);
-    LOG_INFO("IterationsUpdate, %d", iterations);
-    shouldUpdateSettings = true;
+void Fire::setOrientation(bool orientationMode){
+    LOG_INFO("OrientationSetting, %s", orientationMode ? "true" : "false");
 }
 
 void Fire::updateResolution(int lowerRes) {
@@ -123,28 +91,188 @@ void Fire::updateResolution(int lowerRes) {
     shouldRegenFields = true;
 }
 
+void Fire::updateResolutionScale(float scale) {
+    LOG_INFO("ResolutionScaleUpdate, %f", scale);
+    settings->withSize(settings->getSizeRatio(), settings->getVelocityScale(), settings->getVelocityScale()*scale, settings->getSimulationScale());
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateSimulationScale(float scale) {
+    LOG_INFO("SimulationScaleUpdate, %f", scale);
+    settings->withSize(settings->getSizeRatio(), settings->getVelocityScale(), settings->getSubstanceScale(), scale);
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateTimeStep(float timestep) {
+    LOG_INFO("TimeStepUpdate, %f", timestep);
+    settings->withDeltaTime(1.0f/timestep);
+    shouldUpdateSettings = true;
+}
+
 void Fire::updateBackgroundColor(float red, float green, float blue) {
-    settings->withBackgroundColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
+    settings->withBackgroundColor(vec3(red, green, blue));
     shouldUpdateSettings = true;
 }
 
 void Fire::updateFilterColor(float red, float green, float blue) {
-    settings->withFilterColor(vec3(red, green, blue));
     LOG_INFO("BackgroundColorUpdate, %f, %f, %f", red, green, blue);
+    settings->withFilterColor(vec3(red, green, blue));
     shouldUpdateSettings = true;
 }
 
 void Fire::updateColorSpace(float X, float Y, float Z) {
-    settings->withColorSpace(vec3(X, Y, Z));
     LOG_INFO("ColorSpaceUpdate, %f, %f, %f", X, Y, Z);
+    settings->withColorSpace(vec3(X, Y, Z));
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateObjectType(std::string type) {
+    LOG_INFO("ObjectTypeUpdate, %s", type.c_str());
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateObjectRadius(float radius) {
+    LOG_INFO("ObjectRadiusUpdate, %f", radius);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateObjectTemperature(float temperature) {
+    LOG_INFO("ObjectTemperatureUpdate, %f", temperature);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateObjectDensity(float density) {
+    LOG_INFO("ObjectDensityUpdate, %f", density);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateObjectVelocity(float velocity) {
+    LOG_INFO("ObjectVelocityUpdate, %f", velocity);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateWindStrength(float strength) {
+    settings->withWindScale(strength);
+    LOG_INFO("WindStrengthUpdate, %f", strength);
+    shouldUpdateSettings = true;
+}
+
+void Fire::setWindAngle(bool custom) {
+    LOG_INFO("WindAngleSetting, %s", custom ? "true" : "false");
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateWindAngle(float angle) {
+    LOG_INFO("WindAngleUpdate, %f", angle);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateVorticity(float vorticityScale) {
+    LOG_INFO("VorticityUpdate, %f", vorticityScale);
+    settings->withVorticityScale(vorticityScale);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateBuoyancy(float buoyancyScale) {
+    LOG_INFO("BuoyancyUpdate, %f", buoyancyScale);
+    settings->withBuoyancyScale(buoyancyScale);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateSmokeDissipation(float dissipation) {
+    LOG_INFO("SmokeDissipationUpdate, %f", dissipation);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateTemperatureViscosity(float viscosity) {
+    LOG_INFO("TmeperatureViscosityUpdate, %f", viscosity);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateSmokeViscosity(float viscosity) {
+    LOG_INFO("SmokeViscosityUpdate, %f", viscosity);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateVelocityViscosity(float viscosity) {
+    LOG_INFO("VelocityViscosityUpdate, %f", viscosity);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::setMinNoiseBand(bool custom) {
+    LOG_INFO("MinNoiseBandSetting, %s", custom ? "true" : "false");
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateMinNoiseBand(float band) {
+    LOG_INFO("MinNoiseUpdate, %f", band);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::setMaxNoiseBand(bool custom) {
+    LOG_INFO("MaxNoiseBandSetting, %s", custom ? "true" : "false");
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateMaxNoiseBand(float band) {
+    LOG_INFO("MaxNoiseUpdate, %f", band);
+
+    shouldUpdateSettings = true;
+    shouldRegenFields = true;
+}
+
+void Fire::updateDensityDiffusionIterations(int iterations) {
+    LOG_INFO("DensityDiffusionIterationsUpdate, %d", iterations);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateVelocityDiffusionIterations(int iterations) {
+    LOG_INFO("VelocityDiffusionIterationsUpdate, %d", iterations);
+
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateProjectionIterations(int iterations) {
+    LOG_INFO("ProjectionIterationsUpdate, %d", iterations);
+    settings->withProjectIterations(iterations);
+    shouldUpdateSettings = true;
+}
+
+void Fire::updateBoundaries(std::string mode) {
+    LOG_INFO("BoundariesUpdate, %s", mode.c_str());
+
     shouldUpdateSettings = true;
 }
 
 bool Fire::changedSettings() {
     return shouldUpdateSettings;
 }
-
 
 AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
@@ -161,29 +289,23 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager) {
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject , jobject mgr, jint width, jint height){
     fire = new Fire(env, loadAssetManager(env, mgr), width, height);
 }
-
 // FireRenderer
 JC(jint) Java_com_pbf_FireRenderer_init(JCT){
     return fire->init();
 }
-
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height){
     fire->resize(width, height);
 }
-
 JC(void) Java_com_pbf_FireRenderer_update(JCT){
     fire->update();
 }
-
 // FireListener
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
     fire->touch(dx, dy);
 }
-
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->scale(scaleFactor, scaleX, scaleY);
 }
-
 JC(void) Java_com_pbf_FireListener_onClick(JCT){
     fire->onClick();
 }
@@ -191,39 +313,98 @@ JC(void) Java_com_pbf_FireListener_onClick(JCT){
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateResolutionScale(JCT, jfloat scale){
     fire->updateResolutionScale(scale);
 }
-
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength){
-    fire->updateWind(strength);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSimulationScale(JCT, jfloat scale){
+    fire->updateSimulationScale(scale);
 }
-
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateTimeStep(JCT, jfloat timeStep){
+    fire->updateTimeStep(timeStep);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectRadius(JCT, jfloat radius){
+    fire->updateObjectRadius(radius);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectTemperature(JCT, jfloat temperature){
+    fire->updateObjectTemperature(temperature);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectDensity(JCT, jfloat density){
+    fire->updateObjectDensity(density);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectVelocity(JCT, jfloat velocity){
+    fire->updateObjectVelocity(velocity);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWindStrength(JCT, jfloat strength){
+    fire->updateWindStrength(strength);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWindAngle(JCT, jfloat angle){
+    fire->updateWindAngle(angle);
+}
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale){
     fire->updateVorticity(vorticityScale);
 }
-
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT, jfloat buoyancyScale){
     fire->updateBuoyancy(buoyancyScale);
 }
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity){
-    fire->updateViscosity(viscosity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSmokeDissipation(JCT, jfloat dissipation){
+    fire->updateSmokeDissipation(dissipation);
 }
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations){
-    fire->updateIterations(iterations);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateTemperatureViscosity(JCT, jfloat viscosity){
+    fire->updateTemperatureViscosity(viscosity);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSmokeViscosity(JCT, jfloat viscosity){
+    fire->updateSmokeViscosity(viscosity);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVelocityViscosity(JCT, jfloat viscosity){
+    fire->updateVelocityViscosity(viscosity);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateMinNoiseBand(JCT, jfloat band){
+    fire->updateMinNoiseBand(band);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateMaxNoiseBand(JCT, jfloat band){
+    fire->updateMaxNoiseBand(band);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateDensityDiffusionIterations(JCT, jint iterations){
+    fire->updateDensityDiffusionIterations(iterations);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVelocityDiffusionIterations(JCT, jint iterations){
+    fire->updateVelocityDiffusionIterations(iterations);
+}
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateProjectionIterations(JCT, jint iterations){
+    fire->updateProjectionIterations(iterations);
 }
 
+JC(void) Java_com_pbf_SettingsFragment_setTouchMode(JCT, jboolean touchMode){
+    fire->setTouchMode(touchMode);
+}
+JC(void) Java_com_pbf_SettingsFragment_setOrientation(JCT, jboolean orientationMode){
+    fire->setOrientation(orientationMode);
+}
 JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint lowerRes){
     fire->updateResolution(lowerRes);
 }
-
 JC(void) Java_com_pbf_SettingsFragment_updateBackgroundColor(JCT, jfloat red, jfloat green, jfloat blue){
     fire->updateBackgroundColor(red, green, blue);
 }
-
 JC(void) Java_com_pbf_SettingsFragment_updateFilterColor(JCT, jfloat red, jfloat green, jfloat blue){
     fire->updateFilterColor(red, green, blue);
 }
-
 JC(void) Java_com_pbf_SettingsFragment_updateColorSpace(JCT, jfloat X, jfloat Y, jfloat Z){
     fire->updateColorSpace(X, Y, Z);
+}
+JC(void) Java_com_pbf_SettingsFragment_updateObjectType(JNIEnv* env, jobject, jstring type){
+    jboolean isCopy;
+    fire->updateObjectType(env->GetStringUTFChars(type, &isCopy));
+}
+JC(void) Java_com_pbf_SettingsFragment_setWindAngle(JCT, jboolean custom){
+    fire->setWindAngle(custom);
+}
+JC(void) Java_com_pbf_SettingsFragment_setMinNoiseBand(JCT, jboolean custom){
+    fire->setMinNoiseBand(custom);
+}
+JC(void) Java_com_pbf_SettingsFragment_setMaxNoiseBand(JCT, jboolean custom){
+    fire->setMaxNoiseBand(custom);
+}
+JC(void) Java_com_pbf_SettingsFragment_updateBoundaries(JNIEnv* env, jobject, jstring mode){
+    jboolean isCopy;
+    fire->updateBoundaries(env->GetStringUTFChars(mode, &isCopy));
 }
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT){

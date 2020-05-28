@@ -60,18 +60,37 @@ public:
 
     void onClick();
 
-    void updateResolutionScale(float scale);
-
-    void updateWind(float strength);
-    void updateVorticity(float vorticityScale);
-    void updateBuoyancy(float buoyancyScale);
-    void updateViscosity(float viscosity);
-    void updateIterations(int iterations);
-
+    void setTouchMode(bool touchMode);
+    void setOrientation(bool orientationMode);
     void updateResolution(int lowerRes);
+    void updateResolutionScale(float scale);
+    void updateSimulationScale(float scale);
+    void updateTimeStep(float timeStep);
     void updateBackgroundColor(float red, float green, float blue);
     void updateFilterColor(float red, float green, float blue);
     void updateColorSpace(float X, float Y, float Z);
+    void updateObjectType(std::string type);
+    void updateObjectRadius(float radius);
+    void updateObjectTemperature(float temperature);
+    void updateObjectDensity(float density);
+    void updateObjectVelocity(float velocity);
+    void updateWindStrength(float strength);
+    void setWindAngle(bool custom);
+    void updateWindAngle(float angle);
+    void updateVorticity(float vorticityScale);
+    void updateBuoyancy(float buoyancyScale);
+    void updateSmokeDissipation(float dissipation);
+    void updateTemperatureViscosity(float viscosity);
+    void updateSmokeViscosity(float viscosity);
+    void updateVelocityViscosity(float viscosity);
+    void setMinNoiseBand(bool custom);
+    void updateMinNoiseBand(float band);
+    void setMaxNoiseBand(bool custom);
+    void updateMaxNoiseBand(float band);
+    void updateDensityDiffusionIterations(int iterations);
+    void updateVelocityDiffusionIterations(int iterations);
+    void updateProjectionIterations(int iterations);
+    void updateBoundaries(std::string mode);
 
     bool changedSettings();
 };
@@ -97,16 +116,37 @@ JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateResolutionScale(JCT, jfloat scale);
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWind(JCT, jfloat strength);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSimulationScale(JCT, jfloat scale);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateTimeStep(JCT, jfloat timeStep);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectRadius(JCT, jfloat radius);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectTemperature(JCT, jfloat temperature);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectDensity(JCT, jfloat density);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateObjectVelocity(JCT, jfloat velocity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWindStrength(JCT, jfloat strength);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateWindAngle(JCT, jfloat angle);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVorticity(JCT, jfloat vorticityScale);
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateBuoyancy(JCT, jfloat buoyancyScale);
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateViscosity(JCT, jfloat viscosity);
-JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateIterations(JCT, jint iterations);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSmokeDissipation(JCT, jfloat dissipation);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateTemperatureViscosity(JCT, jfloat viscosity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateSmokeViscosity(JCT, jfloat viscosity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVelocityViscosity(JCT, jfloat viscosity);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateMinNoiseBand(JCT, jfloat band);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateMaxNoiseBand(JCT, jfloat band);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateDensityDiffusionIterations(JCT, jint iterations);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVelocityDiffusionIterations(JCT, jint iterations);
+JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateProjectionIterations(JCT, jint iterations);
 
+JC(void) Java_com_pbf_SettingsFragment_setTouchMode(JCT, jboolean touchMode);
+JC(void) Java_com_pbf_SettingsFragment_setOrientation(JCT, jboolean orientationMode);
 JC(void) Java_com_pbf_SettingsFragment_updateResolution(JCT, jint lowerRes);
 JC(void) Java_com_pbf_SettingsFragment_updateBackgroundColor(JCT, jfloat red, jfloat green, jfloat blue);
 JC(void) Java_com_pbf_SettingsFragment_updateFilterColor(JCT, jfloat red, jfloat green, jfloat blue);
 JC(void) Java_com_pbf_SettingsFragment_updateColorSpace(JCT, jfloat X, jfloat Y, jfloat Z);
+JC(void) Java_com_pbf_SettingsFragment_updateObjectType(JCT, jstring type);
+JC(void) Java_com_pbf_SettingsFragment_setWindAngle(JCT, jboolean custom);
+JC(void) Java_com_pbf_SettingsFragment_setMinNoiseBand(JCT, jboolean custom);
+JC(void) Java_com_pbf_SettingsFragment_setMaxNoiseBand(JCT, jboolean custom);
+JC(void) Java_com_pbf_SettingsFragment_updateBoundaries(JCT, jstring mode);
 
 JC(jboolean) Java_com_pbf_FireRenderer_changedSettings(JCT);
 
