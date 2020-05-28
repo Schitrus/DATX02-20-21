@@ -8,7 +8,7 @@ layout(binding = 0) uniform sampler3D velocity_field;
 uniform int depth;
 uniform float dt;
 uniform float vorticityScale;
-uniform float dx;
+uniform float dh;
 
 out vec3 outData;
 
@@ -25,7 +25,7 @@ vec3 curl(ivec3 position){
     vec3 U = texelFetch(velocity_field, position + dz, 0).xyz;
     vec3 D = texelFetch(velocity_field, position - dz, 0).xyz;
 
-    // This formula would normally also contain a dx term,
+    // This formula would normally also contain a dh term,
     // but this has been relocated to outside the function
     float curlX = (T.z - B.z) - (U.y - D.y);
     float curlY = (R.z - L.z) - (U.x - D.x);
@@ -58,7 +58,7 @@ void main() {
     vec3 vorticityForce = vec3(0.0);
     if(dot(gradientVorticity, gradientVorticity) != 0.0){
         vec3 normGradVort = normalize(gradientVorticity);
-        vorticityForce = vorticityScale * cross(normGradVort, currentCurl) / dx;
+        vorticityForce = vorticityScale * cross(normGradVort, currentCurl) / dh;
     }
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
