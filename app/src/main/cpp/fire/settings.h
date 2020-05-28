@@ -29,7 +29,7 @@ class Settings {
 
     ivec3 velocityResSize, substanceResSize;
 
-    float velocityScale, substanceScale;
+    int velocityScale, substanceScale;
 
     float resScale, simulationScale;
     float velocityToSimFactor, substanceToSimFactor;
