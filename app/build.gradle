@@ -11,7 +11,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags '-DANDROID_STL=c++_static -std=c++17'
+                cppFlags '-DANDROID_STL=c++_static -std=c++11'
             }
         }
     }
@@ -37,5 +37,5 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    compile(name:'color-picker', ext:'aar')
+    implementation (name:'color-picker', ext:'aar')
 }

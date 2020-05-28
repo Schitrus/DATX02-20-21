@@ -373,6 +373,10 @@ void RayRenderer::touch(double dx, double dy) {
     ry += 2 * dy / window_height;
 }
 
+void RayRenderer::scale(float scaleFactor, double scaleX, double scaleY){
+    zoom = scaleFactor;
+}
+
 void RayRenderer::loadMVP(Shader shader, float current_time) {
 
     float p = current_time / 10.0f;
@@ -385,10 +389,12 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
 
     vec3 modelPos(0, 0, -1.0);
 
+    vec3 zoomer = boundingScale * zoom;
+
     mat4 modelMatrix = translate(mat4(1.0f), modelPos)
                        * rotate(mat4(1.0f), (float) rx, vec3(0, 1, 0))
                        //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
-                       * scale(mat4(1.0f), boundingScale)
+                       * glm::scale(mat4(1.0f), zoomer)
                        * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 
     mat4 viewMatrix = lookAt(vec3(0), modelPos, worldUp);

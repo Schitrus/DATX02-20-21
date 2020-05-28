@@ -19,19 +19,22 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
     : javaEnvironment(javaEnvironment), assetManager(assetManager),
       screen_width(width), screen_height(height), shouldUpdateSettings(false), shouldRegenFields(false) {
     initFileLoader(assetManager);
+
+    settings = new Settings();
+
+    renderer = new Renderer();
+    simulator = new Simulator();
+
 }
 
 int Fire::init() {
-    settings = new Settings();
+
     settings->withSize(ivec3(1, 4, 1), 12, 60, 24.0f)->withDeltaTime(1/30.0f)
             ->withSourceMode(SourceMode::set)->withSourceType(SourceType::singleSphere)->withTempSourceDensity(3500.0f)
             ->withSmokeSourceDensity(0.4f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
             ->withBuoyancyScale(0.15f)->withWindScale(0.0f)->withSmokeDiffusion(0.0f, 0)->withSmokeDissipation(0.0f)
             ->withTempDiffusion(0.0f, 0)->withBackgroundColor(vec3(0.0f, 0.0f, 0.0f))->withFilterColor(vec3(1.0f, 1.0f, 1.0f))
             ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default");
-
-    renderer = new Renderer();
-    simulator = new Simulator();
 
     return renderer->init(settings) && simulator->init(settings);
 }

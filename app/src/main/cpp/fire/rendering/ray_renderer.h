@@ -31,9 +31,6 @@ class RayRenderer {
     vec3 backgroundColor, filterColor;
     vec3 colorSpace;
 
-    // Do not remove, it breaks for Kalle otherwise
-    std::string this_string_is_not_used_anywhere;
-
     // Framebuffers
     Framebuffer *back_FBO;
     Framebuffer *front_FBO;
@@ -57,8 +54,11 @@ class RayRenderer {
     GLuint maxTexID;
 
     // rotation
-    double rx;
-    double ry;
+    double rx = 0.0f;
+    double ry = 0.0f;
+
+    // zoom
+    float zoom  = 1.0f;
 
     // Shaders
     Shader frontFaceShader, backFaceShader, quadShader, maxCompShader;
@@ -77,6 +77,8 @@ public:
     void step(GLuint density, GLuint temperature, ivec3 size);
 
     void touch(double dx, double dy);
+
+    void scale(float scaleFactor, double scaleX, double scaleY);
 
 private:
 

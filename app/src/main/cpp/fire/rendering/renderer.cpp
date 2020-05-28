@@ -45,6 +45,7 @@ void Renderer::update(GLuint density, GLuint temperature, ivec3 size) {
 
 void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
     // TODO implement
+    rayRenderer->scale(scaleFactor, scaleX, scaleY);
 }
 
 void Renderer::touch(double dx, double dy){
