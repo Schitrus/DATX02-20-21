@@ -8,6 +8,7 @@ layout(binding = 0) uniform sampler3D velocity_field;
 uniform int depth;
 uniform float dt;
 uniform float vorticityScale;
+uniform float meterToVoxels; // Voxels to meters distance
 
 out vec3 outData;
 
@@ -53,7 +54,7 @@ void main() {
     vec3 vorticityForce = vec3(0.0);
     if(dot(gradientVorticity, gradientVorticity) != 0.0){
         vec3 normGradVort = normalize(gradientVorticity);
-        vorticityForce = vorticityScale * cross(normGradVort, currentCurl);
+        vorticityForce = vorticityScale * cross(normGradVort, currentCurl) * meterToVoxels;
     }
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
