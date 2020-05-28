@@ -29,12 +29,14 @@ Fire::Fire(JNIEnv* javaEnvironment, AAssetManager* assetManager, int width, int 
 
 int Fire::init() {
 
-    settings->withSize(ivec3(1, 4, 1), 12, 60, 24.0f)->withDeltaTime(1/30.0f)
-            ->withSourceMode(SourceMode::set)->withSourceType(SourceType::singleSphere)->withTempSourceDensity(3500.0f)
-            ->withSmokeSourceDensity(0.4f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
-            ->withBuoyancyScale(0.15f)->withWindScale(0.0f)->withSmokeDiffusion(0.0f, 0)->withSmokeDissipation(0.0f)
+    settings->withSize(ivec3(1, 4, 1), 12, 60, 24.0f)->withDeltaTime(1 / 30.0f)
+            ->withSourceMode(SourceMode::set)->withSourceType(SourceType::singleSphere)->withSourceTemperature(3500.0f)
+            ->withSourceDensity(0.4f)->withSourceRadius(5.0f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
+            ->withBuoyancyScale(0.15f)->withSmokeDissipation(0.0f)->withSmokeDiffusion(0.0f, 0)->withWindStrength(0.0f)
             ->withTempDiffusion(0.0f, 0)->withBackgroundColor(vec3(0.0f, 0.0f, 0.0f))->withFilterColor(vec3(1.0f, 1.0f, 1.0f))
             ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default");
+
+    settings->printInfo("FIRE");
 
     return renderer->init(settings) && simulator->init(settings);
 }
@@ -48,6 +50,9 @@ void Fire::update(){
     ivec3 size;
 
     if(shouldUpdateSettings){
+
+        LOG_INFO("WOW!!!!!");
+
         renderer->changeSettings(settings);
         simulator->changeSettings(settings, shouldRegenFields);
 
@@ -78,10 +83,14 @@ void Fire::onClick() {
 
 void Fire::setTouchMode(bool touchMode){
     LOG_INFO("TouchModeSetting, %s", touchMode ? "true" : "false");
+    settings->withTouchMode(touchMode);
+    shouldUpdateSettings = true;
 }
 
 void Fire::setOrientation(bool orientationMode){
     LOG_INFO("OrientationSetting, %s", orientationMode ? "true" : "false");
+    settings->withOrientationMode(orientationMode);
+    shouldUpdateSettings = true;
 }
 
 void Fire::updateResolution(int lowerRes) {
@@ -131,54 +140,59 @@ void Fire::updateColorSpace(float X, float Y, float Z) {
 
 void Fire::updateObjectType(std::string type) {
     LOG_INFO("ObjectTypeUpdate, %s", type.c_str());
-
+    if(type == "SPHERE")
+        settings->withSourceType(SourceType::singleSphere);
+    else if(type == "CUBE")
+        settings->withSourceType(SourceType::cube);
+    else if(type == "PYRAMID")
+        settings->withSourceType(SourceType::pyramid);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateObjectRadius(float radius) {
     LOG_INFO("ObjectRadiusUpdate, %f", radius);
-
+    settings->withSourceRadius(radius);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateObjectTemperature(float temperature) {
     LOG_INFO("ObjectTemperatureUpdate, %f", temperature);
-
+    settings->withSourceTemperature(temperature);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateObjectDensity(float density) {
     LOG_INFO("ObjectDensityUpdate, %f", density);
-
+    settings->withSourceDensity(density);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateObjectVelocity(float velocity) {
     LOG_INFO("ObjectVelocityUpdate, %f", velocity);
-
+    settings->withSourceVelocity(velocity);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateWindStrength(float strength) {
-    settings->withWindScale(strength);
     LOG_INFO("WindStrengthUpdate, %f", strength);
+    settings->withWindStrength(strength);
     shouldUpdateSettings = true;
 }
 
 void Fire::setWindAngle(bool custom) {
     LOG_INFO("WindAngleSetting, %s", custom ? "true" : "false");
-
+    settings->withRotatingWindAngle(custom);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateWindAngle(float angle) {
     LOG_INFO("WindAngleUpdate, %f", angle);
-
+    settings->withWindAngle(angle);
     shouldUpdateSettings = true;
 }
 
@@ -196,65 +210,65 @@ void Fire::updateBuoyancy(float buoyancyScale) {
 
 void Fire::updateSmokeDissipation(float dissipation) {
     LOG_INFO("SmokeDissipationUpdate, %f", dissipation);
-
+    settings->withSmokeDissipation(dissipation);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateTemperatureViscosity(float viscosity) {
     LOG_INFO("TmeperatureViscosityUpdate, %f", viscosity);
-
+    settings->withTempDiffusion(viscosity, settings->getTempDiffusionIterations());
     shouldUpdateSettings = true;
 }
 
 void Fire::updateSmokeViscosity(float viscosity) {
     LOG_INFO("SmokeViscosityUpdate, %f", viscosity);
-
+    settings->withSmokeDiffusion(viscosity, settings->getSmokeDiffusionIterations());
     shouldUpdateSettings = true;
 }
 
 void Fire::updateVelocityViscosity(float viscosity) {
     LOG_INFO("VelocityViscosityUpdate, %f", viscosity);
-
+    settings->withVelDiffusion(viscosity, settings->getVelDiffusionIterations());
     shouldUpdateSettings = true;
 }
 
 void Fire::setMinNoiseBand(bool custom) {
     LOG_INFO("MinNoiseBandSetting, %s", custom ? "true" : "false");
-
+    settings->withCustomMinBand(custom);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateMinNoiseBand(float band) {
     LOG_INFO("MinNoiseUpdate, %f", band);
-
+    settings->withMinBand(band);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::setMaxNoiseBand(bool custom) {
     LOG_INFO("MaxNoiseBandSetting, %s", custom ? "true" : "false");
-
+    settings->withCustomMaxBand(custom);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateMaxNoiseBand(float band) {
     LOG_INFO("MaxNoiseUpdate, %f", band);
-
+    settings->withMaxBand(band);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
 
 void Fire::updateDensityDiffusionIterations(int iterations) {
     LOG_INFO("DensityDiffusionIterationsUpdate, %d", iterations);
-
+    settings->withSmokeDiffusion(settings->getSmokeKinematicViscosity(), iterations);
     shouldUpdateSettings = true;
 }
 
 void Fire::updateVelocityDiffusionIterations(int iterations) {
     LOG_INFO("VelocityDiffusionIterationsUpdate, %d", iterations);
-
+    settings->withVelDiffusion(settings->getVelKinematicViscosity(), iterations);
     shouldUpdateSettings = true;
 }
 
@@ -266,7 +280,12 @@ void Fire::updateProjectionIterations(int iterations) {
 
 void Fire::updateBoundaries(std::string mode) {
     LOG_INFO("BoundariesUpdate, %s", mode.c_str());
-
+    if (mode == "NONE")
+        settings->withBoundaryType(BoundaryType::none);
+    else if (mode == "BOX")
+        settings->withBoundaryType(BoundaryType::box);
+    else if (mode == "REPEAT")
+        settings->withBoundaryType(BoundaryType::repeat);
     shouldUpdateSettings = true;
 }
 

@@ -10,6 +10,8 @@
 
 void initSourceField(float* field, float value, Resolution res, Settings* settings);
 
+void initSourceField(vec3* field, vec3 value, Resolution res, Settings* settings);
+
 // creates a field array to use for texture creation, that need to be deleted after use
 float* createScalarField(float value, ivec3 gridSize);
 
@@ -18,6 +20,7 @@ vec3* createVectorField(vec3 value, ivec3 gridSize);
 
 // value is in unit
 void fillField(float* field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings* settings);
+void fillField(vec3* field, vec3 value, vec3 minPos, vec3 maxPos, Resolution res, Settings* settings);
 
 void fillSphere(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
 void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);

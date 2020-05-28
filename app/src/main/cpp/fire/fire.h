@@ -105,7 +105,6 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager);
 
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject, jobject mgr, jint width, jint height);
-JC(void) Java_com_pbf_FireActivity_initFileLoader(JNIEnv *env, jobject obj, jobject assetManager);
 // FireRenderer
 JC(jint) Java_com_pbf_FireRenderer_init(JCT);
 JC(void) Java_com_pbf_FireRenderer_resize(JCT, jint width, jint height);

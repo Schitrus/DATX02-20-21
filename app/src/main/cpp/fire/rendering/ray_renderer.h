@@ -50,12 +50,20 @@ class RayRenderer {
     GLuint temperatureTexID;
     GLuint densityTexID;
 
+    // debug 3D texture
+    GLuint debugTemp;
+    GLuint debugDens;
+    ivec3 debugSize;
+
     // texture
     GLuint maxTexID;
 
     // rotation
     double rx = 0.0f;
     double ry = 0.0f;
+
+    // rotation touch
+    bool touchMode = true;
 
     // zoom
     float zoom  = 1.0f;
@@ -69,6 +77,8 @@ class RayRenderer {
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
     int init(Settings* settings);
+
+    void initDebug();
 
     int changeSettings(Settings* settings);
 

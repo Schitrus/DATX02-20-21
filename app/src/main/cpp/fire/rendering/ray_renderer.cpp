@@ -70,15 +70,22 @@ int RayRenderer::init(Settings* settings) {
         return 0;
     }
 
-    changeSettings(settings);
+    backgroundColor = settings->getBackgroundColor();
+    filterColor = settings->getFilterColor();
+    colorSpace = settings->getColorSpace();
+    touchMode = settings->getTouchMode();
+
+    //initDebug();
 
     return 1;
 }
 
 int RayRenderer::changeSettings(Settings* settings) {
+
     backgroundColor = settings->getBackgroundColor();
     filterColor = settings->getFilterColor();
     colorSpace = settings->getColorSpace();
+    touchMode = settings->getTouchMode();
     return 1;
 }
 
@@ -154,7 +161,32 @@ void RayRenderer::simScale() {
     sim_height = min(sim_height, window_height);
 }
 
+void RayRenderer::initDebug() {
+    debugSize = ivec3(100, 100, 100);
+    float* den = new float[debugSize.x*debugSize.y*debugSize.z];
+    float* temp = new float[debugSize.x*debugSize.y*debugSize.z];
+    for (int z = 0; z < debugSize.z; ++z) {
+        for (int y = 0; y < debugSize.y; ++y) {
+            for (int x = 0; x < debugSize.x; ++x) {
+                int X = x - debugSize.x/2;
+                int Y = y - debugSize.y/2;
+                int Z = z - debugSize.z/2;
+                if(sqrt(X*X+Y*Y+Z*Z) < 8) {
+                    den[z * debugSize.y * debugSize.x + y * debugSize.x + x] = 1.0f;
+                    temp[z * debugSize.y * debugSize.x + y * debugSize.x + x] = 3500.0f;
+                }
+            }
+        }
+    }
+    createScalar3DTexture(debugDens,debugSize,den);
+    createScalar3DTexture(debugTemp,debugSize,temp);
+
+    delete[] den;
+    delete[] temp;
+}
+
 void RayRenderer::setData(GLuint density, GLuint temperature, ivec3 size) {
+
     densityTexID = density;
     temperatureTexID = temperature;
 
@@ -369,8 +401,10 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
 }
 
 void RayRenderer::touch(double dx, double dy) {
-    rx += 2 * dx / window_width;
-    ry += 2 * dy / window_height;
+    if(touchMode) {
+        rx += 2 * dx / window_width;
+        ry += 2 * dy / window_height;
+    }
 }
 
 void RayRenderer::scale(float scaleFactor, double scaleX, double scaleY){

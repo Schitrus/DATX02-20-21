@@ -22,7 +22,9 @@ enum class SourceMode {set, add};
 // The type of source to place
 // singleSphere places a single force in the center of the simulation
 // dualSpheres places two spheres located besides each other
-enum class SourceType {singleSphere, dualSpheres, floor};
+enum class SourceType {singleSphere, dualSpheres, floor, cube, pyramid};
+
+enum class BoundaryType {none, box, repeat};
 
 class Settings {
     std::string name;
@@ -38,28 +40,46 @@ class Settings {
 
     ivec3 sizeRatio;
 
+    bool touchMode;
+    bool orientationMode;
     vec3 backgroundColor, filterColor;
     vec3 colorSpace;
 
+    BoundaryType boundaryType;
     SourceMode sourceMode;
     SourceType sourceType;
-    float temperatureSourceDensity;
-    float smokeSourceDensity;
+    float sourceRadius;
+    float sourceTemperature;
+    float sourceDensity;
+    vec3 sourceVelocity;
+
+    vec3 orientationVector;
 
     int projectionIterations;
     float vorticityScale;
     float velocityKinematicViscosity;
     int velocityDiffusionIterations;
     float buoyancyScale;
-    float windScale;
+    
+    float windStrength;
+    bool rotatingWindAngle;
+    float windAngle;
 
     float smokeKinematicViscosity;
     int smokeDiffusionIterations;
     float smokeDissipation;
     float tempKinematicViscosity;
     int tempDiffusionIterations;
+
+    bool customMinBand;
+    bool customMaxBand;
+    float minBand;
+    float maxBand;
+
 public:
     Settings();
+
+    void printInfo(std::string header);
 
     // todo it'd be nice to display the name of the current settings
     // Returns the name of this settings template
@@ -86,7 +106,7 @@ public:
     float getSubstanceScale();
 
     // Sets the size of the simulation and resolutions
-    Settings* withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale);
+    Settings* withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale);
 
     // Returns the fixed delta time, or 0 if the delta time shouldn't be fixed
     float getDeltaTime();
@@ -108,14 +128,14 @@ public:
     Settings* withSourceType(SourceType type);
 
     // Returns the value used for the temperature source
-    float getTempSourceDensity();
+    float getSourceTemperature();
     // Sets the value used for the temperature source
-    Settings* withTempSourceDensity(float density);
+    Settings* withSourceTemperature(float density);
 
     // Returns the value used for the smoke/density source
-    float getSmokeSourceDensity();
+    float getSourceDensity();
     // Sets the value used for the smoke/density source
-    Settings* withSmokeSourceDensity(float density);
+    Settings* withSourceDensity(float density);
 
     // Returns the kinematic viscosity used by diffusion of the velocity
     float getVelKinematicViscosity();
@@ -148,7 +168,7 @@ public:
 
     // Sets the scale factor for wind strength
     // If the scale factor is set to 0, the wind step will be skipped
-    Settings* withWindScale(float windScale);
+    Settings* withWindStrength(float windScale);
 
     // Returns the kinematic viscosity used by diffusion of the smoke/density
     float getSmokeKinematicViscosity();
@@ -180,6 +200,42 @@ public:
 
     vec3 getColorSpace();
     Settings* withColorSpace(vec3 colorSpace);
+
+    bool getTouchMode();
+    Settings* withTouchMode(bool touchMode);
+
+    bool getOrientationMode();
+    Settings* withOrientationMode(bool orientationMode);
+
+    float getSourceRadius();
+    Settings* withSourceRadius(float radius);
+
+    vec3 getSourceVelocity();
+    Settings* withSourceVelocity(float length);
+
+    vec3 getOrientationVector();
+    Settings* withOrientationVector(vec3 orientationVector);
+
+    bool getRotatingWindAngle();
+    Settings* withRotatingWindAngle(bool rotatingWindAngle);
+
+    float getWindAngle();
+    Settings* withWindAngle(bool windAngle);
+
+    bool getCustomMinBand();
+    Settings* withCustomMinBand(bool customMinBand);
+
+    bool getCustomMaxBand();
+    Settings* withCustomMaxBand(bool customMaxBand);
+
+    float getMinBand();
+    Settings* withMinBand(float minBand);
+
+    float getMaxBand();
+    Settings* withMaxBand(float maxBand);
+
+    BoundaryType  getBoundaryType();
+    Settings* withBoundaryType(BoundaryType boundaryType);
 
 };
 

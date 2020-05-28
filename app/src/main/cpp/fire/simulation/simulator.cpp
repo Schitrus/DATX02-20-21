@@ -114,6 +114,8 @@ void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& siz
 
 void Simulator::initData(Settings* settings) {
 
+    settings->printInfo("SIMULATOR");
+
     ivec3 lowResSize = settings->getSize(Resolution::velocity);
     ivec3 highResSize = settings->getSize(Resolution::substance);
 
@@ -124,8 +126,9 @@ void Simulator::initData(Settings* settings) {
     vec3* velocity_field = createVectorField(vec3(0.0f), lowResSize);
     vec3* velocity_source = createVectorField(vec3(0.0f), lowResSize);
 
-    initSourceField(density_source, settings->getSmokeSourceDensity(), Resolution::substance, settings);
-    initSourceField(temperature_source, settings->getTempSourceDensity(), Resolution::substance, settings);
+    initSourceField(density_source, settings->getSourceDensity(), Resolution::substance, settings);
+    initSourceField(temperature_source, settings->getSourceTemperature(), Resolution::substance, settings);
+    initSourceField(velocity_source, settings->getSourceVelocity(), Resolution::velocity, settings);
 
     smokeDensity = createScalarDataPair(density_field, Resolution::substance, settings);
     createScalar3DTexture(densitySource, highResSize, density_source);

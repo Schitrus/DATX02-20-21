@@ -14,10 +14,30 @@
 void initSourceField(float* field, float value, Resolution res, Settings* settings) {
 
     if(settings->getSourceType() == SourceType::singleSphere) {
-        float radius = 6.4f;
         vec3 center = vec3(0.5f, 0.2f, 0.5f) * settings->getSimulationSize();
 
-        fillSphere(field, value, center, radius, res, settings);
+        fillSphere(field, value, center, settings->getSourceRadius(), res, settings);
+    } else if(settings->getSourceType() == SourceType::dualSpheres) {
+        float radius = 6.4f;
+        vec3 center1 = vec3(0.3f, 0.2f, 0.5f) * settings->getSimulationSize();
+        vec3 center2 = vec3(0.7f, 0.2f, 0.5f) * settings->getSimulationSize();
+
+        fillSphere(field, value, center1, radius, res, settings);
+        fillSphere(field, value, center2, radius, res, settings);
+    } else if(settings->getSourceType() == SourceType::floor) {
+        vec3 minPos = vec3(0);
+        vec3 maxPos = vec3(1, 0.1f, 1) * settings->getSimulationSize();
+
+        fillField(field, value, minPos, maxPos, res, settings);
+    }
+}
+
+void initSourceField(vec3* field, vec3 value, Resolution res, Settings* settings) {
+
+    if(settings->getSourceType() == SourceType::singleSphere) {
+        vec3 center = vec3(0.5f, 0.2f, 0.5f) * settings->getSimulationSize();
+
+        fillSphere(field, value, center, settings->getSourceRadius(), res, settings);
     } else if(settings->getSourceType() == SourceType::dualSpheres) {
         float radius = 6.4f;
         vec3 center1 = vec3(0.3f, 0.2f, 0.5f) * settings->getSimulationSize();
@@ -60,6 +80,34 @@ vec3* createVectorField(vec3 value, ivec3 gridSize) {
 }
 
 void fillField(float *field, float value, vec3 minPos, vec3 maxPos, Resolution res, Settings* settings) {
+    int border = 1;
+    ivec3 gridSize = settings->getSize(res);
+    float toSimulationScale = settings->getResToSimFactor(res);
+    //Volume for an 1x1x1 voxel cell, in meters
+    float cellVolume = (1 * toSimulationScale) * (1 * toSimulationScale) * (1 * toSimulationScale);
+    for (int z = 0; z < gridSize.z - 2 * border; z++) {
+        for (int y = 0; y < gridSize.y - 2 * border; y++) {
+            for (int x = 0; x < gridSize.x - 2 * border; x++) {
+                //Lower corner of cell in simulation space (no border)
+                vec3 pos = vec3(x, y, z) * toSimulationScale;
+                //Upper corner of cell in simulation space (no border)
+                vec3 pos1 = vec3(x + 1, y + 1, z + 1) * toSimulationScale;
+                //Does this cell overlap with the fill area?
+                if(hasOverlap(pos, pos1, minPos, maxPos)) {
+                    float overlappedVolume = getOverlapVolume(pos, pos1, minPos, maxPos);
+
+                    //Index of position in texture space (with border)
+                    int index = gridSize.x * (gridSize.y * (z + border) + y + border) + x + border;
+                    if(settings->getSourceMode() == SourceMode::add)
+                        field[index] = value*(overlappedVolume/cellVolume);
+                    else field[index] = value;
+                }
+            }
+        }
+    }
+}
+
+void fillField(vec3 *field, vec3 value, vec3 minPos, vec3 maxPos, Resolution res, Settings* settings) {
     int border = 1;
     ivec3 gridSize = settings->getSize(res);
     float toSimulationScale = settings->getResToSimFactor(res);

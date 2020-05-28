@@ -12,32 +12,49 @@
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 Settings::Settings() {
-    dt = 0.0f;
 
-    resScale = 1;
-    simulationScale = 1;
-    sizeRatio = ivec3(1, 1, 1);
+    name = "untitled";
+
+    velocityResSize = ivec3(1, 1, 1) + ivec3(2, 2, 2);
+    substanceResSize = ivec3(1, 1, 1) + ivec3(2, 2, 2);
 
     velocityScale = 1;
     substanceScale = 1;
 
-    velocityResSize = ivec3(1.0f, 1.0f, 1.0f) + ivec3(2, 2, 2);
-    substanceResSize = ivec3(1.0f, 1.0f, 1.0f) + ivec3(2, 2, 2);
+    resScale = 1.0f;
+    simulationScale = 1.0f;
     velocityToSimFactor = 1.0f;
     substanceToSimFactor = 1.0f;
     simulationSize = ivec3(1.0f, 1.0f, 1.0f);
+    dt = 0.0f;
 
+    sizeRatio = ivec3(1, 1, 1);
+
+    touchMode = true;
+    orientationMode = true;
+    backgroundColor = vec3(0.0f, 0.0f, 0.0f);
+    filterColor = vec3(1.0f, 1.0f, 1.0f);
+    colorSpace = vec3(1.0f, 1.0f, 1.0f);
+
+    boundaryType = BoundaryType::none;
     sourceMode = SourceMode::add;
     sourceType = SourceType::singleSphere;
-    temperatureSourceDensity = 0.0f;
-    smokeSourceDensity = 0.0f;
+    sourceRadius = 0.0f;
+    sourceTemperature = 0.0f;
+    sourceDensity = 0.0f;
+    sourceVelocity = vec3(0.0f, 0.0f, 0.0f);
+
+    orientationVector = vec3(0.0f, 1.0f, 0.0f);
 
     projectionIterations = 0;
     vorticityScale = 0.0f;
     velocityKinematicViscosity = 0.0f;
     velocityDiffusionIterations = 0;
     buoyancyScale = 0.0f;
-    windScale = 0.0f;
+
+    windStrength = 0.0f;
+    rotatingWindAngle = false;
+    windAngle = 0.0f;
 
     smokeKinematicViscosity = 0.0f;
     smokeDiffusionIterations = 0;
@@ -45,10 +62,58 @@ Settings::Settings() {
     tempKinematicViscosity = 0.0f;
     tempDiffusionIterations = 0;
 
-    backgroundColor = vec3(0.0f, 0.0f, 0.0f);
-    filterColor = vec3(1.0f, 1.0f, 1.0f);
-    colorSpace = vec3(1.0f, 1.0f, 1.0f);
+    customMinBand = false;
+    customMaxBand = false;
+    minBand = 1.0f;
+    maxBand = 1.0f;
+}
 
+void Settings::printInfo(std::string header) {
+
+    LOG_INFO("SETTING INFO: %s", header.c_str());
+
+    LOG_INFO("name: %s", name.c_str());
+    LOG_INFO("VelocityResSize: %d, %d, %d", velocityResSize.x, velocityResSize.y, velocityResSize.z);
+    LOG_INFO("SubstanceResSize: %d, %d, %d", substanceResSize.x, substanceResSize.y, substanceResSize.z);
+    LOG_INFO("velocityScale: %d", velocityScale);
+    LOG_INFO("substanceScale: %d", substanceScale);
+    LOG_INFO("resScale: %f", resScale);
+    LOG_INFO("simulationScale: %f", simulationScale);
+    LOG_INFO("velocityToSimFactor: %f", velocityToSimFactor);
+    LOG_INFO("substanceToSimFactor: %f", substanceToSimFactor);
+    LOG_INFO("simulationSize: %f, %f, %f", simulationSize.x, simulationSize.y, simulationSize.z);
+    LOG_INFO("dt: %f", dt);
+    LOG_INFO("sizeRatio: %d, %d, %d", sizeRatio.x, sizeRatio.y, sizeRatio.z);
+    LOG_INFO("touchMode: %s", touchMode ? "true" : "false");
+    LOG_INFO("orientationMode: %s", orientationMode ? "true" : "false");
+    LOG_INFO("backgroundColor: %f, %f, %f", backgroundColor.x, backgroundColor.y, backgroundColor.z);
+    LOG_INFO("filterColor: %f, %f, %f", filterColor.x, filterColor.y, filterColor.z);
+    LOG_INFO("colorSpace: %f, %f, %f", colorSpace.x, colorSpace.y, colorSpace.z);
+    LOG_INFO("boundaryType: %d", (int)boundaryType);
+    LOG_INFO("sourceMode: %d", (int)sourceMode);
+    LOG_INFO("sourceType: %d", (int)sourceType);
+    LOG_INFO("sourceRadius: %f", sourceRadius);
+    LOG_INFO("sourceTemperature: %f", sourceTemperature);
+    LOG_INFO("sourceDensity: %f", sourceDensity);
+    LOG_INFO("sourceVelocity: %f, %f, %f", sourceVelocity.x, sourceVelocity.y, sourceVelocity.z);
+    LOG_INFO("orientationVector: %f, %f, %f", orientationVector.x, orientationVector.y, orientationVector.z);
+    LOG_INFO("projectionIterations: %d", projectionIterations);
+    LOG_INFO("vorticityScale: %f", vorticityScale);
+    LOG_INFO("velocityKinematicViscosity: %f", velocityKinematicViscosity);
+    LOG_INFO("velocityDiffusionIterations: %d", velocityDiffusionIterations);
+    LOG_INFO("buoyancyScale: %f", buoyancyScale);
+    LOG_INFO("windStrength: %f", windStrength);
+    LOG_INFO("rotatingWindAngle: %s", rotatingWindAngle ? "true" : "false");
+    LOG_INFO("windAngle: %f", windAngle);
+    LOG_INFO("smokeKinematicViscosity: %f", smokeKinematicViscosity);
+    LOG_INFO("smokeDiffusionIterations: %d", smokeDiffusionIterations);
+    LOG_INFO("smokeDissipation: %f", smokeDissipation);
+    LOG_INFO("tempKinematicViscosity: %f", tempKinematicViscosity);
+    LOG_INFO("tempDiffusionIterations: %d", tempDiffusionIterations);
+    LOG_INFO("customMinBand: %s", customMinBand ? "true" : "false");
+    LOG_INFO("customMaxBand: %s", customMaxBand ? "true" : "false");
+    LOG_INFO("minBand: %f", minBand);
+    LOG_INFO("maxBand: %f", maxBand);
 }
 
 std::string Settings::getName() {
@@ -101,16 +166,16 @@ float Settings::getSubstanceScale() {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-Settings* Settings::withSize(ivec3 sizeRatio, float velocityScale, float substanceScale, float simulationScale) {
+Settings* Settings::withSize(ivec3 sizeRatio, int velocityScale, int substanceScale, float simulationScale) {
     this->simulationScale = simulationScale;
-    this->resScale = ((float)substanceScale/velocityScale);
+    this->resScale = substanceScale/velocityScale;
     this->sizeRatio = sizeRatio;
     this->velocityScale = velocityScale;
     this->substanceScale = substanceScale;
     this->simulationSize = simulationScale * vec3(sizeRatio);
-    this->velocityResSize = ivec3(velocityScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
+    this->velocityResSize = ivec3((float)velocityScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
     this->velocityToSimFactor = simulationScale / velocityScale;
-    this->substanceResSize = ivec3(substanceScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
+    this->substanceResSize = ivec3((float)substanceScale * vec3(sizeRatio)) + ivec3(2, 2, 2);
     this->substanceToSimFactor = simulationScale / substanceScale;
     return this;
 }
@@ -143,21 +208,21 @@ Settings* Settings::withSourceType(SourceType type) {
     return this;
 }
 
-float Settings::getTempSourceDensity() {
-    return temperatureSourceDensity;
+float Settings::getSourceTemperature() {
+    return sourceTemperature;
 }
 
-Settings* Settings::withTempSourceDensity(float density) {
-    this->temperatureSourceDensity = density;
+Settings* Settings::withSourceTemperature(float density) {
+    this->sourceTemperature = density;
     return this;
 }
 
-float Settings::getSmokeSourceDensity() {
-    return smokeSourceDensity;
+float Settings::getSourceDensity() {
+    return sourceDensity;
 }
 
-Settings* Settings::withSmokeSourceDensity(float density) {
-    this->smokeSourceDensity = density;
+Settings* Settings::withSourceDensity(float density) {
+    this->sourceDensity = density;
     return this;
 }
 
@@ -203,11 +268,11 @@ Settings* Settings::withBuoyancyScale(float buoyancyScale) {
 }
 
 float Settings::getWindScale() {
-    return windScale;
+    return windStrength;
 }
 
-Settings* Settings::withWindScale(float windScale) {
-    this->windScale = windScale;
+Settings* Settings::withWindStrength(float windScale) {
+    this->windStrength = windScale;
     return this;
 }
 
@@ -272,5 +337,108 @@ vec3 Settings::getColorSpace(){
 
 Settings* Settings::withColorSpace(vec3 colorSpace) {
     this->colorSpace = colorSpace;
+    return this;
+}
+
+bool Settings::getTouchMode(){
+    return touchMode;
+}
+Settings* Settings::withTouchMode(bool touchMode){
+    this->touchMode = touchMode;
+    return this;
+}
+
+bool Settings::getOrientationMode(){
+    return orientationMode;
+}
+Settings* Settings::withOrientationMode(bool orientationMode){
+    this->orientationMode = orientationMode;
+    return this;
+}
+
+float Settings::getSourceRadius(){
+    return sourceRadius;
+}
+Settings* Settings::withSourceRadius(float radius){
+    this->sourceRadius = radius;
+    return this;
+}
+
+vec3 Settings::getSourceVelocity(){
+    return sourceVelocity;
+}
+Settings* Settings::withSourceVelocity(float length){
+    this->sourceVelocity = orientationVector * length;
+    return this;
+}
+
+vec3 Settings::getOrientationVector(){
+    return orientationVector;
+}
+Settings* Settings::withOrientationVector(vec3 orientationVector){
+    this->orientationVector = orientationVector;
+    return this;
+}
+
+bool Settings::getRotatingWindAngle(){
+    return rotatingWindAngle;
+}
+
+Settings* Settings::withRotatingWindAngle(bool rotatingWindAngle){
+    this->rotatingWindAngle = rotatingWindAngle;
+    return this;
+}
+
+float Settings::getWindAngle(){
+    return windAngle;
+}
+
+Settings* Settings::withWindAngle(bool windAngle){
+    this->windAngle = windAngle;
+    return this;
+}
+
+bool Settings::getCustomMinBand(){
+    return customMinBand;
+}
+
+Settings* Settings::withCustomMinBand(bool customMinBand){
+    this->customMinBand = customMinBand;
+    return this;
+}
+
+bool Settings::getCustomMaxBand(){
+    return customMaxBand;
+}
+
+Settings* Settings::withCustomMaxBand(bool customMaxBand){
+    this->customMaxBand = customMaxBand;
+    return this;
+}
+
+float Settings::getMinBand(){
+    return minBand;
+}
+
+Settings* Settings::withMinBand(float minBand){
+    this->minBand = minBand;
+    return this;
+}
+
+float Settings::getMaxBand(){
+    return maxBand;
+}
+
+Settings* Settings::withMaxBand(float maxBand){
+    this->maxBand = maxBand;
+    return this;
+}
+
+BoundaryType Settings::getBoundaryType(){
+    return boundaryType;
+}
+
+Settings* Settings::withBoundaryType(BoundaryType boundaryType){
+    this->boundaryType = boundaryType;
     return this;
 }
