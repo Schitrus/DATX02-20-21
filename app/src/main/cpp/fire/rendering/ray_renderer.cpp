@@ -38,10 +38,6 @@ int RayRenderer::init(Settings* settings) {
 
     clearGLErrors("render initialization");
 
-    this->settings = new Settings();
-
-    *(this->settings) = *settings;
-
     start_time = NOW;
     last_time = start_time;
 
@@ -74,11 +70,15 @@ int RayRenderer::init(Settings* settings) {
         return 0;
     }
 
+    changeSettings(settings);
+
     return 1;
 }
 
 int RayRenderer::changeSettings(Settings* settings) {
-    *(this->settings) = *settings;
+    backgroundColor = settings->getBackgroundColor();
+    filterColor = settings->getFilterColor();
+    colorSpace = settings->getColorSpace();
     return 1;
 }
 
@@ -345,15 +345,11 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
     // quad
     glBindVertexArray(quad_VAO);
     glViewport(0, 0, window_width, window_height);
-    vec3 bgColor = settings->getBackgroundColor();
-    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_CULL_FACE);
 
     quadShader.use();
-
-    vec3 filterColor = settings->getFilterColor();
-    vec3 colorSpace = settings->getColorSpace();
 
     quadShader.uniform3f("filterColor", filterColor);
     quadShader.uniform3f("colorSpace", colorSpace);

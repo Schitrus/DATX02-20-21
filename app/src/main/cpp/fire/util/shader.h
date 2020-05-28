@@ -28,6 +28,8 @@ public:
     void uniform1f(const GLchar *name, float value);
 
     void uniform3f(const GLchar *name, vec3 vector);
+
+    void uniform3i(const GLchar *name, ivec3 vector);
 private:
     GLuint createShader(GLenum type, const char* src);
 

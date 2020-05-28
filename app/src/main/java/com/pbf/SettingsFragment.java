@@ -162,8 +162,14 @@ public class SettingsFragment extends Fragment {
 
         resolutionSpinner.setAdapter(adapter);
         resolutionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            boolean startup = true;
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                if (startup){
+                    startup = false;
+                    return;
+                }
+
                 ResolutionItems res = ResolutionItems.values()[pos];
 
                 switch(res){
@@ -173,8 +179,9 @@ public class SettingsFragment extends Fragment {
                     case HIGH:
                         updateResolution(24);
                         break;
-                    default:
+                    case MEDIUM:
                         updateResolution(12);
+                        break;
                 }
             }
 

@@ -15,8 +15,8 @@
 
 class Renderer{
     int window_width, window_height;
-    RayRenderer rayRenderer;
-    Settings* settings;
+    RayRenderer* rayRenderer;
+
 public:
     int init(Settings* settings);
 

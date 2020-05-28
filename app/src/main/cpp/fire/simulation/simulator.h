@@ -17,11 +17,9 @@ using std::chrono::time_point;
 using std::chrono::system_clock;
 
 class Simulator {
-    SlabOperation slab;
-    SimulationOperations operations;
-    WaveletTurbulence wavelet;
-
-    Settings* settings;
+    SlabOperation* slab;
+    SimulationOperations* operations;
+    WaveletTurbulence* wavelet;
 
     DataTexturePair* smokeDensity;
     DataTexturePair* temperature;
@@ -31,6 +29,28 @@ class Simulator {
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
 
+    float dt;
+
+    float buoyancyScale;
+
+    float velKinematicViscosity;
+    int velDiffusionIterations;
+
+    float vorticityScale;
+
+    int projectionIterations;
+
+    SourceMode sourceMode;
+
+    float tempKinematicViscosity;
+    int tempDiffusionIterations;
+
+    float smokeKinematicViscosity;
+    int smokeDiffusionIterations;
+
+    float smokeDissipation;
+
+    float windScale;
     float windAngle = 3.14f;
 
     // Time
@@ -46,7 +66,7 @@ public:
 
 private:
 
-    void initData();
+    void initData(Settings* settings);
 
     void clearData();
 

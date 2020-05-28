@@ -28,7 +28,10 @@ class RayRenderer {
     int texture_width, texture_height, texture_depth;
     GLint threads;
 
-    Settings* settings;
+    vec3 backgroundColor, filterColor;
+    vec3 colorSpace;
+
+    std::string this_string_is_not_used_anywhere;
 
     // Framebuffers
     Framebuffer *back_FBO;

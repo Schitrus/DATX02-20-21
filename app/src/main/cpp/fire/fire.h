@@ -34,12 +34,12 @@ class Fire{
     bool shouldUpdateSettings;
     bool shouldRegenFields;
 
-    Settings* settings;
-
 public:
 
-    Renderer renderer;
-    Simulator simulator;
+    Settings* settings;
+
+    Renderer* renderer;
+    Simulator* simulator;
 
     JNIEnv* javaEnvironment;
     AAssetManager* assetManager;

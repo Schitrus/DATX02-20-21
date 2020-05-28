@@ -19,7 +19,7 @@
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperation slab, Settings* settings) {
+int WaveletTurbulence::init(SlabOperation* slab, Settings* settings) {
 
     srand(42);
 
@@ -67,12 +67,6 @@ void WaveletTurbulence::initTextures(Settings* settings) {
     jacobianZTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
     eigenTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
 
-    advPos = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    eigenValues = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianX = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-
     GenerateWavelet();
 }
 
@@ -82,10 +76,10 @@ void WaveletTurbulence::clearTextures() {
     delete jacobianXTexture, delete jacobianYTexture, delete jacobianZTexture,
     delete eigenTexture;
 
-    delete[] advPos, delete[] eigenValues, delete[] jacobianX, delete[] jacobianY, delete[] jacobianZ;
 }
 
 int WaveletTurbulence::changeSettings(Settings* settings, bool shouldRegenFields) {
+
     if(shouldRegenFields) {
         clearTextures();
         initTextures(settings);
@@ -95,7 +89,7 @@ int WaveletTurbulence::changeSettings(Settings* settings, bool shouldRegenFields
 
 void WaveletTurbulence::GenerateWavelet(){
 
-    slab.prepare();
+    slab->prepare();
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
 
@@ -111,9 +105,9 @@ void WaveletTurbulence::GenerateWavelet(){
     noiseTexture2->bindData(GL_TEXTURE1);
     noiseTexture3->bindData(GL_TEXTURE2);
 
-    slab.interiorOperation(waveletShader, wavelet_turbulence, 0);
+    slab->interiorOperation(waveletShader, wavelet_turbulence, 0);
 
-    slab.finish();
+    slab->finish();
 
 }
 
@@ -141,7 +135,7 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         noiseTexture->bindData(GL_TEXTURE0);
         bindData(gradient_texture, GL_TEXTURE1);
 
-        slab.fullOperation(turbulenceShader, noiseTexture);
+        slab->fullOperation(turbulenceShader, noiseTexture);
 
         glDeleteTextures(1, &gradient_texture);
     }
@@ -180,14 +174,14 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 
     lowerVelocity->bindData(GL_TEXTURE0);
 
-    slab.fullOperation(textureCoordShader, texture_coord);
+    slab->fullOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.use();
     energyShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
     lowerVelocity->bindData(GL_TEXTURE0);
-    slab.fullOperation(energyShader, energy);
+    slab->fullOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::calcJacobianCol(int axis, DataTexturePair* colTexture){
@@ -197,7 +191,7 @@ void WaveletTurbulence::calcJacobianCol(int axis, DataTexturePair* colTexture){
 
     texture_coord->bindData(GL_TEXTURE0);
 
-    slab.interiorOperation(jacobianShader, colTexture, -1);
+    slab->interiorOperation(jacobianShader, colTexture, -1);
 }
 
 void WaveletTurbulence::calcScattering() {
@@ -217,7 +211,7 @@ void WaveletTurbulence::calcScattering() {
     jacobianYTexture->bindData(GL_TEXTURE1);
     jacobianZTexture->bindData(GL_TEXTURE2);
 
-    slab.fullOperation(eigenShader, eigenTexture);
+    slab->fullOperation(eigenShader, eigenTexture);
 }
 
 void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {
@@ -230,7 +224,7 @@ void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {
     eigenTexture->bindData(GL_TEXTURE1);
 
 
-    slab.fullOperation(regenerateShader, texture_coord);
+    slab->fullOperation(regenerateShader, texture_coord);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
@@ -245,5 +239,5 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     jacobianYTexture->bindData(GL_TEXTURE5);
     jacobianZTexture->bindData(GL_TEXTURE6);
 
-    slab.fullOperation(synthesisShader, higherVelocity);
+    slab->fullOperation(synthesisShader, higherVelocity);
 }

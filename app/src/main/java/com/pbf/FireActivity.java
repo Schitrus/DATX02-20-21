@@ -45,35 +45,29 @@ public class FireActivity extends FragmentActivity {
 
         Point dimension = new Point();
         getWindowManager().getDefaultDisplay().getSize(dimension);
-
         init(getResources().getAssets(), dimension.x, dimension.y);
-
-        ImageView loading = (ImageView)findViewById(R.id.loadingImage);
-        animation = (AnimationDrawable)loading.getDrawable();
-        animation.start();
-
-        //loading.setVisibility(View.INVISIBLE);
-
-        settingsFragment = new SettingsFragment();
 
         mainLayout = findViewById(R.id.mainLayout);
 
         constraintLayout = findViewById(R.id.constraintLayout);
         scrollView = findViewById(R.id.scrollViewContainer);
-        //scrollView.setVisibility(View.GONE);
 
+        findViewById(R.id.scrollViewContainer).setVisibility(View.INVISIBLE);
+
+        settingsFragment = new SettingsFragment();
         settingsButton = findViewById(R.id.toggleSettingsButton);
         settingsButton.setOnCheckedChangeListener(new SettingsButtonToggleListener());
+
+        ImageView loading = (ImageView)findViewById(R.id.loadingImage);
+        animation = (AnimationDrawable)loading.getDrawable();
+        animation.start();
 
         view = new FireView(getApplication(), loading);
         // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(view, 0);
 
-        findViewById(R.id.scrollViewContainer).setVisibility(View.INVISIBLE);
-
         setContentView(mainLayout);
 
-        //setContentView(fire);
     }
 
 

@@ -2,14 +2,7 @@ package com.pbf;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import androidx.appcompat.widget.AppCompatSeekBar;
-
-import com.example.datx02_20_21.R;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

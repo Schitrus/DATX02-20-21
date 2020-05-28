@@ -21,20 +21,33 @@
 
 int Simulator::init(Settings* settings) {
 
-    this->settings = new Settings();
-
-    *(this->settings) = *settings;
-
-    if (!slab.init())
+    slab = new SlabOperation();
+    if (!slab->init())
         return 0;
 
-    if(!operations.init(slab, settings))
+    operations = new SimulationOperations();
+    if(!operations->init(slab, settings))
         return 0;
 
-    if(!wavelet.init(slab, settings))
+    wavelet = new WaveletTurbulence();
+    if(!wavelet->init(slab, settings))
         return 0;
 
-    initData();
+    initData(settings);
+
+    dt = settings->getDeltaTime();
+    buoyancyScale = settings->getBuoyancyScale();
+    windScale = settings->getWindScale();
+    velKinematicViscosity = settings->getVelKinematicViscosity();
+    velDiffusionIterations = settings->getVelDiffusionIterations();
+    vorticityScale = settings->getVorticityScale();
+    projectionIterations = settings->getProjectionIterations();
+    sourceMode = settings->getSourceMode();
+    tempKinematicViscosity = settings->getTempKinematicViscosity();
+    tempDiffusionIterations = settings->getTempDiffusionIterations();
+    smokeKinematicViscosity = settings->getSmokeKinematicViscosity();
+    smokeDiffusionIterations = settings->getSmokeDiffusionIterations();
+    smokeDissipation = settings->getSmokeDissipation();
 
     start_time = NOW;
     last_time = start_time;
@@ -46,15 +59,27 @@ int Simulator::init(Settings* settings) {
 
 int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
 
-    *(this->settings) = *(settings);
     if(shouldRegenFields) {
         clearData();
-        initData();
+        initData(settings);
     }
-    start_time = NOW;
-    last_time = start_time;
 
-    return operations.changeSettings(settings, shouldRegenFields) && wavelet.changeSettings(settings, shouldRegenFields);
+    dt = settings->getDeltaTime();
+    buoyancyScale = settings->getBuoyancyScale();
+    windScale = settings->getWindScale();
+    velKinematicViscosity = settings->getVelKinematicViscosity();
+    velDiffusionIterations = settings->getVelDiffusionIterations();
+    vorticityScale = settings->getVorticityScale();
+    projectionIterations = settings->getProjectionIterations();
+    sourceMode = settings->getSourceMode();
+    tempKinematicViscosity = settings->getTempKinematicViscosity();
+    tempDiffusionIterations = settings->getTempDiffusionIterations();
+    smokeKinematicViscosity = settings->getSmokeKinematicViscosity();
+    smokeDiffusionIterations = settings->getSmokeDiffusionIterations();
+    smokeDissipation = settings->getSmokeDissipation();
+
+
+    return operations->changeSettings(settings, shouldRegenFields) && wavelet->changeSettings(settings, shouldRegenFields);
 }
 
 void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
@@ -62,10 +87,10 @@ void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size
     float current_time = DURATION(NOW, start_time);
     float delta_time = DURATION(NOW, last_time);
     last_time = NOW;
-    if(settings->getDeltaTime() != 0.0f)
-        delta_time = settings->getDeltaTime();
+    if(dt != 0.0f)
+        delta_time = dt;
 
-    slab.prepare();
+    slab->prepare();
 
     velocityStep(delta_time);
 
@@ -73,7 +98,7 @@ void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size
 
     temperatureStep(delta_time);
 
-    slab.finish();
+    slab->finish();
 
     getData(densityData, temperatureData, size);
 
@@ -82,12 +107,13 @@ void Simulator::update(GLuint& densityData, GLuint& temperatureData, ivec3& size
 void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& size) {
     temperatureData = temperature->getDataTexture();
     densityData = smokeDensity->getDataTexture();
-    ivec3 highResSize = settings->getSize(Resolution::substance);
+    ivec3 highResSize = temperature->getSize();
 
     size = highResSize;
 }
 
-void Simulator::initData() {
+void Simulator::initData(Settings* settings) {
+
     ivec3 lowResSize = settings->getSize(Resolution::velocity);
     ivec3 highResSize = settings->getSize(Resolution::substance);
 
@@ -123,72 +149,72 @@ void Simulator::clearData() {
 
 void Simulator::velocityStep(float dt){
     // Source
-    if(settings->getBuoyancyScale() != 0.0f)
-        operations.buoyancy(lowerVelocity, temperature, settings->getBuoyancyScale(), dt);
+    if(buoyancyScale != 0.0f)
+        operations->buoyancy(lowerVelocity, temperature, buoyancyScale, dt);
 
-    if(settings->getWindScale() != 0.0f)
-        updateAndApplyWind(settings->getWindScale(), dt);
+    if(windScale != 0.0f)
+        updateAndApplyWind(windScale, dt);
 
     // Advect
-    operations.advect(lowerVelocity, lowerVelocity, true, dt);
+    operations->advect(lowerVelocity, lowerVelocity, true, dt);
 
     // Diffuse
-    if(settings->getVelKinematicViscosity() != 0.0f)
-        operations.diffuse(lowerVelocity, Resolution::velocity,
-                settings->getVelDiffusionIterations(), settings->getVelKinematicViscosity(), dt);
+    if(velKinematicViscosity != 0.0f)
+        operations->diffuse(lowerVelocity, Resolution::velocity,
+                velDiffusionIterations, velKinematicViscosity, dt);
 
     // Vorticity
-    if(settings->getVorticityScale() != 0.0f)
-        operations.createVorticity(lowerVelocity, settings->getVorticityScale(), dt);
+    if(vorticityScale != 0.0f)
+        operations->createVorticity(lowerVelocity, vorticityScale, dt);
   
     // Project
-    if(settings->getProjectionIterations() != 0)
-        operations.project(lowerVelocity, settings->getProjectionIterations());
+    if(projectionIterations != 0)
+        operations->project(lowerVelocity, projectionIterations);
 
     // Go from low-res velocity to high-res velocity using Wavelet
-    wavelet.waveletStep(lowerVelocity, higherVelocity, dt);
+    wavelet->waveletStep(lowerVelocity, higherVelocity, dt);
 }
 
 void Simulator::updateAndApplyWind(float scale, float dt) {
 
     windAngle += dt*0.5f;
 
-    float windStrength = settings->getWindScale();
-    operations.addWind(lowerVelocity, windAngle, windStrength, dt);
+    float windStrength = scale;
+    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {
     // Force
-    operations.addSource(temperature, temperatureSource, settings->getSourceMode(), dt);
+    operations->addSource(temperature, temperatureSource, sourceMode, dt);
 
     // Advection
-    operations.advect(higherVelocity, temperature, false, dt);
+    operations->advect(higherVelocity, temperature, false, dt);
 
     // Diffusion
-    if(settings->getTempKinematicViscosity() != 0.0f)
-        operations.diffuse(temperature, Resolution::substance,
-                settings->getTempDiffusionIterations(), settings->getTempKinematicViscosity(), dt);
+    if(tempKinematicViscosity != 0.0f)
+        operations->diffuse(temperature, Resolution::substance,
+                            tempDiffusionIterations, tempKinematicViscosity, dt);
 
     // Dissipation
-    operations.heatDissipation(temperature, dt);
+    operations->heatDissipation(temperature, dt);
 
 }
 
 void Simulator::smokeDensityStep(float dt) {
 
     // addForce
-    operations.addSource(smokeDensity, densitySource, settings->getSourceMode(), dt);
+    operations->addSource(smokeDensity, densitySource, sourceMode, dt);
 
     // Advect
-    operations.advect(higherVelocity, smokeDensity, false, dt);
+    operations->advect(higherVelocity, smokeDensity, false, dt);
 
     // Diffuse
-    if(settings->getSmokeKinematicViscosity() != 0.0f)
-        operations.diffuse(smokeDensity, Resolution::substance,
-                settings->getSmokeDiffusionIterations(), settings->getSmokeKinematicViscosity(), dt);
+    if(smokeKinematicViscosity != 0.0f)
+        operations->diffuse(smokeDensity, Resolution::substance,
+                smokeDiffusionIterations, smokeKinematicViscosity, dt);
 
     // Dissipate
-    if(settings->getSmokeDissipation() != 0.0f)
-        operations.dissipate(smokeDensity, settings->getSmokeDissipation(), dt);
+    if(smokeDissipation != 0.0f)
+        operations->dissipate(smokeDensity, smokeDissipation, dt);
 
 }

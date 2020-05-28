@@ -183,6 +183,4 @@ public:
 
 };
 
-extern const Settings DEFAULT;
-
 #endif //DATX02_20_21_SETTINGS_H

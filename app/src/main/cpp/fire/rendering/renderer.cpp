@@ -27,21 +27,20 @@
 */
 
 int Renderer::init(Settings* settings) {
-    this->settings = settings;
-    return rayRenderer.init(settings);
+    rayRenderer = new RayRenderer;
+    return rayRenderer->init(settings);
 }
 
 int Renderer::changeSettings(Settings* settings) {
-    this->settings = settings;
-    return rayRenderer.changeSettings(settings);
+    return rayRenderer->changeSettings(settings);
 }
 
 void Renderer::resize(int width, int height){
-    rayRenderer.resize(width, height);
+    rayRenderer->resize(width, height);
 }
 
 void Renderer::update(GLuint density, GLuint temperature, ivec3 size) {
-    rayRenderer.step(density, temperature, size);
+    rayRenderer->step(density, temperature, size);
 }
 
 void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
@@ -50,5 +49,5 @@ void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
 
 void Renderer::touch(double dx, double dy){
     // TODO implement
-    rayRenderer.touch(dx, dy);
+    rayRenderer->touch(dx, dy);
 }

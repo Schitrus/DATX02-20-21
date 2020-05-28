@@ -21,7 +21,7 @@ using namespace glm;
 
 class WaveletTurbulence {
 
-    SlabOperation slab;
+    SlabOperation* slab;
 
     vec3* advPos;
     vec3* eigenValues;
@@ -55,7 +55,7 @@ class WaveletTurbulence {
     float band_min, band_max;
 
 public:
-    int init(SlabOperation slab, Settings* settings);
+    int init(SlabOperation* slab, Settings* settings);
 
     int changeSettings(Settings* settings, bool shouldRegenFields);
 

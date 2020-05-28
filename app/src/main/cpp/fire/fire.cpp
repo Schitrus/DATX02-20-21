@@ -29,14 +29,15 @@ int Fire::init() {
             ->withBuoyancyScale(0.15f)->withWindScale(0.0f)->withSmokeDiffusion(0.0f, 0)->withSmokeDissipation(0.0f)
             ->withTempDiffusion(0.0f, 0)->withBackgroundColor(vec3(0.0f, 0.0f, 0.0f))->withFilterColor(vec3(1.0f, 1.0f, 1.0f))
             ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default");
-    bool success = true;
-    success &= renderer.init(settings);
-    success &= simulator.init(settings);
-    return success;
+
+    renderer = new Renderer();
+    simulator = new Simulator();
+
+    return renderer->init(settings) && simulator->init(settings);
 }
 
 void Fire::resize(int width, int height){
-    fire->renderer.resize(width, height);
+    renderer->resize(width, height);
 }
 
 void Fire::update(){
@@ -44,23 +45,23 @@ void Fire::update(){
     ivec3 size;
 
     if(shouldUpdateSettings){
-        simulator.changeSettings(settings, shouldRegenFields);
-        renderer.changeSettings(settings);
-        shouldUpdateSettings =  false;
+        renderer->changeSettings(settings);
+        simulator->changeSettings(settings, shouldRegenFields);
+
+        shouldUpdateSettings = false;
         shouldRegenFields = false;
     }
 
-    simulator.update(density, temperature, size);
-    //LOG_INFO("Density: %d, Temperature: %d", density, temperature);
-    renderer.update(density, temperature, size);
+    simulator->update(density, temperature, size);
+    renderer->update(density, temperature, size);
 }
 
 void Fire::touch(double dx, double dy){
-    renderer.touch(dx, dy);
+    renderer->touch(dx, dy);
 }
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){
-    renderer.scale(scaleFactor, scaleX, scaleY);
+    renderer->scale(scaleFactor, scaleX, scaleY);
 }
 
 void Fire::onClick() {
@@ -83,6 +84,7 @@ void Fire::updateWind(float strength) {
     settings->withWindScale(strength);
     LOG_INFO("WindUpdate, %f", strength);
     shouldUpdateSettings = true;
+    shouldRegenFields = true; // TODO remove
 }
 
 void Fire::updateVorticity(float vorticityScale) {

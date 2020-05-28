@@ -6,20 +6,11 @@
 #include <android/log.h>
 
 #include "settings.h"
-#include "fire/simulation/simulator.h"
 
 #define LOG_TAG "SETTINGS"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-/*
-const Settings DEFAULT = Settings().withSize(ivec3(1, 4, 1), 12, 60, 24.0f).withDeltaTime(1/30.0f)
-        .withSourceMode(SourceMode::set).withSourceType(SourceType::singleSphere).withTempSourceDensity(3500.0f)
-        .withSmokeSourceDensity(0.4f).withVelDiffusion(0.0f, 0).withVorticityScale(8.0f).withProjectIterations(20)
-        .withBuoyancyScale(0.15f).withWindScale(0.0f).withSmokeDiffusion(0.0f, 0).withSmokeDissipation(0.0f)
-        .withTempDiffusion(0.0f, 0).withBackgroundColor(vec3(0.0f, 0.0f, 0.0f)).withFilterColor(vec3(1.0f, 1.0f, 1.0f))
-        .withColorSpace(vec3(1.8f, 2.2f, 2.2f)).withName("Default");
-*/
 Settings::Settings() {
     dt = 0.0f;
 

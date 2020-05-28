@@ -10,6 +10,13 @@
 
 #include "helper.h"
 
+#include <android/log.h>
+
+#define LOG_TAG "Texture"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
+
 using namespace glm;
 
 DataTexturePair::~DataTexturePair() {
@@ -75,6 +82,7 @@ float DataTexturePair::toVoxelScaleFactor() {
 }
 
 DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* settings) {
+
     float scaleFactor = 1.0f/settings->getResToSimFactor(res);
     ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
@@ -83,6 +91,7 @@ DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* set
 }
 
 DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings* settings) {
+
     float scaleFactor = 1.0f/settings->getResToSimFactor(res);
     ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
