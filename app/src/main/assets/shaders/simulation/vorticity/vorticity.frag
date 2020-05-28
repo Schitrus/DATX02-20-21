@@ -8,7 +8,7 @@ layout(binding = 0) uniform sampler3D velocity_field;
 uniform int depth;
 uniform float dt;
 uniform float vorticityScale;
-uniform float meterToVoxels; // Voxels to meters distance
+uniform float dx;
 
 out vec3 outData;
 
@@ -25,6 +25,8 @@ vec3 curl(ivec3 position){
     vec3 U = texelFetch(velocity_field, position + dz, 0).xyz;
     vec3 D = texelFetch(velocity_field, position - dz, 0).xyz;
 
+    // This formula would normally also contain a dx term,
+    // but this has been relocated to outside the function
     float curlX = (T.z - B.z) - (U.y - D.y);
     float curlY = (R.z - L.z) - (U.x - D.x);
     float curlZ = (R.y - L.y) - (T.x - B.x);
@@ -35,6 +37,7 @@ vec3 curl(ivec3 position){
 
 void main() {
 
+    // Position in voxel coordinates
     ivec3 position = ivec3(gl_FragCoord.xy, depth);
 
     // Vectors used for adding/subtracting pressure vectors
@@ -42,6 +45,7 @@ void main() {
     ivec3 dy = ivec3(0,1,0);
     ivec3 dz = ivec3(0,0,1);
 
+    // Values of the curl in this and neighboring cells
     vec3 R = abs(curl(position + dx));
     vec3 L = abs(curl(position - dx));
     vec3 T = abs(curl(position + dy));
@@ -54,7 +58,7 @@ void main() {
     vec3 vorticityForce = vec3(0.0);
     if(dot(gradientVorticity, gradientVorticity) != 0.0){
         vec3 normGradVort = normalize(gradientVorticity);
-        vorticityForce = vorticityScale * cross(normGradVort, currentCurl) * meterToVoxels;
+        vorticityForce = vorticityScale * cross(normGradVort, currentCurl) / dx;
     }
 
     vec3 velocity = texelFetch(velocity_field, position, 0).xyz;
