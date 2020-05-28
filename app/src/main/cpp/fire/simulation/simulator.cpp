@@ -38,6 +38,8 @@ int Simulator::init(Settings* settings) {
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
     windScale = settings->getWindScale();
+    windAngle = settings->getWindAngle();
+    rotatingWindAngle = settings->getRotatingWindAngle();
     velKinematicViscosity = settings->getVelKinematicViscosity();
     velDiffusionIterations = settings->getVelDiffusionIterations();
     vorticityScale = settings->getVorticityScale();
@@ -48,6 +50,8 @@ int Simulator::init(Settings* settings) {
     smokeKinematicViscosity = settings->getSmokeKinematicViscosity();
     smokeDiffusionIterations = settings->getSmokeDiffusionIterations();
     smokeDissipation = settings->getSmokeDissipation();
+
+    slab->boundaryMode(settings->getBoundaryType());
 
     start_time = NOW;
     last_time = start_time;
@@ -62,6 +66,8 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
     windScale = settings->getWindScale();
+    windAngle = settings->getWindAngle();
+    rotatingWindAngle = settings->getRotatingWindAngle();
     velKinematicViscosity = settings->getVelKinematicViscosity();
     velDiffusionIterations = settings->getVelDiffusionIterations();
     vorticityScale = settings->getVorticityScale();
@@ -73,6 +79,7 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     smokeDiffusionIterations = settings->getSmokeDiffusionIterations();
     smokeDissipation = settings->getSmokeDissipation();
 
+    slab->boundaryMode(settings->getBoundaryType());
 
     if(shouldRegenFields) {
         //clearData();
@@ -179,11 +186,11 @@ void Simulator::velocityStep(float dt){
 }
 
 void Simulator::updateAndApplyWind(float scale, float dt) {
-
-    windAngle += dt*0.5f;
+    if(rotatingWindAngle)
+        windAngle += 90.0*dt;
 
     float windStrength = scale;
-    operations->addWind(lowerVelocity, windAngle, windStrength, dt);
+    operations->addWind(lowerVelocity, PI * windAngle / 180.0f, windStrength, dt);
 }
 
 void Simulator::temperatureStep(float dt) {

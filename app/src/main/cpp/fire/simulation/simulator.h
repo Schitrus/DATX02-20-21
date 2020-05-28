@@ -51,7 +51,8 @@ class Simulator {
     float smokeDissipation;
 
     float windScale;
-    float windAngle = 3.14f;
+    float windAngle = 0.0f;
+    bool rotatingWindAngle = true;
 
     // Time
     time_point<system_clock> start_time, last_time;

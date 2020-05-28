@@ -220,7 +220,7 @@ public:
     Settings* withRotatingWindAngle(bool rotatingWindAngle);
 
     float getWindAngle();
-    Settings* withWindAngle(bool windAngle);
+    Settings* withWindAngle(float windAngle);
 
     bool getCustomMinBand();
     Settings* withCustomMinBand(bool customMinBand);

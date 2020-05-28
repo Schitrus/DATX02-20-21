@@ -64,10 +64,7 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
 
     @Override
     public boolean onScale(final ScaleGestureDetector detector) {
-        scaleFactor *= detector.getScaleFactor();
-
-        // Don't let the object get too small or too large.
-        scaleFactor = Math.max(0.1f, scaleFactor);
+        scaleFactor = detector.getScaleFactor();
 
         taskQueue.add(new Runnable() {
             @Override

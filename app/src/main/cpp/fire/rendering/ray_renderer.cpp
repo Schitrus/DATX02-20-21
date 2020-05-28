@@ -403,12 +403,14 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
 void RayRenderer::touch(double dx, double dy) {
     if(touchMode) {
         rx += 2 * dx / window_width;
-        ry += 2 * dy / window_height;
+        if(abs(dy) > abs(dx))
+            ry += dy / (window_height * zoom);
     }
 }
 
 void RayRenderer::scale(float scaleFactor, double scaleX, double scaleY){
-    zoom = scaleFactor;
+    if(touchMode)
+        zoom *= scaleFactor;
 }
 
 void RayRenderer::loadMVP(Shader shader, float current_time) {
@@ -421,18 +423,16 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     float fovy = radians(60.0f);
     float aspectRatio = (float) window_width / window_height;
 
-    vec3 modelPos(0, 0, -1.0);
+    vec3 modelPos(0, 0.0f, -1.0);
 
-    vec3 zoomer = boundingScale * zoom;
-
-    mat4 modelMatrix = translate(mat4(1.0f), modelPos)
+    mat4 modelMatrix = translate(mat4(1.0f), modelPos+vec3(0.0f, -ry, 0.0f))
                        * rotate(mat4(1.0f), (float) rx, vec3(0, 1, 0))
                        //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
-                       * glm::scale(mat4(1.0f), zoomer)
+                       * glm::scale(mat4(1.0f), boundingScale)
                        * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 
     mat4 viewMatrix = lookAt(vec3(0), modelPos, worldUp);
-    mat4 projectionMatrix = perspective(fovy, aspectRatio, nearPlane, farPlane);
+    mat4 projectionMatrix = perspective(fovy/zoom, aspectRatio, nearPlane, farPlane);
 
     mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 

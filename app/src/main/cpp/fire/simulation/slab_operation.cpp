@@ -49,6 +49,13 @@ int SlabOperation::init() {
 
 }
 
+void SlabOperation::boundaryMode(BoundaryType mode){
+    if(mode == BoundaryType::none)
+        doBoundary = false;
+    else if (mode == BoundaryType::box)
+        doBoundary = true;
+}
+
 void SlabOperation::initLine() {
     glGenVertexArrays(1, &boundaryVAO);
     // Bind the vertex array object
@@ -231,7 +238,8 @@ void SlabOperation::interiorOperation(Shader shader, DataTexturePair* data, int 
     }
     data->operationFinished();
 
-    //setBoundary(data, boundaryScale);
+    if(doBoundary)
+        setBoundary(data, boundaryScale);
 }
 
 void SlabOperation::fullOperation(Shader shader, DataTexturePair* data) {

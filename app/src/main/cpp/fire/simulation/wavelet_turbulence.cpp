@@ -51,8 +51,18 @@ int WaveletTurbulence::initShaders() {
 void WaveletTurbulence::initTextures(Settings* settings) {
     ivec3 lowResSize = settings->getSize(Resolution::velocity);
     ivec3 highResSize = settings->getSize(Resolution::substance);
-    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
-    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+
+    custom_band_max = settings->getCustomMaxBand();
+    custom_band_min = settings->getCustomMinBand();
+
+    if(!custom_band_min)
+        band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
+    else
+        band_min = settings->getMinBand();
+    if(!custom_band_max)
+        band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+    else
+        band_max = settings->getMaxBand();
 
     texture_coord = createVectorDataPair(nullptr, Resolution::velocity, settings);
     energy = createScalarDataPair(nullptr, Resolution::velocity, settings);

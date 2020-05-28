@@ -53,6 +53,7 @@ class WaveletTurbulence {
     DataTexturePair* jacobianZTexture;
 
     float band_min, band_max;
+    bool custom_band_min, custom_band_max;
 
 public:
     int init(SlabOperation* slab, Settings* settings);

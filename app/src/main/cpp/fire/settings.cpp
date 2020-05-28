@@ -393,7 +393,7 @@ float Settings::getWindAngle(){
     return windAngle;
 }
 
-Settings* Settings::withWindAngle(bool windAngle){
+Settings* Settings::withWindAngle(float windAngle){
     this->windAngle = windAngle;
     return this;
 }

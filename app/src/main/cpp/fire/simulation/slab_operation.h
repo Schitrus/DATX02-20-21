@@ -20,6 +20,8 @@ class SlabOperation {
     // result // todo remove
     GLuint texcoordsBuffer;
 
+    bool doBoundary = false;
+
     // interior
     GLuint interiorVAO;
     GLuint interiorPositionBuffer;
@@ -54,6 +56,8 @@ public:
 
     // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
+
+    void boundaryMode(BoundaryType mode);
 
 private:
     void initLine();
