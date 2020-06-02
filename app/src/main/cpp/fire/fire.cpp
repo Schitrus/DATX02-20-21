@@ -64,8 +64,42 @@ void Fire::update(){
     renderer->update(density, temperature, size);
 }
 
-void Fire::touch(double dx, double dy){
-    renderer->touch(dx, dy);
+void Fire::touch(double x, double y, double dx, double dy){
+    renderer->touch(x, y, dx, dy);
+
+    float aspectRatio = (float)screen_width / screen_height;
+    int width, height, depth;
+    simulator->getSize(width, height, depth);
+
+    // cube coordinates in ray_renderer
+    float m = max(max(width, height), depth);
+    vec3 tex = vec3(width, height, depth)/m;
+
+    //check if x & y coordinate is inside the grid area
+    double lowerBoundX = screen_width/2 - (screen_width * tex.x);
+    double higherBoundX = screen_width/2 + (screen_width * tex.x);
+    if(x < lowerBoundX || x > higherBoundX){
+        return;
+    }
+
+    double higherBoundY = screen_height/2 + (screen_height * tex.y * aspectRatio);
+    double lowerBoundY = screen_height/2 - (screen_height * tex.y * aspectRatio);
+    if(y < lowerBoundY || y > higherBoundY){
+        return;
+    }
+
+    //translate coordinates to texCoords
+    double w = higherBoundX-lowerBoundX;
+    double pixels_per_cellX = w/width;
+    x = floor((x-lowerBoundX)/pixels_per_cellX);
+
+    double h = higherBoundY-lowerBoundY;
+    double pixels_per_cellY = h/height;
+    y = height - ceil((y-lowerBoundY)/pixels_per_cellY);
+
+    simulator->touch(x, y, dx, -dy);
+
+    return;
 }
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){
@@ -319,8 +353,8 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT){
     fire->update();
 }
 // FireListener
-JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble dx, jdouble dy){
-    fire->touch(dx, dy);
+JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble x, jdouble y, jdouble dx, jdouble dy){
+    fire->touch(x, y, dx, dy);
 }
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY){
     fire->scale(scaleFactor, scaleX, scaleY);

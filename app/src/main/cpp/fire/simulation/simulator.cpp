@@ -178,6 +178,14 @@ void Simulator::velocityStep(float dt){
     if(windScale != 0.0f)
         updateAndApplyWind(windScale, dt);
 
+    if(externalForceReady){
+        createVector3DTexture(&force, lowResSize, force_field);
+        operations->externalForce(lowerVelocity, force, dt);
+        delete[] force_field;
+        glDeleteTextures(1, &force);
+        externalForceReady = false;
+    }
+
     // Advect
     operations->advect(lowerVelocity, lowerVelocity, true, dt);
 

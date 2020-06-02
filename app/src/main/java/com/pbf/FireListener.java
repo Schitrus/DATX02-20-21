@@ -37,7 +37,7 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
             taskQueue.add(new Runnable() {  //functional interfaces apparently require a minimum of sdk 24, and thus aren't available with a minimum of sdk 21
                 @Override
                 public void run() {
-                    touch(deltaX, deltaY);
+                    touch(touchX, touchY, deltaX, deltaY);
                 }
             });
         }
@@ -77,7 +77,7 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
 
     public native void scale(float scaleFactor, double scaleX, double scaleY);
 
-    public native void touch(double dx, double dy);
+    public native void touch(double x, double y, double dx, double dy);
 
     public native void onClick();
 }

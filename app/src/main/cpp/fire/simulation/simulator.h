@@ -29,6 +29,11 @@ class Simulator {
     //Textures for sources
     GLuint densitySource, temperatureSource, velocitySource;
 
+    //External force
+    GLuint force;
+    vec3* force_field;
+    bool externalForceReady;
+
     float dt;
 
     float buoyancyScale;
@@ -64,6 +69,8 @@ public:
     int changeSettings(Settings* settings, bool shouldRegenFields);
 
     void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
+
+    void touch(double x, double y, double dx, double dy);
 
 private:
 

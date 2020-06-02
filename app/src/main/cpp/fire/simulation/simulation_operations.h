@@ -21,7 +21,7 @@ class SimulationOperations {
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
-    Shader addSourceShader, buoyancyShader, advectionShader;
+    Shader addSourceShader, buoyancyShader, advectionShader, externalForceShader;
     Shader dissipateShader, setSourceShader, windShader;
     Shader vorticityShader;
 
@@ -55,6 +55,8 @@ public:
     void createVorticity(DataTexturePair* velocity, float vorticityScale, float dt);
 
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
+
+    void externalForce(DataTexturePair* velocity, GLuint& force, float dt);
 
 private:
 
