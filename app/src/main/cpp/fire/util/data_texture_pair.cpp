@@ -81,19 +81,15 @@ float DataTexturePair::toVoxelScaleFactor() {
     return scaleFactor;
 }
 
-DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* settings) {
+DataTexturePair* createScalarDataPair(float* data, ivec3 size, float scaleFactor) {
 
-    float scaleFactor = 1.0f/settings->getResToSimFactor(res);
-    ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initScalarData(scaleFactor, size, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings* settings) {
+DataTexturePair* createVectorDataPair(vec3* data, ivec3 size, float scaleFactor) {
 
-    float scaleFactor = 1.0f/settings->getResToSimFactor(res);
-    ivec3 size = settings->getSize(res);
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initVectorData(scaleFactor, size, data);
     return texturePair;

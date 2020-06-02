@@ -50,17 +50,24 @@ int SimulationOperations::initShaders() {
 
 void SimulationOperations::initTextures(Settings* settings) {
 
-    createVector3DTexture(diffusionBHRTexture, settings->getSize(Resolution::substance), (vec3*)nullptr);
-    createVector3DTexture(diffusionBLRTexture, settings->getSize(Resolution::velocity), (vec3*)nullptr);
+    ivec3 lowResSize = settings->getSize(Resolution::velocity);
+    ivec3 highResSize = settings->getSize(Resolution::substance);
 
-    divergence = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    float lowScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::velocity);
+    float highScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::substance);
 
-    jacobi = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    createVector3DTexture(diffusionBHRTexture, highResSize, (vec3*)nullptr);
+    createVector3DTexture(diffusionBLRTexture, lowResSize, (vec3*)nullptr);
+
+    divergence = createScalarDataPair(nullptr, lowResSize, lowScaleFactor);
+
+    jacobi = createScalarDataPair(nullptr, lowResSize, lowScaleFactor);
 
 }
 
 void SimulationOperations::clearTextures() {
-    delete divergence, delete jacobi;
+    delete divergence;
+    delete jacobi;
     glDeleteTextures(1, &diffusionBHRTexture);
     glDeleteTextures(1, &diffusionBLRTexture);
 }

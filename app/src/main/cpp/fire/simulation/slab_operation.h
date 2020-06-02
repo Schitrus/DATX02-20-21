@@ -7,6 +7,7 @@
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <fire/settings.h>
 
 #include "fire/util/shader.h"
 #include "fire/util/simple_framebuffer.h"

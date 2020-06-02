@@ -82,7 +82,7 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     slab->boundaryMode(settings->getBoundaryType());
 
     if(shouldRegenFields) {
-        //clearData();
+        clearData();
         initData(settings);
     }
 
@@ -126,6 +126,9 @@ void Simulator::initData(Settings* settings) {
     ivec3 lowResSize = settings->getSize(Resolution::velocity);
     ivec3 highResSize = settings->getSize(Resolution::substance);
 
+    float lowScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::velocity);
+    float highScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::substance);
+
     float* density_field = createScalarField(0.0f, highResSize);
     float* density_source = createScalarField(0.0f, highResSize);
     float* temperature_field = createScalarField(0.0f, highResSize);
@@ -137,25 +140,35 @@ void Simulator::initData(Settings* settings) {
     initSourceField(temperature_source, settings->getSourceTemperature(), Resolution::substance, settings);
     initSourceField(velocity_source, settings->getSourceVelocity(), Resolution::velocity, settings);
 
-    smokeDensity = createScalarDataPair(density_field, Resolution::substance, settings);
+    smokeDensity = createScalarDataPair(density_field, highResSize, highScaleFactor);
     createScalar3DTexture(densitySource, highResSize, density_source);
 
-    temperature = createScalarDataPair(temperature_field, Resolution::substance, settings);
+    temperature = createScalarDataPair(temperature_field, highResSize, highScaleFactor);
     createScalar3DTexture(temperatureSource, highResSize, temperature_source);
 
-    lowerVelocity = createVectorDataPair(velocity_field, Resolution::velocity, settings);
-    higherVelocity = createVectorDataPair(nullptr, Resolution::substance, settings);
+    lowerVelocity = createVectorDataPair(velocity_field, lowResSize, lowScaleFactor);
+    higherVelocity = createVectorDataPair(nullptr, highResSize, highScaleFactor);
     createVector3DTexture(velocitySource, lowResSize, velocity_source);
 
-    delete[] density_field, delete[] density_source, delete[] temperature_field, delete[] temperature_source, delete[] velocity_field, delete[] velocity_source;
+    delete[] density_field;
+    delete[] density_source;
+    delete[] temperature_field;
+    delete[] temperature_source;
+    delete[] velocity_field;
+    delete[] velocity_source;
 }
 
 void Simulator::clearData() {
-    delete smokeDensity, delete temperature, delete lowerVelocity, delete higherVelocity;
+    delete smokeDensity;
+    delete temperature;
+    delete lowerVelocity;
+    delete higherVelocity;
     glDeleteTextures(1, &densitySource);
     glDeleteTextures(1, &temperatureSource);
     glDeleteTextures(1, &velocitySource);
 }
+
+
 
 void Simulator::velocityStep(float dt){
     // Source

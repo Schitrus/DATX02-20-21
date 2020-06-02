@@ -8,7 +8,6 @@
 #include <GLES3/gl31.h>
 
 #include <glm/glm.hpp>
-#include <fire/settings.h>
 
 using namespace glm;
 
@@ -59,9 +58,9 @@ public:
 };
 
 // creates a scalar data pair with the given data
-DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings* settings);
+DataTexturePair* createScalarDataPair(float* data, ivec3 size, float scaleFactor);
 
 // create a vector data pair with the given data
-DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings* settings);
+DataTexturePair* createVectorDataPair(vec3* data, ivec3 size, float scaleFactor);
 
 #endif //DATX02_20_21_DATA_TEXTURE_PAIR_H

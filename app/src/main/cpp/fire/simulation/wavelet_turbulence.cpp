@@ -52,6 +52,9 @@ void WaveletTurbulence::initTextures(Settings* settings) {
     ivec3 lowResSize = settings->getSize(Resolution::velocity);
     ivec3 highResSize = settings->getSize(Resolution::substance);
 
+    float lowScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::velocity);
+    float highScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::substance);
+
     custom_band_max = settings->getCustomMaxBand();
     custom_band_min = settings->getCustomMinBand();
 
@@ -64,26 +67,32 @@ void WaveletTurbulence::initTextures(Settings* settings) {
     else
         band_max = settings->getMaxBand();
 
-    texture_coord = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    energy = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    texture_coord = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    energy = createScalarDataPair(nullptr, lowResSize, lowScaleFactor);
 
-    wavelet_turbulence = createVectorDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture1 = createScalarDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture2 = createScalarDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture3 = createScalarDataPair(nullptr, Resolution::substance, settings);
+    wavelet_turbulence = createVectorDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture1 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture2 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture3 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
 
-    jacobianXTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    jacobianYTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    jacobianZTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    eigenTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
+    jacobianXTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    jacobianYTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    jacobianZTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    eigenTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
 
     GenerateWavelet();
 }
 
 void WaveletTurbulence::clearTextures() {
-    delete texture_coord, delete energy, delete wavelet_turbulence,
-    delete noiseTexture1, delete noiseTexture2, delete noiseTexture3,
-    delete jacobianXTexture, delete jacobianYTexture, delete jacobianZTexture,
+    delete texture_coord;
+    delete energy;
+    delete wavelet_turbulence;
+    delete noiseTexture1;
+    delete noiseTexture2;
+    delete noiseTexture3;
+    delete jacobianXTexture;
+    delete jacobianYTexture;
+    delete jacobianZTexture;
     delete eigenTexture;
 
 }
@@ -148,6 +157,7 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         slab->fullOperation(turbulenceShader, noiseTexture);
 
         glDeleteTextures(1, &gradient_texture);
+        delete[] gradients;
     }
 }
 
