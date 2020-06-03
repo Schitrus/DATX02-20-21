@@ -90,6 +90,14 @@ public:
 
     void scale(float scaleFactor, double scaleX, double scaleY);
 
+    float getZoom();
+
+    vec3 getOffset();
+
+    float getRotation();
+
+    mat4 getInverseMVP();
+
 private:
 
     void initSSBO();

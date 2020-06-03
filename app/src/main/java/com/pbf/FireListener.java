@@ -23,8 +23,8 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        double touchX = event.getX();
-        double touchY = event.getY();
+        final double touchX = event.getX();
+        final double touchY = event.getY();
         final double deltaX = touchX - oldXTouch;
         final double deltaY = touchY - oldYTouch;
         oldXTouch = touchX;

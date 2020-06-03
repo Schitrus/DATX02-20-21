@@ -70,7 +70,7 @@ public:
 
     void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
-    void touch(double x, double y, double dx, double dy);
+    void addExternalForce(vec3 position, vec3 vector, Settings* settings);
 
 private:
 
@@ -81,13 +81,13 @@ private:
     void getData(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
     // Performs one fire.simulation step for velocity
-    void velocityStep(float dt);
+    void velocityStep(float delta_time);
 
-    void updateAndApplyWind(float scale, float dt);
+    void updateAndApplyWind(float scale, float delta_time);
 
-    void temperatureStep( float dt);
+    void temperatureStep( float delta_time);
 
-    void smokeDensityStep(float dt);
+    void smokeDensityStep(float delta_time);
 };
 
 #endif //DATX02_20_21_SIMULATOR_H

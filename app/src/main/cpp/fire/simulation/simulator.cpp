@@ -150,6 +150,8 @@ void Simulator::initData(Settings* settings) {
     higherVelocity = createVectorDataPair(nullptr, highResSize, highScaleFactor);
     createVector3DTexture(velocitySource, lowResSize, velocity_source);
 
+    force_field = createVectorField(vec3(0.0f, 0.0f,0.0f), lowResSize);
+
     delete[] density_field;
     delete[] density_source;
     delete[] temperature_field;
@@ -170,82 +172,94 @@ void Simulator::clearData() {
 
 
 
-void Simulator::velocityStep(float dt){
+void Simulator::velocityStep(float delta_time){
     // Source
     if(buoyancyScale != 0.0f)
-        operations->buoyancy(lowerVelocity, temperature, buoyancyScale, dt);
+        operations->buoyancy(lowerVelocity, temperature, buoyancyScale, delta_time);
 
     if(windScale != 0.0f)
-        updateAndApplyWind(windScale, dt);
+        updateAndApplyWind(windScale, delta_time);
 
     if(externalForceReady){
-        createVector3DTexture(&force, lowResSize, force_field);
-        operations->externalForce(lowerVelocity, force, dt);
+        operations->externalForce(lowerVelocity, force, delta_time);
         delete[] force_field;
-        glDeleteTextures(1, &force);
+        ivec3 lowResSize = lowerVelocity->getSize();
+        force_field = createVectorField(vec3(0.0f, 0.0f,0.0f), lowResSize);
         externalForceReady = false;
     }
 
     // Advect
-    operations->advect(lowerVelocity, lowerVelocity, true, dt);
+    operations->advect(lowerVelocity, lowerVelocity, true, delta_time);
 
     // Diffuse
     if(velKinematicViscosity != 0.0f)
         operations->diffuse(lowerVelocity, Resolution::velocity,
-                velDiffusionIterations, velKinematicViscosity, dt);
+                velDiffusionIterations, velKinematicViscosity, delta_time);
 
     // Vorticity
     if(vorticityScale != 0.0f)
-        operations->createVorticity(lowerVelocity, vorticityScale, dt);
+        operations->createVorticity(lowerVelocity, vorticityScale, delta_time);
   
     // Project
     if(projectionIterations != 0)
         operations->project(lowerVelocity, projectionIterations);
 
     // Go from low-res velocity to high-res velocity using Wavelet
-    wavelet->waveletStep(lowerVelocity, higherVelocity, dt);
+    wavelet->waveletStep(lowerVelocity, higherVelocity, delta_time);
 }
 
-void Simulator::updateAndApplyWind(float scale, float dt) {
+void Simulator::updateAndApplyWind(float scale, float delta_time) {
     if(rotatingWindAngle)
-        windAngle += 90.0*dt;
+        windAngle += 90.0*delta_time;
 
     float windStrength = scale;
-    operations->addWind(lowerVelocity, PI * windAngle / 180.0f, windStrength, dt);
+    operations->addWind(lowerVelocity, PI * windAngle / 180.0f, windStrength, delta_time);
 }
 
-void Simulator::temperatureStep(float dt) {
+void Simulator::temperatureStep(float delta_time) {
     // Force
-    operations->addSource(temperature, temperatureSource, sourceMode, dt);
+    operations->addSource(temperature, temperatureSource, sourceMode, delta_time);
 
     // Advection
-    operations->advect(higherVelocity, temperature, false, dt);
+    operations->advect(higherVelocity, temperature, false, delta_time);
 
     // Diffusion
     if(tempKinematicViscosity != 0.0f)
         operations->diffuse(temperature, Resolution::substance,
-                            tempDiffusionIterations, tempKinematicViscosity, dt);
+                            tempDiffusionIterations, tempKinematicViscosity, delta_time);
 
     // Dissipation
-    operations->heatDissipation(temperature, dt);
+    operations->heatDissipation(temperature, delta_time);
 
 }
 
-void Simulator::smokeDensityStep(float dt) {
+void Simulator::smokeDensityStep(float delta_time) {
 
     // addForce
-    operations->addSource(smokeDensity, densitySource, sourceMode, dt);
+    operations->addSource(smokeDensity, densitySource, sourceMode, delta_time);
 
     // Advect
-    operations->advect(higherVelocity, smokeDensity, false, dt);
+    operations->advect(higherVelocity, smokeDensity, false, delta_time);
 
     // Diffuse
     if(smokeKinematicViscosity != 0.0f)
         operations->diffuse(smokeDensity, Resolution::substance,
-                smokeDiffusionIterations, smokeKinematicViscosity, dt);
+                smokeDiffusionIterations, smokeKinematicViscosity, delta_time);
 
     // Dissipate
     if(smokeDissipation != 0.0f)
-        operations->dissipate(smokeDensity, smokeDissipation, dt);
+        operations->dissipate(smokeDensity, smokeDissipation, delta_time);
 
+}
+
+void Simulator::addExternalForce(vec3 position, vec3 vector, Settings* settings) {
+    float radius = 4.0f;
+
+    LOG_INFO("POSITION: %f, %f, %f", position.x, position.y, position.z);
+
+    fillSphere(force_field, vector * 100.0f, settings->getSimulationSize() * position, radius, Resolution::velocity, settings);
+
+    createVector3DTexture(force, settings->getSize(Resolution::velocity), force_field);
+
+    externalForceReady = true;
 }

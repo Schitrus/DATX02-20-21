@@ -65,41 +65,21 @@ void Fire::update(){
 }
 
 void Fire::touch(double x, double y, double dx, double dy){
-    renderer->touch(x, y, dx, dy);
+    renderer->touch(dx, dy);
 
-    float aspectRatio = (float)screen_width / screen_height;
-    int width, height, depth;
-    simulator->getSize(width, height, depth);
+    if(!settings->getTouchMode()) {
 
-    // cube coordinates in ray_renderer
-    float m = max(max(width, height), depth);
-    vec3 tex = vec3(width, height, depth)/m;
+        mat4 inverseMVP = renderer->getInverseMVP();
 
-    //check if x & y coordinate is inside the grid area
-    double lowerBoundX = screen_width/2 - (screen_width * tex.x);
-    double higherBoundX = screen_width/2 + (screen_width * tex.x);
-    if(x < lowerBoundX || x > higherBoundX){
-        return;
+        vec3 normalPos = 2.0f * vec3(x/screen_width, 1.0f - y/screen_height, 0.5f) - vec3(1.0f);
+        LOG_INFO("ROSITION: %f, %f, %f", normalPos.x, normalPos.y, normalPos.z);
+        vec3 gridPos = vec3(inverseMVP * vec4(normalPos, 0.0f)) + vec3(0.5f) - renderer->getOffset();
+
+        vec3 normalVec = vec3(dx, -dy, 0.0f);
+        vec3 gridVec = inverseMVP * vec4(normalVec, 0.0f);
+
+        simulator->addExternalForce(gridPos, gridVec, settings);
     }
-
-    double higherBoundY = screen_height/2 + (screen_height * tex.y * aspectRatio);
-    double lowerBoundY = screen_height/2 - (screen_height * tex.y * aspectRatio);
-    if(y < lowerBoundY || y > higherBoundY){
-        return;
-    }
-
-    //translate coordinates to texCoords
-    double w = higherBoundX-lowerBoundX;
-    double pixels_per_cellX = w/width;
-    x = floor((x-lowerBoundX)/pixels_per_cellX);
-
-    double h = higherBoundY-lowerBoundY;
-    double pixels_per_cellY = h/height;
-    y = height - ceil((y-lowerBoundY)/pixels_per_cellY);
-
-    simulator->touch(x, y, dx, -dy);
-
-    return;
 }
 
 void Fire::scale(float scaleFactor, double scaleX, double scaleY){

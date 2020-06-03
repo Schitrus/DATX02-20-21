@@ -415,8 +415,6 @@ void RayRenderer::scale(float scaleFactor, double scaleX, double scaleY){
 
 void RayRenderer::loadMVP(Shader shader, float current_time) {
 
-    float p = current_time / 10.0f;
-
     // Set up a projection matrix
     float nearPlane = 0.01f;
     float farPlane = 100.0f;
@@ -441,4 +439,39 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
 }
 
 #pragma clang diagnostic pop
+
+float RayRenderer::getZoom(){
+    return zoom;
+}
+
+vec3 RayRenderer::getOffset(){
+    return vec3(0.0f, -ry, 0.0f);
+}
+
+float RayRenderer::getRotation(){
+    return rx;
+}
+
+mat4 RayRenderer::getInverseMVP(){
+    // Set up a projection matrix
+    float nearPlane = 0.01f;
+    float farPlane = 100.0f;
+    float fovy = radians(60.0f);
+    float aspectRatio = (float) window_width / window_height;
+
+    vec3 modelPos(0, 0.0f, -1.0);
+
+    mat4 modelMatrix = translate(mat4(1.0f), modelPos+vec3(0.0f, -ry, 0.0f))
+                       * rotate(mat4(1.0f), (float) rx, vec3(0, 1, 0))
+                       //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
+                       * glm::scale(mat4(1.0f), boundingScale)
+                       * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
+
+    mat4 viewMatrix = lookAt(vec3(0), modelPos, worldUp);
+    mat4 projectionMatrix = perspective(fovy/zoom, aspectRatio, nearPlane, farPlane);
+
+    mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+
+    return inverse(mvp);
+}
 

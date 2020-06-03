@@ -44,11 +44,24 @@ void Renderer::update(GLuint density, GLuint temperature, ivec3 size) {
 }
 
 void Renderer::scale(float scaleFactor, double scaleX, double scaleY){
-    // TODO implement
     rayRenderer->scale(scaleFactor, scaleX, scaleY);
 }
 
 void Renderer::touch(double dx, double dy){
-    // TODO implement
     rayRenderer->touch(dx, dy);
+}
+
+float Renderer::getZoom(){
+    return rayRenderer->getZoom();
+}
+vec3 Renderer::getOffset(){
+    return rayRenderer->getOffset();
+}
+
+float Renderer::getRotation(){
+    return rayRenderer->getRotation();
+}
+
+mat4 Renderer::getInverseMVP(){
+    return rayRenderer->getInverseMVP();
 }

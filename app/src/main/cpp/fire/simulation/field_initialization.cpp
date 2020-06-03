@@ -210,7 +210,6 @@ void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution r
     }
 }
 
-
 #pragma clang diagnostic pop
 
 bool hasOverlap(vec3 min1, vec3 max1, vec3 min2, vec3 max2) {
