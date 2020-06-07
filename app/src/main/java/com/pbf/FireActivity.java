@@ -63,7 +63,7 @@ public class FireActivity extends FragmentActivity {
         animation = (AnimationDrawable)loading.getDrawable();
         animation.start();
 
-        view = new FireView(getApplication(), (SensorManager) getSystemService(SENSOR_SERVICE));
+        view = new FireView(getApplication(), loading, (SensorManager) getSystemService(SENSOR_SERVICE));
         // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(view, 0);
 

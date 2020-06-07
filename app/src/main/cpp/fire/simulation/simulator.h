@@ -35,6 +35,7 @@ class Simulator {
     bool externalForceReady;
 
     mat3 deviceRotationMatrix;
+    vec3 buoyancy_direction;
 
     float dt;
 
@@ -61,6 +62,10 @@ class Simulator {
     float windAngle = 0.0f;
     bool rotatingWindAngle = true;
 
+    bool orientationMode;
+
+    float rotation;
+
     // Time
     time_point<system_clock> start_time, last_time;
 
@@ -75,6 +80,8 @@ public:
     void addExternalForce(vec3 position, vec3 vector, Settings* settings);
 
     void updateDeviceRotationMatrix(float *rotationMatrix);
+
+    void setRotation(float rotation);
 
 private:
 

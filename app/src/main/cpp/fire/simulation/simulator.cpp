@@ -38,7 +38,8 @@ int Simulator::init(Settings* settings) {
 
     initData(settings);
 
-    deviceRotationMatrix = mat3(1.0);
+    buoyancy_direction = vec3(0.0f, 1.0f, 0.0f);
+    rotation = 0.0f;
 
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
@@ -57,6 +58,8 @@ int Simulator::init(Settings* settings) {
     smokeDissipation = settings->getSmokeDissipation();
 
     slab->boundaryMode(settings->getBoundaryType());
+
+    orientationMode = settings->getOrientationMode();
 
     start_time = NOW;
     last_time = start_time;
@@ -66,7 +69,13 @@ int Simulator::init(Settings* settings) {
     return 1;
 }
 
+void Simulator::setRotation(float rotation){
+    this->rotation = rotation;
+};
+
 int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
+
+    buoyancy_direction = vec3(0.0f, 1.0f, 0.0f);
 
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
@@ -85,6 +94,8 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     smokeDissipation = settings->getSmokeDissipation();
 
     slab->boundaryMode(settings->getBoundaryType());
+
+    orientationMode = settings->getOrientationMode();
 
     if(shouldRegenFields) {
         clearData();
@@ -126,11 +137,22 @@ void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& siz
 
 void Simulator::updateDeviceRotationMatrix(float *rotationMatrix){
     // Update global variable deviceRotationMatrix with correct value in simulation file
+    if(orientationMode)
+        return;
+
+
     for(int i = 0; i < 3; i++){
         for(int j = 0; j < 3; j++){
             deviceRotationMatrix[i][j] = rotationMatrix[3*i + j];
         }
     }
+
+    buoyancy_direction = deviceRotationMatrix * vec3(0.0f, 0.0f, 1.0f);
+    buoyancy_direction[2] = 0.0f; // Project to xy-plane by setting z-coordinate to 0
+    buoyancy_direction = normalize(buoyancy_direction); // Normalize to get a vector of length 1
+
+    buoyancy_direction = vec3(rotate(mat4(1.0f), rotation, vec3(0.0f, 1.0f, 0.0f)) * vec4(buoyancy_direction, 0.0f));
+
     LOG_INFO("Device rotation matrix: %s", glm::to_string(deviceRotationMatrix).c_str());
 }
 
@@ -191,7 +213,7 @@ void Simulator::clearData() {
 void Simulator::velocityStep(float delta_time){
     // Source
     if(buoyancyScale != 0.0f)
-        operations->buoyancy(lowerVelocity, temperature, deviceRotationMatrix, buoyancyScale, delta_time);
+        operations->buoyancy(lowerVelocity, temperature, buoyancy_direction, buoyancyScale, delta_time);
 
     if(windScale != 0.0f)
         updateAndApplyWind(windScale, delta_time);

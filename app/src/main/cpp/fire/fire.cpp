@@ -49,6 +49,8 @@ void Fire::update(){
     GLuint density, temperature;
     ivec3 size;
 
+    simulator->setRotation(-renderer->getRotation());
+
     if(shouldUpdateSettings){
 
         LOG_INFO("WOW!!!!!");
@@ -96,7 +98,7 @@ void Fire::onClick() {
 }
 
 void Fire::rotationSensor(float *rotationMatrix) {
-    simulator.updateDeviceRotationMatrix(rotationMatrix);
+    simulator->updateDeviceRotationMatrix(rotationMatrix);
 }
 
 void Fire::setTouchMode(bool touchMode){

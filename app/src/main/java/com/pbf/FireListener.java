@@ -28,7 +28,7 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
     private final float[] orientationRotationMatrix = new float[9];
 
 
-    FireListener(Queue<Runnable> taskQueue, Context context) {
+    FireListener(Queue<Runnable> taskQueue, Context context, SensorManager sensorManager) {
         this.taskQueue = taskQueue;
         scaleDetector = new ScaleGestureDetector(context, this);
         rotationSensorListener = new RotationSensorListener();
