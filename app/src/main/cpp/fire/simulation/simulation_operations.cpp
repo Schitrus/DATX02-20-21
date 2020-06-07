@@ -175,6 +175,7 @@ void SimulationOperations::createVorticity(DataTexturePair *velocity, float vort
     vorticityShader.use();
     vorticityShader.uniform1f("dt", dt);
     vorticityShader.uniform1f("vorticityScale", vorticityScale);
+    vorticityShader.uniform1f("dh", 1.0f/velocity->toVoxelScaleFactor());
     velocity->bindData(GL_TEXTURE0);
 
     slab->interiorOperation(vorticityShader, velocity, -1);
