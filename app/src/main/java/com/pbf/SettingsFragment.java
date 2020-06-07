@@ -128,7 +128,7 @@ public class SettingsFragment extends Fragment {
 
 
     private enum ObjectTypeItems{
-        SPHERE, CUBE, PYRAMID;
+        SPHERE, CUBE, PYRAMID, CYLINDER, CONE, FLOOR, WALL, DUALSPHERES;
 
         public static String[] stringValues(){
             ObjectTypeItems[] objectTypeItems = ObjectTypeItems.values();
@@ -141,7 +141,7 @@ public class SettingsFragment extends Fragment {
     };
 
     private enum BoundariesItems{
-        NONE, BOX, REPEAT;
+        NONE, SOME;
 
         public static String[] stringValues(){
             BoundariesItems[] boundariesItems = BoundariesItems.values();
@@ -256,6 +256,9 @@ public class SettingsFragment extends Fragment {
 
             }
         });
+
+        // Todo: get from settings instead
+        resolutionSpinner.setSelection(1);
     }
 
     private void initResolutionScaleBar(View v){
@@ -265,6 +268,8 @@ public class SettingsFragment extends Fragment {
         resolutionScaleBar.setOnSeekBarChangeListener(
                 new SliderBarListener(resolutionScaleBar, resolutionScaleValueText, RESOLUTION_SCALE_MIN, RESOLUTION_SCALE_MAX, RESOLUTION_SCALE_STEP)
         );
+        // Todo: get from settings instead
+        resolutionScaleBar.setProgress((int)(5.0f/RESOLUTION_SCALE_STEP));
     }
 
     private void initSimulationScaleBar(View v){
@@ -274,6 +279,8 @@ public class SettingsFragment extends Fragment {
         simulationScaleBar.setOnSeekBarChangeListener(
                 new SliderBarListener(simulationScaleBar, simulationScaleValueText, SIMULATION_SCALE_MIN, SIMULATION_SCALE_MAX, SIMULATION_SCALE_STEP)
         );
+        // Todo: get from settings instead
+        simulationScaleBar.setProgress((int)(24.0f/SIMULATION_SCALE_STEP));
     }
 
     private void initTimeStepBar(View v){
@@ -283,6 +290,8 @@ public class SettingsFragment extends Fragment {
         timeStepBar.setOnSeekBarChangeListener(
                 new SliderBarListener(timeStepBar, timeStepValueText, TIME_STEP_MIN, TIME_STEP_MAX, TIME_STEP_STEP)
         );
+        // Todo: get from settings instead
+        timeStepBar.setProgress((int)(30.0f/TIME_STEP_STEP));
     }
 
     private void initColorPicker(View v){
@@ -296,6 +305,9 @@ public class SettingsFragment extends Fragment {
                 updateBackgroundColor((red)/255.0f,(green)/255.0f,(blue)/255.0f);
             }
         });
+
+        // Todo: get from settings instead
+        backgroundColor.setLightness(0);
 
         ColorPickerView filterColor = v.findViewById(R.id.filterColorPicker);
         filterColor.addOnColorChangedListener(new OnColorChangedListener() {
@@ -349,6 +361,11 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        // Todo: get from settings instead
+        colorSpaceX.setValue(18);
+        colorSpaceY.setValue(22);
+        colorSpaceZ.setValue(22);
+
     }
 
     private void initObjectTypeSpinner(View v) {
@@ -385,6 +402,21 @@ public class SettingsFragment extends Fragment {
                     case PYRAMID:
                         updateObjectType("PYRAMID");
                         break;
+                    case CYLINDER:
+                        updateObjectType("CYLINDER");
+                        break;
+                    case CONE:
+                        updateObjectType("CONE");
+                        break;
+                    case FLOOR:
+                        updateObjectType("FLOOR");
+                        break;
+                    case WALL:
+                        updateObjectType("WALL");
+                        break;
+                    case DUALSPHERES:
+                        updateObjectType("DUALSPHERES");
+                        break;
                 }
             }
 
@@ -402,6 +434,8 @@ public class SettingsFragment extends Fragment {
         objectRadiusBar.setOnSeekBarChangeListener(
                 new SliderBarListener(objectRadiusBar, objectRadiusValueText, OBJECT_RADIUS_MIN, OBJECT_RADIUS_MAX, OBJECT_RADIUS_STEP)
         );
+        // Todo: get from settings instead
+        objectRadiusBar.setProgress((int)(8.0f/OBJECT_RADIUS_STEP));
     }
 
     private void initObjectTemperatureBar(View v){
@@ -411,6 +445,8 @@ public class SettingsFragment extends Fragment {
         objectTemperatureBar.setOnSeekBarChangeListener(
                 new SliderBarListener(objectTemperatureBar, objectTemperatureValueText, OBJECT_TEMPERATURE_MIN, OBJECT_TEMPERATURE_MAX, OBJECT_TEMPERATURE_STEP)
         );
+        // Todo: get from settings instead
+        objectTemperatureBar.setProgress((int)(3500.0f/OBJECT_TEMPERATURE_STEP));
     }
 
     private void initObjectDensityBar(View v){
@@ -420,6 +456,8 @@ public class SettingsFragment extends Fragment {
         objectDensityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(objectDensityBar, objectDensityValueText, OBJECT_DENSITY_MIN, OBJECT_DENSITY_MAX, OBJECT_DENSITY_STEP)
         );
+        // Todo: get from settings instead
+        objectDensityBar.setProgress((int)(0.4f/OBJECT_DENSITY_STEP));
     }
 
     private void initObjectVelocityBar(View v){
@@ -464,6 +502,8 @@ public class SettingsFragment extends Fragment {
         vorticityBar.setOnSeekBarChangeListener(
                 new SliderBarListener(vorticityBar, vorticityValueText, VORTICITY_MIN, VORTICITY_MAX, VORTICITY_STEP)
         );
+        // Todo: get from settings instead
+        vorticityBar.setProgress((int)(8.0f/VORTICITY_STEP));
     }
 
     private void initBuoyancyBar(View v){
@@ -473,6 +513,8 @@ public class SettingsFragment extends Fragment {
         buoyancyBar.setOnSeekBarChangeListener(
                 new SliderBarListener(buoyancyBar, buoyancyValueText, BUOYANCY_MIN, BUOYANCY_MAX, BUOYANCY_STEP)
         );
+        // Todo: get from settings instead
+        buoyancyBar.setProgress((int)(0.15f/BUOYANCY_STEP));
     }
 
     private void initSmokeDissipationBar(View v){
@@ -526,6 +568,9 @@ public class SettingsFragment extends Fragment {
                 setMinNoiseBand(isChecked);
             }
         });
+
+        // Todo: get from settings instead
+        minNoiseBandBar.setProgress((int)(2.0f/MIN_NOISE_BAND_STEP));
     }
 
     private void initMaxNoiseBandBar(View v){
@@ -543,6 +588,9 @@ public class SettingsFragment extends Fragment {
                 setMaxNoiseBand(isChecked);
             }
         });
+
+        // Todo: get from settings instead
+        maxNoiseBandBar.setProgress((int)(8.0f/MAX_NOISE_BAND_STEP));
     }
 
     private void initDensityDiffusionIterationsBar(View v){
@@ -570,6 +618,8 @@ public class SettingsFragment extends Fragment {
         projectionIterationsBar.setOnSeekBarChangeListener(
                 new SliderBarListener(projectionIterationsBar, projectionIterationsValueText, PROJECTION_ITERATIONS_MIN, PROJECTION_ITERATIONS_MAX, PROJECTION_ITERATIONS_STEP)
         );
+        // Todo: get from settings instead
+        projectionIterationsBar.setProgress((int)(20.0f/PROJECTION_ITERATIONS_STEP));
     }
 
     private void initBoundariesSpinner(View v) {
@@ -600,11 +650,8 @@ public class SettingsFragment extends Fragment {
                     case NONE:
                         updateBoundaries("NONE");
                         break;
-                    case BOX:
-                        updateBoundaries("BOX");
-                        break;
-                    case REPEAT:
-                        updateBoundaries("REPEAT");
+                    case SOME:
+                        updateBoundaries("SOME");
                         break;
                 }
             }

@@ -52,7 +52,7 @@ int SlabOperation::init() {
 void SlabOperation::boundaryMode(BoundaryType mode){
     if(mode == BoundaryType::none)
         doBoundary = false;
-    else if (mode == BoundaryType::box)
+    else if (mode == BoundaryType::some)
         doBoundary = true;
 }
 

@@ -25,6 +25,24 @@ void fillField(vec3* field, vec3 value, vec3 minPos, vec3 maxPos, Resolution res
 void fillSphere(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
 void fillSphere(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
 
+void fillCube(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillCube(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
+void fillPyramid(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillPyramid(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
+void fillCylinder(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillCylinder(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
+void fillCone(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillCone(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
+void fillFloor(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillFloor(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
+void fillWall(float* field, float value, vec3 center, float radius, Resolution res, Settings* settings);
+void fillWall(vec3* field, vec3 value, vec3 center, float radius, Resolution res, Settings* settings);
+
 // fills the field with vectors pointing outward from the center,
 // and that scale with the distance from the center
 // scale is unit/meter from center

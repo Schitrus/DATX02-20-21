@@ -31,10 +31,10 @@ int Fire::init() {
 
     settings->withSize(ivec3(1, 4, 1), 12, 60, 24.0f)->withDeltaTime(1 / 30.0f)
             ->withSourceMode(SourceMode::set)->withSourceType(SourceType::singleSphere)->withSourceTemperature(3500.0f)
-            ->withSourceDensity(0.4f)->withSourceRadius(5.0f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
+            ->withSourceDensity(0.4f)->withSourceRadius(8.0f)->withVelDiffusion(0.0f, 0)->withVorticityScale(8.0f)->withProjectIterations(20)
             ->withBuoyancyScale(0.15f)->withSmokeDissipation(0.0f)->withSmokeDiffusion(0.0f, 0)->withWindStrength(0.0f)
             ->withTempDiffusion(0.0f, 0)->withBackgroundColor(vec3(0.0f, 0.0f, 0.0f))->withFilterColor(vec3(1.0f, 1.0f, 1.0f))
-            ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default");
+            ->withColorSpace(vec3(1.8f, 2.2f, 2.2f))->withName("Default")->withMinBand(2.0f)->withMaxBand(8.0f);
 
     settings->printInfo("FIRE");
 
@@ -166,6 +166,16 @@ void Fire::updateObjectType(std::string type) {
         settings->withSourceType(SourceType::cube);
     else if(type == "PYRAMID")
         settings->withSourceType(SourceType::pyramid);
+    else if(type == "CYLINDER")
+        settings->withSourceType(SourceType::cylinder);
+    else if(type == "CONE")
+        settings->withSourceType(SourceType::cone);
+    else if(type == "FLOOR")
+        settings->withSourceType(SourceType::floor);
+    else if(type == "WALL")
+        settings->withSourceType(SourceType::wall);
+    else if(type == "DUALSPHERES")
+        settings->withSourceType(SourceType::dualSpheres);
     shouldUpdateSettings = true;
     shouldRegenFields = true;
 }
@@ -302,10 +312,8 @@ void Fire::updateBoundaries(std::string mode) {
     LOG_INFO("BoundariesUpdate, %s", mode.c_str());
     if (mode == "NONE")
         settings->withBoundaryType(BoundaryType::none);
-    else if (mode == "BOX")
-        settings->withBoundaryType(BoundaryType::box);
-    else if (mode == "REPEAT")
-        settings->withBoundaryType(BoundaryType::repeat);
+    else if (mode == "SOME")
+        settings->withBoundaryType(BoundaryType::some);
     shouldUpdateSettings = true;
 }
 

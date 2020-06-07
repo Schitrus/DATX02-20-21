@@ -98,7 +98,7 @@ int Simulator::changeSettings(Settings* settings, bool shouldRegenFields) {
     orientationMode = settings->getOrientationMode();
 
     if(shouldRegenFields) {
-        clearData();
+        //clearData();
         initData(settings);
     }
 
