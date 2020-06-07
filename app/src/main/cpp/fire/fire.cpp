@@ -95,6 +95,10 @@ void Fire::onClick() {
     //simulator.changeSettings(newSettings);
 }
 
+void Fire::rotationSensor(float *rotationMatrix) {
+    simulator.updateDeviceRotationMatrix(rotationMatrix);
+}
+
 void Fire::setTouchMode(bool touchMode){
     LOG_INFO("TouchModeSetting, %s", touchMode ? "true" : "false");
     settings->withTouchMode(touchMode);
@@ -402,6 +406,12 @@ JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateVelocityDiff
 }
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateProjectionIterations(JCT, jint iterations){
     fire->updateProjectionIterations(iterations);
+}
+
+JC(void) Java_com_pbf_FireListener_rotationSensor(JCT, jfloatArray rotationMatrix) {
+    float *data = env->GetFloatArrayElements(rotationMatrix, NULL);
+    fire->rotationSensor(data);
+    env->ReleaseFloatArrayElements(rotationMatrix, data, 0);
 }
 
 JC(void) Java_com_pbf_SettingsFragment_setTouchMode(JCT, jboolean touchMode){

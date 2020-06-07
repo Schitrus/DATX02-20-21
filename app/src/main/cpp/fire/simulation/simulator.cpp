@@ -9,6 +9,9 @@
 #include <GLES3/gl31.h>
 #include <android/log.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include <chrono>
 #include <cstdlib>
 
@@ -34,6 +37,8 @@ int Simulator::init(Settings* settings) {
         return 0;
 
     initData(settings);
+
+    deviceRotationMatrix = mat3(1.0);
 
     dt = settings->getDeltaTime();
     buoyancyScale = settings->getBuoyancyScale();
@@ -119,6 +124,17 @@ void Simulator::getData(GLuint& densityData, GLuint& temperatureData, ivec3& siz
     size = highResSize;
 }
 
+void Simulator::updateDeviceRotationMatrix(float *rotationMatrix){
+    // Update global variable deviceRotationMatrix with correct value in simulation file
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j++){
+            deviceRotationMatrix[i][j] = rotationMatrix[3*i + j];
+        }
+    }
+    LOG_INFO("Device rotation matrix: %s", glm::to_string(deviceRotationMatrix).c_str());
+}
+
+
 void Simulator::initData(Settings* settings) {
 
     settings->printInfo("SIMULATOR");
@@ -175,7 +191,7 @@ void Simulator::clearData() {
 void Simulator::velocityStep(float delta_time){
     // Source
     if(buoyancyScale != 0.0f)
-        operations->buoyancy(lowerVelocity, temperature, buoyancyScale, delta_time);
+        operations->buoyancy(lowerVelocity, temperature, deviceRotationMatrix, buoyancyScale, delta_time);
 
     if(windScale != 0.0f)
         updateAndApplyWind(windScale, delta_time);

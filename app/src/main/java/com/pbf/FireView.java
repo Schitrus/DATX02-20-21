@@ -1,6 +1,8 @@
 package com.pbf;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.widget.ImageView;
 
@@ -12,7 +14,7 @@ public class FireView extends GLSurfaceView {
     public FireRenderer renderer;
     public FireListener listener;
 
-    public FireView(Context context, ImageView loading){
+    public FireView(Context context, ImageView loading, SensorManager sensorManager){
         super(context);
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
         setEGLContextClientVersion(3);
@@ -23,7 +25,7 @@ public class FireView extends GLSurfaceView {
         renderer = new FireRenderer(inputTaskQueue, context, loading);
         setRenderer(renderer);
 
-        listener = new FireListener(inputTaskQueue, context);
+        listener = new FireListener(inputTaskQueue, context, sensorManager);
         setOnTouchListener(listener);
         setOnClickListener(listener);
     }

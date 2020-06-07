@@ -34,6 +34,8 @@ class Simulator {
     vec3* force_field;
     bool externalForceReady;
 
+    mat3 deviceRotationMatrix;
+
     float dt;
 
     float buoyancyScale;
@@ -71,6 +73,8 @@ public:
     void update(GLuint& densityData, GLuint& temperatureData, ivec3& size);
 
     void addExternalForce(vec3 position, vec3 vector, Settings* settings);
+
+    void updateDeviceRotationMatrix(float *rotationMatrix);
 
 private:
 

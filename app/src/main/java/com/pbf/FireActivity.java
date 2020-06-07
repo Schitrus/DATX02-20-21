@@ -3,6 +3,7 @@ package com.pbf;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.graphics.drawable.AnimationDrawable;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.Fade;
@@ -62,7 +63,7 @@ public class FireActivity extends FragmentActivity {
         animation = (AnimationDrawable)loading.getDrawable();
         animation.start();
 
-        view = new FireView(getApplication(), loading);
+        view = new FireView(getApplication(), (SensorManager) getSystemService(SENSOR_SERVICE));
         // Prepend so that settings UI is placed on top of the FireView
         mainLayout.addView(view, 0);
 

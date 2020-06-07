@@ -31,7 +31,7 @@ public:
     int changeSettings(Settings* settings, bool shouldRegenFields);
 
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt);
+    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, mat3 deviceRotationMatrix,  float scale, float dt);
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly

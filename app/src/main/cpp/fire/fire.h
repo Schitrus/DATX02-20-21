@@ -57,6 +57,7 @@ public:
 
     void touch(double x, double y, double dx, double dy);
     void scale(float scaleFactor, double scaleX, double scaleY);
+    void rotationSensor(float *rotationMatrix);
 
     void onClick();
 
@@ -101,7 +102,7 @@ AAssetManager* loadAssetManager(JNIEnv *env, jobject assetManager);
 
 // Interface between java and c++
 #define JC(T) extern "C" JNIEXPORT T JNICALL
-#define JCT JNIEnv*, jobject
+#define JCT JNIEnv* env, jobject
 
 // FireActivity
 JC(void) Java_com_pbf_FireActivity_init(JNIEnv* env, jobject, jobject mgr, jint width, jint height);
@@ -112,6 +113,7 @@ JC(void) Java_com_pbf_FireRenderer_update(JCT);
 // FireListener
 JC(void) Java_com_pbf_FireListener_touch(JCT, jdouble x, jdouble y, jdouble dx, jdouble dy);
 JC(void) Java_com_pbf_FireListener_scale(JCT, jfloat scaleFactor, jdouble scaleX, jdouble scaleY);
+JC(void) Java_com_pbf_FireListener_rotationSensor(JCT, jfloatArray rotationMatrix);
 JC(void) Java_com_pbf_FireListener_onClick(JCT);
 
 JC(void) Java_com_pbf_SettingsFragment_00024SliderBarListener_updateResolutionScale(JCT, jfloat scale);

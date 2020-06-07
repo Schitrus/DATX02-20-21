@@ -44,7 +44,7 @@ int SlabOperation::init() {
         LOG_ERROR("Failed to compile slab_operation shaders");
         return 0;
     }
-    
+
     return 1;
 
 }

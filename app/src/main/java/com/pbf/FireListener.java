@@ -1,6 +1,12 @@
 package com.pbf;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -16,9 +22,25 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
     private long lastScale = 0;
     private long lastClick = 0;
 
+    private RotationSensorListener rotationSensorListener;
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private final float[] orientationRotationMatrix = new float[9];
+
+
     FireListener(Queue<Runnable> taskQueue, Context context) {
         this.taskQueue = taskQueue;
         scaleDetector = new ScaleGestureDetector(context, this);
+        rotationSensorListener = new RotationSensorListener();
+        this.sensorManager = sensorManager;
+        this.rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+        if(rotationVectorSensor == null){
+            // Rotation vector sensor not found
+            Log.e("FireListener", "Rotation vector sensor not found");
+        }
+
+        // Register sensor listener for updates every 10ms = 10000us
+        sensorManager.registerListener(rotationSensorListener, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
@@ -46,6 +68,23 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
         //    v.performClick();
 
         return true;
+    }
+
+    private class RotationSensorListener implements SensorEventListener {
+
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            // Double check if sensor is of correct type
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR){
+                SensorManager.getRotationMatrixFromVector(orientationRotationMatrix, sensorEvent.values);
+                rotationSensor(orientationRotationMatrix);
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+            // Unimplemented for now
+        }
     }
 
     @Override
@@ -80,4 +119,7 @@ class FireListener extends ScaleGestureDetector.SimpleOnScaleGestureListener imp
     public native void touch(double x, double y, double dx, double dy);
 
     public native void onClick();
+
+    public native void rotationSensor(float[] rotationMatrix);
+
 }
