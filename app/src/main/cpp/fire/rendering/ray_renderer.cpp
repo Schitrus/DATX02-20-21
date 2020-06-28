@@ -34,7 +34,7 @@ using namespace glm;
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "err_typecheck_invalid_operands"
 
-int RayRenderer::init() {
+int RayRenderer::init(Settings* settings) {
 
     clearGLErrors("render initialization");
 
@@ -69,6 +69,23 @@ int RayRenderer::init() {
         LOG_ERROR("Failed to compile ray_renderer shaders");
         return 0;
     }
+
+    backgroundColor = settings->getBackgroundColor();
+    filterColor = settings->getFilterColor();
+    colorSpace = settings->getColorSpace();
+    touchMode = settings->getTouchMode();
+
+    //initDebug();
+
+    return 1;
+}
+
+int RayRenderer::changeSettings(Settings* settings) {
+
+    backgroundColor = settings->getBackgroundColor();
+    filterColor = settings->getFilterColor();
+    colorSpace = settings->getColorSpace();
+    touchMode = settings->getTouchMode();
     return 1;
 }
 
@@ -144,7 +161,32 @@ void RayRenderer::simScale() {
     sim_height = min(sim_height, window_height);
 }
 
+void RayRenderer::initDebug() {
+    debugSize = ivec3(100, 100, 100);
+    float* den = new float[debugSize.x*debugSize.y*debugSize.z];
+    float* temp = new float[debugSize.x*debugSize.y*debugSize.z];
+    for (int z = 0; z < debugSize.z; ++z) {
+        for (int y = 0; y < debugSize.y; ++y) {
+            for (int x = 0; x < debugSize.x; ++x) {
+                int X = x - debugSize.x/2;
+                int Y = y - debugSize.y/2;
+                int Z = z - debugSize.z/2;
+                if(sqrt(X*X+Y*Y+Z*Z) < 8) {
+                    den[z * debugSize.y * debugSize.x + y * debugSize.x + x] = 1.0f;
+                    temp[z * debugSize.y * debugSize.x + y * debugSize.x + x] = 3500.0f;
+                }
+            }
+        }
+    }
+    createScalar3DTexture(debugDens,debugSize,den);
+    createScalar3DTexture(debugTemp,debugSize,temp);
+
+    delete[] den;
+    delete[] temp;
+}
+
 void RayRenderer::setData(GLuint density, GLuint temperature, ivec3 size) {
+
     densityTexID = density;
     temperatureTexID = temperature;
 
@@ -252,8 +294,8 @@ void RayRenderer::initCube(GLuint &VAO, GLuint &VBO, GLuint &EBO) {
 
 int RayRenderer::initProgram() {
     bool success = true;
-    success &= backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
     success &= frontFaceShader.load("shaders/render/ray.vert", "shaders/render/front_face.frag");
+    success &= backFaceShader.load("shaders/render/ray.vert", "shaders/render/back_face.frag");
     success &= quadShader.load("shaders/render/vertex.vert", "shaders/render/quad.frag");
     success &= maxCompShader.load("shaders/render/max.comp");
     return success;
@@ -335,11 +377,14 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
     // quad
     glBindVertexArray(quad_VAO);
     glViewport(0, 0, window_width, window_height);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_CULL_FACE);
 
     quadShader.use();
+
+    quadShader.uniform3f("filterColor", filterColor);
+    quadShader.uniform3f("colorSpace", colorSpace);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, front_FBO->texture());
@@ -356,13 +401,19 @@ void RayRenderer::step(GLuint density, GLuint temperature, ivec3 size) {
 }
 
 void RayRenderer::touch(double dx, double dy) {
-    rx += 2 * dx / window_width;
-    ry += 2 * dy / window_height;
+    if(touchMode) {
+        rx += 2 * dx / window_width;
+        if(abs(dy) > abs(dx))
+            ry += dy / (window_height * zoom);
+    }
+}
+
+void RayRenderer::scale(float scaleFactor, double scaleX, double scaleY){
+    if(touchMode)
+        zoom *= scaleFactor;
 }
 
 void RayRenderer::loadMVP(Shader shader, float current_time) {
-
-    float p = current_time / 10.0f;
 
     // Set up a projection matrix
     float nearPlane = 0.01f;
@@ -370,16 +421,16 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
     float fovy = radians(60.0f);
     float aspectRatio = (float) window_width / window_height;
 
-    vec3 modelPos(0, 0, -1.0);
+    vec3 modelPos(0, 0.0f, -1.0);
 
-    mat4 modelMatrix = translate(mat4(1.0f), modelPos)
+    mat4 modelMatrix = translate(mat4(1.0f), modelPos+vec3(0.0f, -ry, 0.0f))
                        * rotate(mat4(1.0f), (float) rx, vec3(0, 1, 0))
                        //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
-                       * scale(mat4(1.0f), boundingScale)
+                       * glm::scale(mat4(1.0f), boundingScale)
                        * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
 
     mat4 viewMatrix = lookAt(vec3(0), modelPos, worldUp);
-    mat4 projectionMatrix = perspective(fovy, aspectRatio, nearPlane, farPlane);
+    mat4 projectionMatrix = perspective(fovy/zoom, aspectRatio, nearPlane, farPlane);
 
     mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 
@@ -388,4 +439,39 @@ void RayRenderer::loadMVP(Shader shader, float current_time) {
 }
 
 #pragma clang diagnostic pop
+
+float RayRenderer::getZoom(){
+    return zoom;
+}
+
+vec3 RayRenderer::getOffset(){
+    return vec3(0.0f, -ry, 0.0f);
+}
+
+float RayRenderer::getRotation(){
+    return rx;
+}
+
+mat4 RayRenderer::getInverseMVP(){
+    // Set up a projection matrix
+    float nearPlane = 0.01f;
+    float farPlane = 100.0f;
+    float fovy = radians(60.0f);
+    float aspectRatio = (float) window_width / window_height;
+
+    vec3 modelPos(0, 0.0f, -1.0);
+
+    mat4 modelMatrix = translate(mat4(1.0f), modelPos+vec3(0.0f, -ry, 0.0f))
+                       * rotate(mat4(1.0f), (float) rx, vec3(0, 1, 0))
+                       //* rotate(mat4(1.0f), (float)ry, vec3(1,0,0))
+                       * glm::scale(mat4(1.0f), boundingScale)
+                       * translate(mat4(1.0f), vec3(-0.5f, -0.5f, -0.5f));
+
+    mat4 viewMatrix = lookAt(vec3(0), modelPos, worldUp);
+    mat4 projectionMatrix = perspective(fovy/zoom, aspectRatio, nearPlane, farPlane);
+
+    mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+
+    return inverse(mvp);
+}
 

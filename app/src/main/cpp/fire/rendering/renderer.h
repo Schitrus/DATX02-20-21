@@ -9,19 +9,30 @@
 #include <GLES3/gl31.h>
 
 #include <android/asset_manager.h>
+#include <fire/settings.h>
 
 #include "fire/rendering/ray_renderer.h"
 
 class Renderer{
     int window_width, window_height;
-    RayRenderer rayRenderer;
+    RayRenderer* rayRenderer;
+
 public:
-    int init();
+    int init(Settings* settings);
+
+    int changeSettings(Settings* settings);
+
     void resize(int width, int height);
     void update(GLuint density, GLuint temperature, ivec3 size);
 
     void scale(float scaleFactor, double scaleX, double scaleY);
     void touch(double dx, double dy);
+
+    float getZoom();
+    vec3 getOffset();
+    float getRotation();
+
+    mat4 getInverseMVP();
 };
 
 #endif //DATX02_20_21_RENDERER_H

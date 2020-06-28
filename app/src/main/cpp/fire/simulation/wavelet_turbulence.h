@@ -21,7 +21,7 @@ using namespace glm;
 
 class WaveletTurbulence {
 
-    SlabOperation slab;
+    SlabOperation* slab;
 
     vec3* advPos;
     vec3* eigenValues;
@@ -53,11 +53,12 @@ class WaveletTurbulence {
     DataTexturePair* jacobianZTexture;
 
     float band_min, band_max;
+    bool custom_band_min, custom_band_max;
 
 public:
-    int init(SlabOperation slab, Settings settings);
+    int init(SlabOperation* slab, Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings, bool shouldRegenFields);
 
     void waveletStep(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity, float dt);
 
@@ -66,7 +67,7 @@ private:
 
     void calcJacobianCol(int axis, DataTexturePair* colTexture);
 
-    void initTextures(Settings settings);
+    void initTextures(Settings* settings);
 
     void clearTextures();
 

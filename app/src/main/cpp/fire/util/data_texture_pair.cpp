@@ -10,6 +10,13 @@
 
 #include "helper.h"
 
+#include <android/log.h>
+
+#define LOG_TAG "Texture"
+#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+
+
 using namespace glm;
 
 DataTexturePair::~DataTexturePair() {
@@ -30,16 +37,16 @@ void DataTexturePair::initScalarData(float scaleFactor, ivec3 size, float* data)
     this->scaleFactor = scaleFactor;
     this->size = size;
     type = SCALAR;
-    createScalar3DTexture(&dataTexture, size, data);
-    createScalar3DTexture(&resultTexture, size, (float*)nullptr);
+    createScalar3DTexture(dataTexture, size, data);
+    createScalar3DTexture(resultTexture, size, (float*)nullptr);
 }
 
 void DataTexturePair::initVectorData(float scaleFactor, ivec3 size, vec3* data) {
     this->scaleFactor = scaleFactor;
     this->size = size;
     type = VECTOR;
-    createVector3DTexture(&dataTexture, size, data);
-    createVector3DTexture(&resultTexture, size, (vec3*)nullptr);
+    createVector3DTexture(dataTexture, size, data);
+    createVector3DTexture(resultTexture, size, (vec3*)nullptr);
 }
 
 void DataTexturePair::bindData(GLenum textureSlot) {
@@ -74,17 +81,15 @@ float DataTexturePair::toVoxelScaleFactor() {
     return scaleFactor;
 }
 
-DataTexturePair* createScalarDataPair(float* data, Resolution res, Settings settings) {
-    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
-    ivec3 size = settings.getSize(res);
+DataTexturePair* createScalarDataPair(float* data, ivec3 size, float scaleFactor) {
+
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initScalarData(scaleFactor, size, data);
     return texturePair;
 }
 
-DataTexturePair* createVectorDataPair(vec3* data, Resolution res, Settings settings) {
-    float scaleFactor = 1.0f/settings.getResToSimFactor(res);
-    ivec3 size = settings.getSize(res);
+DataTexturePair* createVectorDataPair(vec3* data, ivec3 size, float scaleFactor) {
+
     DataTexturePair* texturePair = new DataTexturePair();
     texturePair->initVectorData(scaleFactor, size, data);
     return texturePair;

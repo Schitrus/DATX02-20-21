@@ -11,6 +11,7 @@
 #include <chrono>
 
 #include <android/asset_manager.h>
+#include <fire/settings.h>
 
 #include "fire/util/shader.h"
 #include "fire/util/framebuffer.h"
@@ -26,6 +27,9 @@ class RayRenderer {
 
     int texture_width, texture_height, texture_depth;
     GLint threads;
+
+    vec3 backgroundColor, filterColor;
+    vec3 colorSpace;
 
     // Framebuffers
     Framebuffer *back_FBO;
@@ -46,12 +50,23 @@ class RayRenderer {
     GLuint temperatureTexID;
     GLuint densityTexID;
 
+    // debug 3D texture
+    GLuint debugTemp;
+    GLuint debugDens;
+    ivec3 debugSize;
+
     // texture
     GLuint maxTexID;
 
     // rotation
-    double rx;
-    double ry;
+    double rx = 0.0f;
+    double ry = 0.0f;
+
+    // rotation touch
+    bool touchMode = true;
+
+    // zoom
+    float zoom  = 1.0f;
 
     // Shaders
     Shader frontFaceShader, backFaceShader, quadShader, maxCompShader;
@@ -61,13 +76,27 @@ class RayRenderer {
 
     vec3 worldUp = {0.0f, 1.0f, 0.0f};
 public:
-    int init();
+    int init(Settings* settings);
+
+    void initDebug();
+
+    int changeSettings(Settings* settings);
 
     void resize(int width, int height);
 
     void step(GLuint density, GLuint temperature, ivec3 size);
 
     void touch(double dx, double dy);
+
+    void scale(float scaleFactor, double scaleX, double scaleY);
+
+    float getZoom();
+
+    vec3 getOffset();
+
+    float getRotation();
+
+    mat4 getInverseMVP();
 
 private:
 

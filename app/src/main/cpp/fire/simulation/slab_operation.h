@@ -7,6 +7,7 @@
 
 #include <jni.h>
 #include <GLES3/gl31.h>
+#include <fire/settings.h>
 
 #include "fire/util/shader.h"
 #include "fire/util/simple_framebuffer.h"
@@ -19,6 +20,8 @@ class SlabOperation {
 
     // result // todo remove
     GLuint texcoordsBuffer;
+
+    bool doBoundary = false;
 
     // interior
     GLuint interiorVAO;
@@ -54,6 +57,8 @@ public:
 
     // Target texture is assumed to be of the same size as source
     void copy(DataTexturePair* source, GLuint target);
+
+    void boundaryMode(BoundaryType mode);
 
 private:
     void initLine();

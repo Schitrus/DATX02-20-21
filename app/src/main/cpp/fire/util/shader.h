@@ -23,11 +23,13 @@ public:
 
     GLuint program();
 
-    void uniform1i(const GLchar *name, GLint value);
+    void uniform1i(const GLchar *name, int value);
 
-    void uniform1f(const GLchar *name, GLfloat value);
+    void uniform1f(const GLchar *name, float value);
 
-    void uniform3f(const GLchar *name, ivec3 vector);
+    void uniform3f(const GLchar *name, vec3 vector);
+
+    void uniform3i(const GLchar *name, ivec3 vector);
 private:
     GLuint createShader(GLenum type, const char* src);
 

@@ -12,13 +12,14 @@
 #include <android/log.h>
 
 #include <fire/util/helper.h>
+#include <cstdlib>
 
 #define LOG_TAG "wavelet"
 #define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 
-int WaveletTurbulence::init(SlabOperation slab, Settings settings) {
+int WaveletTurbulence::init(SlabOperation* slab, Settings* settings) {
 
     srand(42);
 
@@ -47,52 +48,67 @@ int WaveletTurbulence::initShaders() {
     return success;
 }
 
-void WaveletTurbulence::initTextures(Settings settings) {
-    ivec3 lowResSize = settings.getSize(Resolution::velocity);
-    ivec3 highResSize = settings.getSize(Resolution::substance);
-    band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
-    band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+void WaveletTurbulence::initTextures(Settings* settings) {
+    ivec3 lowResSize = settings->getSize(Resolution::velocity);
+    ivec3 highResSize = settings->getSize(Resolution::substance);
 
-    texture_coord = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    energy = createScalarDataPair(nullptr, Resolution::velocity, settings);
+    float lowScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::velocity);
+    float highScaleFactor = 1.0f/settings->getResToSimFactor(Resolution::substance);
 
-    wavelet_turbulence = createVectorDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture1 = createScalarDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture2 = createScalarDataPair(nullptr, Resolution::substance, settings);
-    noiseTexture3 = createScalarDataPair(nullptr, Resolution::substance, settings);
+    custom_band_max = settings->getCustomMaxBand();
+    custom_band_min = settings->getCustomMinBand();
 
-    jacobianXTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    jacobianYTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    jacobianZTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
-    eigenTexture = createVectorDataPair(nullptr, Resolution::velocity, settings);
+    if(!custom_band_min)
+        band_min = glm::log2(min(min((float)lowResSize.x, (float)lowResSize.y), (float)lowResSize.z));
+    else
+        band_min = settings->getMinBand();
+    if(!custom_band_max)
+        band_max = glm::log2(max(max((float)highResSize.x, (float)highResSize.y), (float)highResSize.z)/2);
+    else
+        band_max = settings->getMaxBand();
 
-    advPos = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    eigenValues = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianX = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianY = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
-    jacobianZ = new vec3[lowResSize.x * lowResSize.y * lowResSize.z];
+    texture_coord = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    energy = createScalarDataPair(nullptr, lowResSize, lowScaleFactor);
+
+    wavelet_turbulence = createVectorDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture1 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture2 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
+    noiseTexture3 = createScalarDataPair(nullptr, highResSize, highScaleFactor);
+
+    jacobianXTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    jacobianYTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    jacobianZTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
+    eigenTexture = createVectorDataPair(nullptr, lowResSize, lowScaleFactor);
 
     GenerateWavelet();
 }
 
 void WaveletTurbulence::clearTextures() {
-    delete texture_coord, delete energy, delete wavelet_turbulence,
-    delete noiseTexture1, delete noiseTexture2, delete noiseTexture3,
-    delete jacobianXTexture, delete jacobianYTexture, delete jacobianZTexture,
+    delete texture_coord;
+    delete energy;
+    delete wavelet_turbulence;
+    delete noiseTexture1;
+    delete noiseTexture2;
+    delete noiseTexture3;
+    delete jacobianXTexture;
+    delete jacobianYTexture;
+    delete jacobianZTexture;
     delete eigenTexture;
 
-    delete[] advPos, delete[] eigenValues, delete[] jacobianX, delete[] jacobianY, delete[] jacobianZ;
 }
 
-int WaveletTurbulence::changeSettings(Settings settings) {
-    clearTextures();
-    initTextures(settings);
+int WaveletTurbulence::changeSettings(Settings* settings, bool shouldRegenFields) {
+
+    if(shouldRegenFields) {
+        //clearTextures();
+        initTextures(settings);
+    }
     return 1;
 }
 
 void WaveletTurbulence::GenerateWavelet(){
 
-    slab.prepare();
+    slab->prepare();
 
     LOG_INFO("band_min: %f, band_max: %f", band_min, band_max);
 
@@ -108,9 +124,9 @@ void WaveletTurbulence::GenerateWavelet(){
     noiseTexture2->bindData(GL_TEXTURE1);
     noiseTexture3->bindData(GL_TEXTURE2);
 
-    slab.interiorOperation(waveletShader, wavelet_turbulence, 0);
+    slab->interiorOperation(waveletShader, wavelet_turbulence, 0);
 
-    slab.finish();
+    slab->finish();
 
 }
 
@@ -127,7 +143,7 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         vec3* gradients = generateGradients(num_gradients);
 
         GLuint gradient_texture;
-        createVector3DTexture(&gradient_texture, ivec3(num_gradients, 1, 1), gradients);
+        createVector3DTexture(gradient_texture, ivec3(num_gradients, 1, 1), gradients);
 
         turbulenceShader.uniform1i("seed1", seed.x);
         turbulenceShader.uniform1i("seed2", seed.y);
@@ -138,9 +154,10 @@ void WaveletTurbulence::noise(DataTexturePair* noiseTexture, float band_min, flo
         noiseTexture->bindData(GL_TEXTURE0);
         bindData(gradient_texture, GL_TEXTURE1);
 
-        slab.fullOperation(turbulenceShader, noiseTexture);
+        slab->fullOperation(turbulenceShader, noiseTexture);
 
         glDeleteTextures(1, &gradient_texture);
+        delete[] gradients;
     }
 }
 
@@ -177,14 +194,14 @@ void WaveletTurbulence::advection(DataTexturePair* lowerVelocity, float dt){
 
     lowerVelocity->bindData(GL_TEXTURE0);
 
-    slab.fullOperation(textureCoordShader, texture_coord);
+    slab->fullOperation(textureCoordShader, texture_coord);
 }
 
 void WaveletTurbulence::calcEnergy(DataTexturePair* lowerVelocity){
     energyShader.use();
     energyShader.uniform1f("meterToVoxels", lowerVelocity->toVoxelScaleFactor());
     lowerVelocity->bindData(GL_TEXTURE0);
-    slab.fullOperation(energyShader, energy);
+    slab->fullOperation(energyShader, energy);
 }
 
 void WaveletTurbulence::calcJacobianCol(int axis, DataTexturePair* colTexture){
@@ -194,7 +211,7 @@ void WaveletTurbulence::calcJacobianCol(int axis, DataTexturePair* colTexture){
 
     texture_coord->bindData(GL_TEXTURE0);
 
-    slab.interiorOperation(jacobianShader, colTexture, -1);
+    slab->interiorOperation(jacobianShader, colTexture, -1);
 }
 
 void WaveletTurbulence::calcScattering() {
@@ -214,7 +231,7 @@ void WaveletTurbulence::calcScattering() {
     jacobianYTexture->bindData(GL_TEXTURE1);
     jacobianZTexture->bindData(GL_TEXTURE2);
 
-    slab.fullOperation(eigenShader, eigenTexture);
+    slab->fullOperation(eigenShader, eigenTexture);
 }
 
 void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {
@@ -227,7 +244,7 @@ void WaveletTurbulence::regenerate(DataTexturePair *lowerVelocity) {
     eigenTexture->bindData(GL_TEXTURE1);
 
 
-    slab.fullOperation(regenerateShader, texture_coord);
+    slab->fullOperation(regenerateShader, texture_coord);
 }
 
 void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTexturePair* higherVelocity){
@@ -242,5 +259,5 @@ void WaveletTurbulence::fluidSynthesis(DataTexturePair* lowerVelocity, DataTextu
     jacobianYTexture->bindData(GL_TEXTURE5);
     jacobianZTexture->bindData(GL_TEXTURE6);
 
-    slab.fullOperation(synthesisShader, higherVelocity);
+    slab->fullOperation(synthesisShader, higherVelocity);
 }

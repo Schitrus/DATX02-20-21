@@ -13,7 +13,7 @@
 #include "fire/util/shader.h"
 
 class SimulationOperations {
-    SlabOperation slab;
+    SlabOperation *slab;
 
     GLuint diffusionBLRTexture, diffusionBHRTexture;
     DataTexturePair* divergence;
@@ -21,17 +21,17 @@ class SimulationOperations {
 
     Shader temperatureShader;
     Shader divergenceShader, jacobiShader, gradientShader;
-    Shader addSourceShader, buoyancyShader, advectionShader;
+    Shader addSourceShader, buoyancyShader, advectionShader, externalForceShader;
     Shader dissipateShader, setSourceShader, windShader;
     Shader vorticityShader;
 
 public:
-    int init(SlabOperation slab, Settings settings);
+    int init(SlabOperation* slab, Settings* settings);
 
-    int changeSettings(Settings settings);
+    int changeSettings(Settings* settings, bool shouldRegenFields);
 
     // Applies buoyancy forces to velocity, based on the temperature
-    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, float scale, float dt);
+    void buoyancy(DataTexturePair* velocity, DataTexturePair* temperature, vec3 direction,  float scale, float dt);
 
     // Performs advection on the given data
     // The data and the velocity should use the same resolution for the shader to work correctly
@@ -41,7 +41,7 @@ public:
     void heatDissipation(DataTexturePair* temperature, float dt);
 
     // Adds the given source field multiplied by dt to the target field
-    void addSource(DataTexturePair* data, GLuint& source, SourceMode mode, float dt);
+    void addSource(DataTexturePair* data, GLuint source, SourceMode mode, float dt);
 
     void dissipate(DataTexturePair* data, float dissipationRate, float dt);
 
@@ -56,11 +56,13 @@ public:
 
     void addWind(DataTexturePair* velocity, float wind_angle, float wind_strength, float dt);
 
+    void externalForce(DataTexturePair* velocity, GLuint& force, float dt);
+
 private:
 
     int initShaders();
 
-    void initTextures(Settings settings);
+    void initTextures(Settings* settings);
 
     void clearTextures();
 
